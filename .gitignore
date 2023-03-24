@@ -12,7 +12,6 @@ hs_err_pid*
 /HELP.md
 /mvnw
 /mvnw.cmd
-/pom.xml
 out/
 target/
 !.mvn/wrapper/maven-wrapper.jar
