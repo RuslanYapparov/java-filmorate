@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserValidator;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
+import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
-public class UserValidatorTest {
+public class UserEmailAndNameValidatorTest {
     private static User user = User.builder()
             .id(0)
             .email("sexmaster96@gmail.com")
@@ -23,8 +23,8 @@ public class UserValidatorTest {
 
     @Test
     public void shouldCheckValidUserWithEmptyEmailListAndListWithoutDuplicates() {
-        UserValidator.checkUsersEmailForDuplication(user, Collections.emptyList());
-        UserValidator.checkUsersEmailForDuplication(user, List.of(
+        UserEmailAndNameValidator.checkUserBeforeSaving(user, Collections.emptyList());
+        UserEmailAndNameValidator.checkUserBeforeSaving(user, List.of(
                 User.builder().id(1).email("sexmaster97@gmail.com").login("tecktonick_killer").name("Владимир").
                         birthday(LocalDate.of(1996, 12, 12)).build(),
                 User.builder().id(2).email("sosiska").login("tecktonick_killer").name("Владимир").
@@ -35,7 +35,7 @@ public class UserValidatorTest {
 
     @Test
     public void shouldThrowExceptionWhenCheckWithListWithDuplicates() {
-        assertThrows(ValidationException.class, () -> UserValidator.checkUsersEmailForDuplication(user, List.of(
+        assertThrows(UserValidationException.class, () -> UserEmailAndNameValidator.checkUserBeforeSaving(user, List.of(
                 User.builder().id(1).email("sexmaster97@gmail.com").login("tecktonick_killer").name("Владимир").
                         birthday(LocalDate.of(1996, 12, 12)).build(),
                 User.builder().id(2).email("sexmaster96@gmail.com").login("tecktonick_killer").name("Владимир").
@@ -46,7 +46,7 @@ public class UserValidatorTest {
 
     @Test
     public void shouldReturnPreviousUserWhenCheckNotNullAndNotBlankName() {
-        User checkedUser = UserValidator.checkUserNameAndReturnValidUser(user);
+        User checkedUser = UserEmailAndNameValidator.getUserWithCheckedName(user);
         assertEquals(user, checkedUser);
     }
 
@@ -61,10 +61,10 @@ public class UserValidatorTest {
                 .login("tecktonick_killer")
                 .birthday(LocalDate.of(1996, 12, 12))
                 .build();
-        user1 = UserValidator.checkUserNameAndReturnValidUser(user1);
-        user2 = UserValidator.checkUserNameAndReturnValidUser(user2);
-        user3 = UserValidator.checkUserNameAndReturnValidUser(user3);
-        user4 = UserValidator.checkUserNameAndReturnValidUser(user4);
+        user1 = UserEmailAndNameValidator.getUserWithCheckedName(user1);
+        user2 = UserEmailAndNameValidator.getUserWithCheckedName(user2);
+        user3 = UserEmailAndNameValidator.getUserWithCheckedName(user3);
+        user4 = UserEmailAndNameValidator.getUserWithCheckedName(user4);
         user = user.toBuilder().name(user.getLogin()).build();
         assertEquals(user, user1);
         assertEquals(user, user2);

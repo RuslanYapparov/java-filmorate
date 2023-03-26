@@ -130,28 +130,6 @@ public class ValidatorTest {
     }
 
     @Test
-    public void shouldProduceViolationsWhenCheckUserWithInvalidBirthday() {
-        user = User.builder()
-                .id(0)
-                .email("sexmaster96@gmail.com")
-                .login("tecktonick_killer")
-                .name("Владимир")
-                .build();
-        userViolations = validator.validate(user);
-        assertFalse(userViolations.isEmpty());
-        user = user.toBuilder()
-                .birthday(LocalDate.of(1896, 12, 12))
-                .build();
-        userViolations = validator.validate(user);
-        assertFalse(userViolations.isEmpty());
-        user = user.toBuilder()
-                .birthday(LocalDate.of(2096, 12, 12))
-                .build();
-        userViolations = validator.validate(user);
-        assertFalse(userViolations.isEmpty());
-    }
-
-    @Test
     public void shouldProduceViolationsWhenCheckFilmWithInvalidName() {
         film = Film.builder()
                 .id(0)

@@ -1,8 +1,9 @@
 package ru.yandex.practicum.filmorate.controller;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -10,19 +11,15 @@ import java.util.*;
 import ru.yandex.practicum.filmorate.exception.StorageManagementException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.InMemoryStorage;
-import ru.yandex.practicum.filmorate.service.InMemoryStorageImpl;
 
+
+@Validated
 @RestController
 @RequestMapping("/films")
 @lombok.extern.slf4j.Slf4j
+@lombok.AllArgsConstructor
 public class FilmController {
-    // Комментарии c рассуждениями о работе контроллеров представлены в комментариях класса UserController
     private final InMemoryStorage<Film> filmData;
-
-    @Autowired
-    private FilmController() {
-        this.filmData = new InMemoryStorageImpl<>();
-    }
 
     @GetMapping
     public ResponseEntity<List<Film>> getAllFilms() {
@@ -31,17 +28,12 @@ public class FilmController {
         return ResponseEntity.ok(filmData.getAll());
     }
 
-    @GetMapping("{filmId}")
-    public ResponseEntity<Film> getFilmById(@PathVariable String filmId) {
-        try {
-            int id = Integer.parseInt(filmId.replace("id", ""));
-            Film film = filmData.getById(id);
-            log.debug("Запрошены данные о фильме с идентификатором {}. Данные найдены и отправлены клиенту", id);
-            return ResponseEntity.ok(film);
-        } catch (StorageManagementException | NumberFormatException exception) {
-            log.debug("Запрошен данные о фильме с идентификатором {}. Фильм не найден", filmId);
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("{id}")
+    public ResponseEntity<Film> getFilmById(@PathVariable(name = "id") @Positive int id)
+            throws StorageManagementException {
+        Film film = filmData.getById(id);
+        log.debug("Запрошены данные о фильме с идентификатором {}. Данные найдены и отправлены клиенту", id);
+        return ResponseEntity.ok(film);
     }
 
     @PostMapping
@@ -54,15 +46,10 @@ public class FilmController {
     }
 
     @PutMapping
-    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
-        try {
-            filmData.update(film.getId(), film);
-            log.debug("Обновлены данные фильма '{}'. Идентификатор фильма: {}", film.getName(), film.getId());
-            return ResponseEntity.ok().body(film);
-        } catch (StorageManagementException exception) {
-            log.debug("Попытка обновления данных фильма не удалась. Причина: {}", exception.getMessage());
-            return ResponseEntity.internalServerError().body(film);
-        }
+    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) throws StorageManagementException {
+        filmData.update(film.getId(), film);
+        log.debug("Обновлены данные фильма '{}'. Идентификатор фильма: {}", film.getName(), film.getId());
+        return ResponseEntity.ok().body(film);
     }
 
     @DeleteMapping
@@ -72,17 +59,12 @@ public class FilmController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{filmId}")
-    public ResponseEntity<Film> deleteFilmById(@PathVariable String filmId) {
-        try {
-            int id = Integer.parseInt(filmId.replace("id",""));
-            Film film = filmData.deleteById(id);
-            log.debug("Запрошено удаление фильма с идентификатором {}. Данные о фильме удалены", id);
-            return ResponseEntity.ok(film);
-        } catch (StorageManagementException | NumberFormatException exception) {
-            log.debug("Запрошено удаление данных о фильме с идентификатором {}. Данные не найдены", filmId);
-            return ResponseEntity.notFound().build();
-        }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Film> deleteFilmById(@PathVariable(name = "id") @Positive int id)
+            throws StorageManagementException {
+        Film film = filmData.deleteById(id);
+        log.debug("Запрошено удаление фильма с идентификатором {}. Данные о фильме удалены", id);
+        return ResponseEntity.ok(film);
     }
 
 }

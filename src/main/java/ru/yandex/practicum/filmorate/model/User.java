@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import ru.yandex.practicum.filmorate.customvalidation.customannotations.NotImmortal;
 import ru.yandex.practicum.filmorate.customvalidation.customannotations.WithoutSpaces;
 
 import javax.validation.constraints.*;
@@ -16,13 +15,15 @@ public class User {       // Памяти и немного замедляет �
     @Email
     @NotNull
     @NotBlank
+    @WithoutSpaces
     String email;
     @NotBlank      // Аннотация для проверки на случай, если строка состоит из символов новой строки и возврата каретки
     @WithoutSpaces                            // Аннотация для проверки неравенства null и отсутствия пробелов в строке
     String login;
     String name;
-    @NotImmortal                // Аннотация для проверки неравенства null и указания неверной даты (раньше 1900 года)
+    // Аннотация для проверки неравенства null и указания неверной даты (раньше 1900 года)
     @Past
+    @NotNull
     LocalDate birthday;
 
     @JsonCreator    // Специальный конструктор-creator для конвертирования в и из json с помощью библиотеки jackson

@@ -1,14 +1,13 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.impl;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.StorageManagementException;
+import ru.yandex.practicum.filmorate.service.InMemoryStorage;
 
-@Service
 public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
     private int idCounter;
     private final Map<Integer, T> dataMap = new HashMap<>();
