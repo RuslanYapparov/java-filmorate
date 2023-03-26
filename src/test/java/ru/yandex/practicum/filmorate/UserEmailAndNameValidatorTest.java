@@ -25,23 +25,23 @@ public class UserEmailAndNameValidatorTest {
     public void shouldCheckValidUserWithEmptyEmailListAndListWithoutDuplicates() {
         UserEmailAndNameValidator.checkUserBeforeSaving(user, Collections.emptyList());
         UserEmailAndNameValidator.checkUserBeforeSaving(user, List.of(
-                User.builder().id(1).email("sexmaster97@gmail.com").login("tecktonick_killer").name("Владимир").
-                        birthday(LocalDate.of(1996, 12, 12)).build(),
-                User.builder().id(2).email("sosiska").login("tecktonick_killer").name("Владимир").
-                        birthday(LocalDate.of(1996, 12, 12)).build(),
-                User.builder().id(3).email("sugaronsand@yandex.ru").login("tecktonick_killer").name("Владимир").
-                        birthday(LocalDate.of(1996, 12, 12)).build()));
+                User.builder().id(1).email("sexmaster97@gmail.com").login("tecktonick_killer").name("Владимир")
+                        .birthday(LocalDate.of(1996, 12, 12)).build(),
+                User.builder().id(2).email("sosiska").login("tecktonick_killer").name("Владимир")
+                        .birthday(LocalDate.of(1996, 12, 12)).build(),
+                User.builder().id(3).email("sugaronsand@yandex.ru").login("tecktonick_killer").name("Владимир")
+                        .birthday(LocalDate.of(1996, 12, 12)).build()));
     }
 
     @Test
     public void shouldThrowExceptionWhenCheckWithListWithDuplicates() {
         assertThrows(UserValidationException.class, () -> UserEmailAndNameValidator.checkUserBeforeSaving(user, List.of(
-                User.builder().id(1).email("sexmaster97@gmail.com").login("tecktonick_killer").name("Владимир").
-                        birthday(LocalDate.of(1996, 12, 12)).build(),
-                User.builder().id(2).email("sexmaster96@gmail.com").login("tecktonick_killer").name("Владимир").
-                        birthday(LocalDate.of(1996, 12, 12)).build(),
-                User.builder().id(3).email("sugaronsand@yandex.ru").login("tecktonick_killer").name("Владимир").
-                        birthday(LocalDate.of(1996, 12, 12)).build())));
+                User.builder().id(1).email("sexmaster97@gmail.com").login("tecktonick_killer").name("Владимир")
+                        .birthday(LocalDate.of(1996, 12, 12)).build(),
+                User.builder().id(2).email("sexmaster96@gmail.com").login("tecktonick_killer").name("Владимир")
+                        .birthday(LocalDate.of(1996, 12, 12)).build(),
+                User.builder().id(3).email("sugaronsand@yandex.ru").login("tecktonick_killer").name("Владимир")
+                        .birthday(LocalDate.of(1996, 12, 12)).build())));
     }
 
     @Test
