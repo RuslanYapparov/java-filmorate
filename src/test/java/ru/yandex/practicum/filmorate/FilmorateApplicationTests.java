@@ -114,9 +114,9 @@ class FilmorateApplicationTests {
 		response = client.send(request, BODY_HANDLER);
 		User[] usersFromServer = jackson.readValue(response.body(), User[].class);
 		assertEquals(1, usersFromServer.length);
-		assertEquals(User.builder().id(usersFromServer[0].getId()).email("sexmaster96@gmail.com").
-				login("tecktonick_killer").name("Владимир").
-				birthday(LocalDate.of(1996, 12, 12)).build(), usersFromServer[0]);
+		assertEquals(User.builder().id(usersFromServer[0].getId()).email("sexmaster96@gmail.com")
+				.login("tecktonick_killer").name("Владимир")
+				.birthday(LocalDate.of(1996, 12, 12)).build(), usersFromServer[0]);
 
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -149,8 +149,8 @@ class FilmorateApplicationTests {
 
 	@Test
 	void shouldNotPostUserWithDuplicatedEmail() throws IOException, InterruptedException {
-		user = user.toBuilder().login("tapochek").name("Роман").
-				birthday(LocalDate.of(1985, 12,21)).build();
+		user = user.toBuilder().login("tapochek").name("Роман")
+				.birthday(LocalDate.of(1985, 12,21)).build();
 		String userJson = jackson.writeValueAsString(user);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
