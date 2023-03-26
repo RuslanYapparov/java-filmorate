@@ -56,7 +56,7 @@ public class UserController {
         userData.save(idForUser, user);
         log.debug("Сохранен новый пользователь с логином '{}'. Присвоен идентификатор {}",
                     user.getLogin(), idForUser);
-        return ResponseEntity.ok().body(user);        
+        return ResponseEntity.ok().body(user);
     }
 
     @PutMapping
