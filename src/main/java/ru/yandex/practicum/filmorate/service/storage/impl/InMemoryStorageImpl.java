@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service.impl;
+package ru.yandex.practicum.filmorate.service.storage.impl;
 
 import java.util.HashMap;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import ru.yandex.practicum.filmorate.exception.StorageManagementException;
-import ru.yandex.practicum.filmorate.service.InMemoryStorage;
+import ru.yandex.practicum.filmorate.service.storage.InMemoryStorage;
 
 public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
     private int idCounter;

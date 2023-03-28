@@ -11,7 +11,7 @@ public class UserEmailAndNameValidator {
     public static User checkUserBeforeSaving(User user, List<User> savedUsers) throws UserValidationException {
         String[] emailElements = user.getEmail().split("@");
         if (!emailElements[1].contains(".")) {
-            throw new UserValidationException("Пользователь с таким адресом электронной почты уже был сохранен");
+            throw new UserValidationException("Неправильный формат адреса электронной почты");
         }
         List<String> savedUserEmails = savedUsers.stream().map(User::getEmail).collect(Collectors.toList());
         if (savedUserEmails.contains(user.getEmail())) {

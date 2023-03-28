@@ -7,22 +7,20 @@ import ru.yandex.practicum.filmorate.customvalidation.customannotations.WithoutS
 import javax.validation.constraints.*;
 import java.time.LocalDate;
 
-@lombok.Value     // Мне кажется, экземпляры дата-классов по логике должны быть immutable-объектами, поэтому использую
-@lombok.Builder(toBuilder = true)   // Данные аннотации в связке. Это вызывает дополнительные издержки в использовании
-public class User {       // Памяти и немного замедляет работу, но гарантирует, что поля не будут неожиданно изменены.
+@lombok.Value
+@lombok.Builder(toBuilder = true)
+public class User {
     @PositiveOrZero
     int id;
     @Email
     @NotNull
     @NotBlank
-    @WithoutSpaces
     String email;
     @NotBlank      // Аннотация для проверки на случай, если строка состоит из символов новой строки и возврата каретки
     @WithoutSpaces                            // Аннотация для проверки неравенства null и отсутствия пробелов в строке
     String login;
     String name;
-    // Аннотация для проверки неравенства null и указания неверной даты (раньше 1900 года)
-    @Past
+    @PastOrPresent
     @NotNull
     LocalDate birthday;
 

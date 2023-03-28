@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.storage;
 
 import java.util.List;
 // Приложение позволяет хранить валидные объекты двух типов. Для хранения данных в RAM используется HashMap

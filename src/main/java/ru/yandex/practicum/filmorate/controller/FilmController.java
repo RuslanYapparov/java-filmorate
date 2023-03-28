@@ -10,14 +10,13 @@ import java.util.*;
 
 import ru.yandex.practicum.filmorate.exception.StorageManagementException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.InMemoryStorage;
-
+import ru.yandex.practicum.filmorate.service.storage.InMemoryStorage;
 
 @Validated
 @RestController
 @RequestMapping("/films")
 @lombok.extern.slf4j.Slf4j
-@lombok.AllArgsConstructor
+@lombok.RequiredArgsConstructor
 public class FilmController {
     private final InMemoryStorage<Film> filmData;
 
@@ -47,9 +46,6 @@ public class FilmController {
 
     @PutMapping
     public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) throws StorageManagementException {
-        if (film.getId() == 9999) {   // Костыль для прохождения теста в Postman (требуется при проверке в GitHub)
-            return ResponseEntity.internalServerError().body(film);        // После добавления обработки исключений
-        }                                                               // C помощью класса FilmorateExceptionAdvice
         filmData.update(film.getId(), film);
         log.debug("Обновлены данные фильма '{}'. Идентификатор фильма: {}", film.getName(), film.getId());
         return ResponseEntity.ok().body(film);

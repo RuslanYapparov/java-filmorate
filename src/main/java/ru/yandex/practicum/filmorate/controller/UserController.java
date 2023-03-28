@@ -13,14 +13,14 @@ import ru.yandex.practicum.filmorate.exception.StorageManagementException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
-import ru.yandex.practicum.filmorate.service.InMemoryStorage;
+import ru.yandex.practicum.filmorate.service.storage.InMemoryStorage;
 
-@Validated   /* Аннотация для реализации валидации указанных в пути запросов идентификаторов
+@Validated   /* Аннотация для реализации валидации идентификаторов, указанных в пути запроса
 * (для методов getUserBuId и deleteUserBuId)  */
 @RestController
 @RequestMapping("/users")
 @lombok.extern.slf4j.Slf4j
-@lombok.AllArgsConstructor
+@lombok.RequiredArgsConstructor
 public class UserController {
     private final InMemoryStorage<User> userData;
 
@@ -46,10 +46,6 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<User> saveNewUser(@Valid @RequestBody User user) throws UserValidationException {
-        /* Валидация пользователей реализована с помощью аннотаций (в том числе, собственных), но для полей email
-        * и name есть особые условия проверки, для которых не придуммал способ реализации через аннотации.
-        * Поэтому вывел валидацию непроверяемых аннотациями условий в отдельный утилитарный класс
-        * UserEmailAndNameValidator (в папке customvalidators) */
         user = UserEmailAndNameValidator.checkUserBeforeSaving(user, userData.getAll());
         int idForUser = userData.produceId();
         user = user.toBuilder().id(idForUser).build();
@@ -60,10 +56,6 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<User> updateUser(@Valid @RequestBody User user) throws StorageManagementException {
-        user = UserEmailAndNameValidator.getUserWithCheckedName(user);
-        if (user.getId() == 9999) {   // Костыль для прохождения теста в Postman (требуется при проверке в GitHub)
-            return ResponseEntity.internalServerError().body(user);       // После добавления обработки исключений
-        }                                                               // C помощью класса FilmorateExceptionAdvice
         userData.update(user.getId(), user);
         log.debug("Обновлены данные пользователя с логином '{}'. Идентификатор пользователя: {}", user.getLogin(),
                     user.getId());

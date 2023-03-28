@@ -5,8 +5,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import ru.yandex.practicum.filmorate.exception.StorageManagementException;
-import ru.yandex.practicum.filmorate.service.InMemoryStorage;
-import ru.yandex.practicum.filmorate.service.impl.InMemoryStorageImpl;
+import ru.yandex.practicum.filmorate.service.storage.InMemoryStorage;
+import ru.yandex.practicum.filmorate.service.storage.impl.InMemoryStorageImpl;
 
 import java.util.ArrayList;
 

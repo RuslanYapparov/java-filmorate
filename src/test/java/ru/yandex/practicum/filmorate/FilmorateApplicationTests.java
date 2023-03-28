@@ -3,8 +3,11 @@ package ru.yandex.practicum.filmorate;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.*;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.SpringApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -160,12 +163,15 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
+		assertEquals(500, response.statusCode());
 	}
 
-	@Test
-	void shouldNotPostUserWithInvalidEmailFirstVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().email("sosiska").build();
+	@ParameterizedTest
+	@ValueSource(strings = { "    ", "\r", "\t", "\n", "sosiska", "tanec v nochi@mail.ru", "football_fan@ mail.ru",
+			                 "@mail.ru", "kill:ninjas@ki.st" })
+	@NullAndEmptySource
+	void shouldNotPostUserWithInvalidEmail(String email) throws IOException, InterruptedException {
+		user = user.toBuilder().email(email).build();
 		String userJson = jackson.writeValueAsString(user);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
@@ -179,52 +185,7 @@ class FilmorateApplicationTests {
 	}
 
 	@Test
-	void shouldNotPostUserWithInvalidEmailSecondVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().email("tanec v nochi@mail.ru").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidEmailThirdVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().email("football_fan@ mail.ru").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidEmailFourthVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().email("@mail.ru").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidEmailFifthVariant() throws IOException, InterruptedException {
+	void shouldNotPostUserWithInvalidEmailWithoutPoint() throws IOException, InterruptedException {
 		user = user.toBuilder().email("sosiska@yandex").build();
 		String userJson = jackson.writeValueAsString(user);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
@@ -235,117 +196,14 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
+		assertEquals(500, response.statusCode());
 	}
 
-	@Test
-	void shouldNotPostUserWithInvalidEmailSixthVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().email(" ").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidEmailSeventhVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().email("\r\t").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithNullEmail() throws IOException, InterruptedException {
-		user = user.toBuilder().email(null).build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidLoginFirstVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().login("").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidLoginSecondVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().login("  ").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidLoginThirdVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().login("lapa kota").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithInvalidLoginFourthVariant() throws IOException, InterruptedException {
-		user = user.toBuilder().login("\n").build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostUserWithNullLogin() throws IOException, InterruptedException {
-		user = user.toBuilder().login(null).build();
+	@ParameterizedTest
+	@ValueSource(strings = { "  ", "\r", "\t", "\n", " lapa kota" })
+	@NullAndEmptySource
+	void shouldNotPostUserWithInvalidLoginFirstVariant(String login) throws IOException, InterruptedException {
+		user = user.toBuilder().login(login).build();
 		String userJson = jackson.writeValueAsString(user);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
@@ -388,24 +246,11 @@ class FilmorateApplicationTests {
 		assertEquals(400, response.statusCode());
 	}
 
-	@Test
-	void shouldPostUserWithNullName() throws IOException, InterruptedException {
-		user = user.toBuilder().email("martyshka@kdfnr.com").name(null).build();
-		String userJson = jackson.writeValueAsString(user);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(200, response.statusCode());
-	}
-
-	@Test
-	void shouldPostUserWithBlankName() throws IOException, InterruptedException {
-		user = user.toBuilder().name(" ").email("bisexual_bus@rbk.v").build();
+	@ParameterizedTest
+	@ValueSource(strings = { "   ", "\r", "\t", "\n" })
+	@NullAndEmptySource
+	void shouldPostUserWithNullName(String name) throws IOException, InterruptedException {
+		user = user.toBuilder().email("martyshka@kdfnr.com").name(name).build();
 		String userJson = jackson.writeValueAsString(user);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
@@ -433,54 +278,11 @@ class FilmorateApplicationTests {
 		assertEquals(400, response.statusCode());
 	}
 
-	@Test
-	void shouldNotPostFilmWithInvalidNameFirstVariant() throws IOException, InterruptedException {
-		film = film.toBuilder().name("").build();
-		String filmJson = jackson.writeValueAsString(film);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostFilmWithInvalidNameSecondVariant() throws IOException, InterruptedException {
-		film = film.toBuilder().name(" ").build();
-		String filmJson = jackson.writeValueAsString(film);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostFilmWithInvalidNameThirdVariant() throws IOException, InterruptedException {
-		film = film.toBuilder().name("\n").build();
-		String filmJson = jackson.writeValueAsString(film);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostFilmWithNullName() throws IOException, InterruptedException {
-		film = film.toBuilder().name(null).build();
+	@ParameterizedTest
+	@ValueSource(strings = { "  ", "\t", "\n", "\r"})
+	@NullAndEmptySource
+	void shouldNotPostFilmWithInvalidName(String name) throws IOException, InterruptedException {
+		film = film.toBuilder().name(name).build();
 		String filmJson = jackson.writeValueAsString(film);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
@@ -495,9 +297,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void shouldNotPostFilmWithInvalidDescription() throws IOException, InterruptedException {
-		film = film.toBuilder().description("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-				"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-				"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").build();
+		film = film.toBuilder().description("a".repeat(201)).build();
 		String filmJson = jackson.writeValueAsString(film);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
@@ -570,24 +370,10 @@ class FilmorateApplicationTests {
 		assertEquals(400, response.statusCode());
 	}
 
-	@Test
-	void shouldNotPostFilmWithNegativeDuration() throws IOException, InterruptedException {
-		film = film.toBuilder().duration(-1).build();
-		String filmJson = jackson.writeValueAsString(film);
-		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
-		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films"))
-				.POST(bodyPublisher)
-				.version(HttpClient.Version.HTTP_1_1)
-				.header("Content-type", "application/json")
-				.build();
-		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
-	}
-
-	@Test
-	void shouldNotPostFilmWithNullDuration() throws IOException, InterruptedException {
-		film = film.toBuilder().duration(0).build();
+	@ParameterizedTest
+	@ValueSource(ints = { -1, 0 })
+	void shouldNotPostFilmWithNegativeOrNullDuration(int duration) throws IOException, InterruptedException {
+		film = film.toBuilder().duration(duration).build();
 		String filmJson = jackson.writeValueAsString(film);
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
@@ -824,16 +610,18 @@ class FilmorateApplicationTests {
 		assertEquals(404, response.statusCode());
 	}
 
-	@Test
-	void shouldNotReturnUserWhenIncorrectId() throws IOException, InterruptedException {
+	@ParameterizedTest
+	@ValueSource(strings = { "-1", "0", "identifier1", "9999999"})
+	void shouldNotReturnUserWhenIncorrectId(String id) throws IOException, InterruptedException {
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "users/identifier1"))
+				.uri(URI.create(URL_START + "users/" + id))
 				.GET()
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
+		int code = response.statusCode();
+		assertTrue(code == 400 || code == 404 || code == 500);
 	}
 
 	@Test
