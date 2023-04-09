@@ -78,7 +78,7 @@ public class UserTest {
                 .birthday(LocalDate.of(1996, 12, 12))
                 .build();
         assertEquals("User(id=0, email=sexmaster96@gmail.com, login=tecktonick_killer, name=Владимир, " +
-                "birthday=1996-12-12)", user1.toString());
+                "birthday=1996-12-12, friends=[])", user1.toString());
     }
 
 }

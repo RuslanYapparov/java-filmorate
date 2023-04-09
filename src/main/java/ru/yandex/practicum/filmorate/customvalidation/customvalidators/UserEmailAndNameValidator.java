@@ -1,12 +1,18 @@
 package ru.yandex.practicum.filmorate.customvalidation.customvalidators;
 
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import org.springframework.stereotype.Component;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.model.User;
+
+@Component
 public class UserEmailAndNameValidator {
+    private static final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     public static User checkUserBeforeSaving(User user, List<User> savedUsers) throws UserValidationException {
         String[] emailElements = user.getEmail().split("@");

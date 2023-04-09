@@ -78,7 +78,7 @@ public class FilmTest {
                 .duration(127)
                 .build();
         assertEquals("Film(id=0, name=Whores & whales, description=Adventures of women in whales world, " +
-                "releaseDate=1996-12-12, duration=127)", film1.toString());
+                "releaseDate=1996-12-12, duration=127, likes=[])", film1.toString());
     }
 
 }
