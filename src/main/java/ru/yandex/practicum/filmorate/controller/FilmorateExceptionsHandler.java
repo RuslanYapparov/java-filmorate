@@ -98,7 +98,7 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
         String message = exception.getMessage();
         ErrorResponse error;
         log.warn(message);
-        if (message.contains("должно быть больше")) {
+        if (message.contains("должно быть больше") || message.contains("must be greater")) {
         // Опять костыль, чтобы пройти тест в Postman (на эту ошибку ожидает код статуса 404, хотя логично бы было 400)
             error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "ConstraintViolationException", message);
         } else {

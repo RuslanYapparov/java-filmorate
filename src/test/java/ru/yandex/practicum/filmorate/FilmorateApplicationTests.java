@@ -948,7 +948,7 @@ class FilmorateApplicationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "999" })
+	@ValueSource(strings = { "0", "-1", "999" })
 	void shouldReturn404CodeWhenGetIncorrectId(String id) throws IOException, InterruptedException {
 		bodyPublisher = HttpRequest.BodyPublishers.ofString("");
 		request = HttpRequest.newBuilder()
