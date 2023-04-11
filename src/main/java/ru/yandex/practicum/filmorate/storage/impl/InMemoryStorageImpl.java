@@ -34,9 +34,9 @@ public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
     }
 
     @Override
-    public T getById(long id) throws ObjectNotFoundInStorageException {
-        if (dataMap.containsKey(id)) {
-            return dataMap.get(id);
+    public T getById(long objectId) throws ObjectNotFoundInStorageException {
+        if (dataMap.containsKey(objectId)) {
+            return dataMap.get(objectId);
         } else {
             throw new ObjectNotFoundInStorageException("Объект с указанным идентификатором не был сохранен");
         }
@@ -48,9 +48,9 @@ public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
     }
 
     @Override
-    public T deleteById(long id) throws ObjectNotFoundInStorageException {
-        if (dataMap.containsKey(id)) {
-            return dataMap.remove(id);
+    public T deleteById(long objectId) throws ObjectNotFoundInStorageException {
+        if (dataMap.containsKey(objectId)) {
+            return dataMap.remove(objectId);
         } else {
             throw new ObjectNotFoundInStorageException("Объект с указанным идентификатором не был сохранен");
         }

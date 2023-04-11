@@ -49,55 +49,64 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException exception,
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request) {
-        ErrorResponseView error = new ErrorResponseView(status.value(),"HttpMessageNotReadableException", ex.getMessage());
+        ErrorResponseView error = new ErrorResponseView(status.value(),"HttpMessageNotReadableException",
+                exception.getMessage());
         return new ResponseEntity<>(error, status);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception,
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request) {
-        List<String> errors = ex.getBindingResult()
+        List<String> errors = exception.getBindingResult()
                 .getFieldErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        ErrorResponseView error = new ErrorResponseView(status.value(),"MethodArgumentNotValidException", ex.getMessage());
+        ErrorResponseView error = new ErrorResponseView(status.value(),"MethodArgumentNotValidException",
+                exception.getMessage());
         error.setErrors(errors);
         log.warn(error.getException() + error.getErrors());
         return new ResponseEntity<>(error, status);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    protected ResponseEntity<ErrorResponseView> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+    protected ResponseEntity<ErrorResponseView> handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException exception) {
         ErrorResponseView error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(),
                 "MethodArgumentTypeMismatchException",
                 String.format("The parameter '%s' of value '%s' could not be converted to type '%s'. Cause: %s",
-                        ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName(), ex.getMessage()));
-        log.warn(error.getException(), error.getDebugMessage());
+                        exception.getName(),
+                        exception.getValue(),
+                        exception.getRequiredType().getSimpleName(),
+                        exception.getMessage()));
+        log.warn(error.getException() + error.getDebugMessage());
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
-                                                                   HttpStatus status, WebRequest request) {
+    protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException exception,
+                                                                   HttpHeaders headers,
+                                                                   HttpStatus status,
+                                                                   WebRequest request) {
         ErrorResponseView error = new ErrorResponseView(status.value(),
                 "NoHandlerFoundException",
-                ex.getMessage());
+                exception.getMessage());
         log.warn(error.getException(), error.getDebugMessage());
         return new ResponseEntity<>(error, status);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponseView> handleConstraintViolationException(ConstraintViolationException exception) {
+    public ResponseEntity<ErrorResponseView> handleConstraintViolationException(
+            ConstraintViolationException exception) {
         String message = exception.getMessage();
         ErrorResponseView error;
-        log.warn(message);
+        log.warn(exception.toString());
         if (message.contains("должно быть больше") || message.contains("must be greater")) {
         // Опять костыль, чтобы пройти тест в Postman (на эту ошибку ожидает код статуса 404, хотя логично бы было 400)
             error = new ErrorResponseView(HttpStatus.NOT_FOUND.value(), "ConstraintViolationException", message);
@@ -105,6 +114,14 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
             error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "ConstraintViolationException", message);
         }
         return new ResponseEntity<>(error, HttpStatus.valueOf(error.getStatusCode()));
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseView handleAnotherUnhandledException(RuntimeException exception) {
+        log.warn(exception.getClass().toString() + ": " + exception.getMessage());
+        return new ErrorResponseView(HttpStatus.INTERNAL_SERVER_ERROR.value(), exception.getClass().toString(),
+                exception.getMessage());
     }
 
 }

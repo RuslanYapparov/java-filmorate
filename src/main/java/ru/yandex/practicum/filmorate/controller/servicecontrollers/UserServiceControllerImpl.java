@@ -20,10 +20,10 @@ public class UserServiceControllerImpl implements UserServiceController {
 
     @Override
     @GetMapping
-    public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long id)
+    public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        log.debug("Запрошен список друзей пользователя с id" + id);
-        return service.getUsersFriendsSet(id);
+        log.debug("Запрошен список друзей пользователя с id" + userId);
+        return service.getUsersFriendsSet(userId);
     }
 
     @Override

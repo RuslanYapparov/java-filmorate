@@ -81,6 +81,7 @@ public class ValidatorTest {
                 .email(email)
                 .build();
         userViolations = validator.validate(createCommandObjectForTest(user));
+        System.out.println(userViolations);
         assertFalse(userViolations.isEmpty());
     }
 

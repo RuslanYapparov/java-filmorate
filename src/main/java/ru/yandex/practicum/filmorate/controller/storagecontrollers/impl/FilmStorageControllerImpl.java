@@ -34,9 +34,9 @@ public class FilmStorageControllerImpl implements FilmStorageController {
 
     @Override
     @GetMapping("{film_id}")
-    public FilmRestView getOneById(@PathVariable(value = "film_id") @Positive long id)
+    public FilmRestView getOneById(@PathVariable(value = "film_id") @Positive long filmId)
             throws ObjectNotFoundInStorageException {
-        Film film = filmData.getById(id);
+        Film film = filmData.getById(filmId);
         log.debug("Запрошен фильм с идентификатором {}. Фильм найден и отправлен клиенту", film.getId());
         return FilmObjectConverter.toRestView(film);
     }
@@ -70,10 +70,10 @@ public class FilmStorageControllerImpl implements FilmStorageController {
 
     @Override
     @DeleteMapping("{film_id}")
-    public FilmRestView deleteOneById(@PathVariable(value = "film_id") @Positive long id)
+    public FilmRestView deleteOneById(@PathVariable(value = "film_id") @Positive long filmId)
             throws ObjectNotFoundInStorageException {
-        Film film = filmData.deleteById(id);
-        log.debug("Запрошено удаление фильма с идентификатором {}. Фильм удален", id);
+        Film film = filmData.deleteById(filmId);
+        log.debug("Запрошено удаление фильма с идентификатором {}. Фильм удален", filmId);
         return FilmObjectConverter.toRestView(film);
     }
 

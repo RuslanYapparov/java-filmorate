@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
         User user = users.getById(userId);
         User friend = users.getById(friendId);
         return user.getFriends().stream()
-                .filter(id -> friend.getFriends().contains(id))
+                .filter(fiendId -> friend.getFriends().contains(fiendId))
                 .map(users::getById)
                 .map(UserObjectConverter::toRestView)
                 .collect(Collectors.toList());

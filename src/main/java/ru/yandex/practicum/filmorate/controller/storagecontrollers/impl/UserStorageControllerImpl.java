@@ -38,9 +38,9 @@ public class UserStorageControllerImpl implements UserStorageController {
 
     @Override
     @GetMapping("{user_id}")
-    public UserRestView getOneById(@PathVariable(value = "user_id") @Positive long id)
+    public UserRestView getOneById(@PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        User user = userData.getById(id);
+        User user = userData.getById(userId);
         log.debug("Запрошен пользователь с идентификатором {}. Пользователь найден и отправлен клиенту", user.getId());
         return UserObjectConverter.toRestView(user);
     }
@@ -73,10 +73,10 @@ public class UserStorageControllerImpl implements UserStorageController {
 
     @Override
     @DeleteMapping("{user_id}")
-    public UserRestView deleteOneById(@PathVariable(value = "user_id") @Positive long id)
+    public UserRestView deleteOneById(@PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        User user = userData.deleteById(id);
-        log.debug("Запрошено удаление пользователя с идентификатором {}. Пользователь удален", id);
+        User user = userData.deleteById(userId);
+        log.debug("Запрошено удаление пользователя с идентификатором {}. Пользователь удален", userId);
         return UserObjectConverter.toRestView(user);
     }
 

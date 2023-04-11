@@ -15,16 +15,16 @@ public class UserObjectConverter {
                 user.getFriends());
     }
 
-    public static User toDomainObject(UserRestCommand restUser) {
+    public static User toDomainObject(UserRestCommand userRestCommand) {
         User user = User.builder()
-                .id(restUser.getId())
-                .email(restUser.getEmail())
-                .login(restUser.getLogin())
-                .name(restUser.getName())
-                .birthday(restUser.getBirthday())
+                .id(userRestCommand.getId())
+                .email(userRestCommand.getEmail())
+                .login(userRestCommand.getLogin())
+                .name(userRestCommand.getName())
+                .birthday(userRestCommand.getBirthday())
                 .build();
-        if (restUser.getFriends() != null && !restUser.getFriends().isEmpty()) {
-            restUser.getFriends().forEach(id -> user.getFriends().add(id));
+        if (userRestCommand.getFriends() != null && !userRestCommand.getFriends().isEmpty()) {
+            userRestCommand.getFriends().forEach(friendId -> user.getFriends().add(friendId));
         }
         return user;
     }

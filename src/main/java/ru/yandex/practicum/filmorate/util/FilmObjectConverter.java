@@ -15,16 +15,16 @@ public class FilmObjectConverter {
                 film.getLikes());
     }
 
-    public static Film toDomainObject(FilmRestCommand restFilm) {
+    public static Film toDomainObject(FilmRestCommand filmRestCommand) {
         Film film = Film.builder()
-                .id(restFilm.getId())
-                .name(restFilm.getName())
-                .description(restFilm.getDescription())
-                .releaseDate(restFilm.getReleaseDate())
-                .duration(restFilm.getDuration())
+                .id(filmRestCommand.getId())
+                .name(filmRestCommand.getName())
+                .description(filmRestCommand.getDescription())
+                .releaseDate(filmRestCommand.getReleaseDate())
+                .duration(filmRestCommand.getDuration())
                 .build();
-        if (restFilm.getLikes() != null && !restFilm.getLikes().isEmpty()) {
-            restFilm.getLikes().forEach(restId -> film.getLikes().add(restId));
+        if (filmRestCommand.getLikes() != null && !filmRestCommand.getLikes().isEmpty()) {
+            filmRestCommand.getLikes().forEach(whoLikedId -> film.getLikes().add(whoLikedId));
         }
         return film;
     }
