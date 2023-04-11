@@ -8,11 +8,13 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
 import ru.yandex.practicum.filmorate.storage.InMemoryStorage;
+import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 
 @Validated
 @RestController
@@ -24,42 +26,42 @@ public class UserStorageControllerImpl implements UserStorageController {
 
     @Override
     @GetMapping
-    public List<UserRestCommand> getAll() {
+    public List<UserRestView> getAll() {
         /* Логирую не только методы, меняющие состояние (как указано в задании), но и запросы данных,
          * наверное, это позволит отслеживать поведение пользователя, а в случае ошибки при получении по id -
          * узнать, когда и из-за чего произошла ошибка. В настройках программы установил уровень логирования DEBUG */
-        log.debug("Запрошен список всех пользователей. Количество сохраненных объектов: {}", userData.getSize());
+        log.debug("Запрошен список всех пользователей. Количество сохраненных пользователей: {}", userData.getSize());
         return userData.getAll().stream()
-                .map(UserRestCommand::new)
+                .map(UserObjectConverter::toRestView)
                 .collect(Collectors.toList());
     }
 
     @Override
     @GetMapping("{user_id}")
-    public UserRestCommand getOneById(@PathVariable(value = "user_id") @Positive long id)
+    public UserRestView getOneById(@PathVariable(value = "user_id") @Positive long id)
             throws ObjectNotFoundInStorageException {
         User user = userData.getById(id);
         log.debug("Запрошен пользователь с идентификатором {}. Пользователь найден и отправлен клиенту", user.getId());
-        return new UserRestCommand(user);
+        return UserObjectConverter.toRestView(user);
     }
 
     @PostMapping
-    public UserRestCommand post(@RequestBody @Valid UserRestCommand userRestCommand) throws UserValidationException {
-        User user = userRestCommand.convertToDomainObject();
+    public UserRestView post(@RequestBody @Valid UserRestCommand postUserCommand) throws UserValidationException {
+        User user = UserObjectConverter.toDomainObject(postUserCommand);
         user = userData.save(user);
         log.debug("Сохранен новый пользователь с логином '{}'. Присвоен идентификатор {}",
                 user.getLogin(), user.getId());
-        return new UserRestCommand(user);
+        return UserObjectConverter.toRestView(user);
     }
 
     @PutMapping
-    public UserRestCommand put(@RequestBody UserRestCommand userRestCommand)
+    public UserRestView put(@RequestBody UserRestCommand putUserCommand)
             throws ObjectNotFoundInStorageException {
-        User user = userRestCommand.convertToDomainObject();
+        User user = UserObjectConverter.toDomainObject(putUserCommand);
         user = userData.update(user);
         log.debug("Обновлены данные пользователя с логином '{}'. Идентификатор пользователя: {}", user.getLogin(),
                 user.getId());
-        return new UserRestCommand(user);
+        return UserObjectConverter.toRestView(user);
     }
 
     @Override
@@ -71,11 +73,11 @@ public class UserStorageControllerImpl implements UserStorageController {
 
     @Override
     @DeleteMapping("{user_id}")
-    public UserRestCommand deleteOneById(@PathVariable(value = "user_id") @Positive long id)
+    public UserRestView deleteOneById(@PathVariable(value = "user_id") @Positive long id)
             throws ObjectNotFoundInStorageException {
         User user = userData.deleteById(id);
         log.debug("Запрошено удаление пользователя с идентификатором {}. Пользователь удален", id);
-        return new UserRestCommand(user);
+        return UserObjectConverter.toRestView(user);
     }
 
 }

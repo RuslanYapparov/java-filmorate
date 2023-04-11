@@ -10,8 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -53,8 +53,8 @@ public class ValidatorTest {
 
     @Test
     public void shouldCheckValidObjectsWithoutViolations() {
-        userViolations = validator.validate(new UserRestCommand(user));
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        userViolations = validator.validate(createCommandObjectForTest(user));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertTrue(userViolations.isEmpty());
         assertTrue(filmViolations.isEmpty());
     }
@@ -67,8 +67,8 @@ public class ValidatorTest {
         film = Film.builder()
                 .id(-7)
                 .build();
-        userViolations = validator.validate(new UserRestCommand(user));
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        userViolations = validator.validate(createCommandObjectForTest(user));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(userViolations.isEmpty());
         assertFalse(filmViolations.isEmpty());
     }
@@ -80,7 +80,7 @@ public class ValidatorTest {
         user = user.toBuilder()
                 .email(email)
                 .build();
-        userViolations = validator.validate(new UserRestCommand(user));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
     }
 
@@ -91,7 +91,7 @@ public class ValidatorTest {
         user = user.toBuilder()
                 .login(login)
                 .build();
-        userViolations = validator.validate(new UserRestCommand(user));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
     }
 
@@ -100,14 +100,13 @@ public class ValidatorTest {
         user = user.toBuilder()
                 .birthday(LocalDate.of(2025, 11, 9))
                 .build();
-        userViolations = validator.validate(new UserRestCommand(user));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
         user = User.builder()
                 .birthday(null)
                 .build();
-        userViolations = validator.validate(new UserRestCommand(user));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
-
     }
 
     @ParameterizedTest
@@ -117,7 +116,7 @@ public class ValidatorTest {
         film = film.toBuilder()
                 .name(name)
                 .build();
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
@@ -130,7 +129,7 @@ public class ValidatorTest {
         film = film.toBuilder()
                 .description(description)
                 .build();
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
@@ -139,17 +138,17 @@ public class ValidatorTest {
         film = film.toBuilder()
                 .releaseDate(null)
                 .build();
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
         film = film.toBuilder()
                 .releaseDate(LocalDate.of(2026, 12, 12))
                 .build();
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
         film = film.toBuilder()
                 .releaseDate(LocalDate.of(1890, 12, 12))
                 .build();
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
@@ -159,8 +158,30 @@ public class ValidatorTest {
         film = film.toBuilder()
                 .duration(duration)
                 .build();
-        filmViolations = validator.validate(new FilmRestCommand(film));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
+    }
+    
+    private UserRestCommand createCommandObjectForTest(User user) {
+        UserRestCommand command = new UserRestCommand();
+        command.setId(user.getId());
+        command.setEmail(user.getEmail());
+        command.setLogin(user.getLogin());
+        command.setName(user.getName());
+        command.setBirthday(user.getBirthday());
+        command.setFriends(user.getFriends());
+        return command;
+    }
+
+    private FilmRestCommand createCommandObjectForTest(Film film) {
+        FilmRestCommand command = new FilmRestCommand();
+        command.setId(film.getId());
+        command.setName(film.getName());
+        command.setDescription(film.getDescription());
+        command.setReleaseDate(film.getReleaseDate());
+        command.setDuration(film.getDuration());
+        command.setLikes(film.getLikes());
+        return command;
     }
 
 }

@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.ErrorResponse;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.ErrorResponseView;
 
 @RestControllerAdvice()
 @Slf4j
@@ -29,21 +29,21 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(ObjectNotFoundInStorageException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleObjectNotFoundInStorageException(ObjectNotFoundInStorageException exception) {
+    public ErrorResponseView handleObjectNotFoundInStorageException(ObjectNotFoundInStorageException exception) {
         log.warn(exception.getMessage());
-        return new ErrorResponse(HttpStatus.NOT_FOUND.value(), "ObjectNotFoundInStorageException",
+        return new ErrorResponseView(HttpStatus.NOT_FOUND.value(), "ObjectNotFoundInStorageException",
                 exception.getMessage());
     }
 
     @ExceptionHandler(UserValidationException.class)
-    public ResponseEntity<ErrorResponse> handleUserValidationException(UserValidationException exception) {
+    public ResponseEntity<ErrorResponseView> handleUserValidationException(UserValidationException exception) {
         String message = exception.getMessage();
-        ErrorResponse error;
+        ErrorResponseView error;
         log.warn(message);
         if (message.equals("Неправильный формат адреса электронной почты")) {
-            error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "UserValidationException", message);
+            error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "UserValidationException", message);
         } else {
-            error = new ErrorResponse(HttpStatus.CONFLICT.value(), "UserValidationException", message);
+            error = new ErrorResponseView(HttpStatus.CONFLICT.value(), "UserValidationException", message);
         }
         return new ResponseEntity<>(error, HttpStatus.valueOf(error.getStatusCode()));
     }
@@ -53,7 +53,7 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatus status,
                                                                   WebRequest request) {
-        ErrorResponse error = new ErrorResponse(status.value(),"HttpMessageNotReadableException", ex.getMessage());
+        ErrorResponseView error = new ErrorResponseView(status.value(),"HttpMessageNotReadableException", ex.getMessage());
         return new ResponseEntity<>(error, status);
     }
 
@@ -67,15 +67,15 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
-        ErrorResponse error = new ErrorResponse(status.value(),"MethodArgumentNotValidException", ex.getMessage());
+        ErrorResponseView error = new ErrorResponseView(status.value(),"MethodArgumentNotValidException", ex.getMessage());
         error.setErrors(errors);
         log.warn(error.getException() + error.getErrors());
         return new ResponseEntity<>(error, status);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(),
+    protected ResponseEntity<ErrorResponseView> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        ErrorResponseView error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(),
                 "MethodArgumentTypeMismatchException",
                 String.format("The parameter '%s' of value '%s' could not be converted to type '%s'. Cause: %s",
                         ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName(), ex.getMessage()));
@@ -86,7 +86,7 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex, HttpHeaders headers,
                                                                    HttpStatus status, WebRequest request) {
-        ErrorResponse error = new ErrorResponse(status.value(),
+        ErrorResponseView error = new ErrorResponseView(status.value(),
                 "NoHandlerFoundException",
                 ex.getMessage());
         log.warn(error.getException(), error.getDebugMessage());
@@ -94,15 +94,15 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException exception) {
+    public ResponseEntity<ErrorResponseView> handleConstraintViolationException(ConstraintViolationException exception) {
         String message = exception.getMessage();
-        ErrorResponse error;
+        ErrorResponseView error;
         log.warn(message);
         if (message.contains("должно быть больше") || message.contains("must be greater")) {
         // Опять костыль, чтобы пройти тест в Postman (на эту ошибку ожидает код статуса 404, хотя логично бы было 400)
-            error = new ErrorResponse(HttpStatus.NOT_FOUND.value(), "ConstraintViolationException", message);
+            error = new ErrorResponseView(HttpStatus.NOT_FOUND.value(), "ConstraintViolationException", message);
         } else {
-            error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), "ConstraintViolationException", message);
+            error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "ConstraintViolationException", message);
         }
         return new ResponseEntity<>(error, HttpStatus.valueOf(error.getStatusCode()));
     }

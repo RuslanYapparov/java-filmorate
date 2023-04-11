@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.*;
@@ -20,10 +21,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.util.FilmObjectConverter;
+import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 
 @SpringBootTest
 class FilmorateApplicationTests {
@@ -84,7 +89,7 @@ class FilmorateApplicationTests {
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
 
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -94,9 +99,9 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		user = jackson.readValue(response.body(), UserRestCommand.class).convertToDomainObject();
+		user = readUserForTest(response.body());
 
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -106,7 +111,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		film = jackson.readValue(response.body(), FilmRestCommand.class).convertToDomainObject();
+		film = readFilmForTest(response.body());
 	}
 
 	@Test
@@ -118,11 +123,15 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		UserRestCommand[] usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		UserRestView[] usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(1, usersFromServer.length);
-		assertEquals(new UserRestCommand(User.builder().id(usersFromServer[0].getId()).email("sexmaster96@gmail.com")
-				.login("tecktonick_killer").name("Владимир")
-				.birthday(LocalDate.of(1996, 12, 12)).build()), usersFromServer[0]);
+		assertEquals(UserObjectConverter.toRestView(User.builder()
+				.id(usersFromServer[0].getId())
+				.email("sexmaster96@gmail.com")
+				.login("tecktonick_killer")
+				.name("Владимир")
+				.birthday(LocalDate.of(1996, 12, 12))
+				.build()), usersFromServer[0]);
 
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -131,17 +140,21 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		FilmRestCommand[] filmsFromServer = jackson.readValue(response.body(), FilmRestCommand[].class);
+		FilmRestView[] filmsFromServer = jackson.readValue(response.body(), FilmRestView[].class);
 		assertEquals(1, filmsFromServer.length);
-		assertEquals(new FilmRestCommand(Film.builder().id(filmsFromServer[0].getId()).name("Whores & whales")
+		assertEquals(FilmObjectConverter.toRestView(Film.builder()
+				.id(filmsFromServer[0].getId())
+				.name("Whores & whales")
 				.description("Adventures of women in whales world")
-				.releaseDate(LocalDate.of(1996, 12, 12)).duration(127).build()), filmsFromServer[0]);
+				.releaseDate(LocalDate.of(1996, 12, 12))
+				.duration(127)
+				.build()), filmsFromServer[0]);
 	}
 
 	@Test
 	void shouldNotPostUserWithInvalidId() throws IOException, InterruptedException {
 		user = user.toBuilder().id(-1).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -157,7 +170,7 @@ class FilmorateApplicationTests {
 	void shouldNotPostUserWithDuplicatedEmail() throws IOException, InterruptedException {
 		user = user.toBuilder().login("tapochek").name("Роман")
 				.birthday(LocalDate.of(1985, 12,21)).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -175,7 +188,7 @@ class FilmorateApplicationTests {
 	@NullAndEmptySource
 	void shouldNotPostUserWithInvalidEmail(String email) throws IOException, InterruptedException {
 		user = user.toBuilder().email(email).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -190,7 +203,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostUserWithInvalidEmailWithoutPoint() throws IOException, InterruptedException {
 		user = user.toBuilder().email("sosiska@yandex").build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -207,7 +220,7 @@ class FilmorateApplicationTests {
 	@NullAndEmptySource
 	void shouldNotPostUserWithInvalidLoginFirstVariant(String login) throws IOException, InterruptedException {
 		user = user.toBuilder().login(login).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -222,7 +235,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostUserWithInvalidBirthday() throws IOException, InterruptedException {
 		user = user.toBuilder().birthday(LocalDate.of(2025,8,7)).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -237,7 +250,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostUserWithNullBirthday() throws IOException, InterruptedException {
 		user = user.toBuilder().birthday(null).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -254,7 +267,7 @@ class FilmorateApplicationTests {
 	@NullAndEmptySource
 	void shouldPostUserWithNullName(String name) throws IOException, InterruptedException {
 		user = user.toBuilder().email("martyshka@kdfnr.com").name(name).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -269,7 +282,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostFilmWithInvalidId() throws IOException, InterruptedException {
 		film = film.toBuilder().id(-1).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -286,7 +299,7 @@ class FilmorateApplicationTests {
 	@NullAndEmptySource
 	void shouldNotPostFilmWithInvalidName(String name) throws IOException, InterruptedException {
 		film = film.toBuilder().name(name).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -301,7 +314,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostFilmWithInvalidDescription() throws IOException, InterruptedException {
 		film = film.toBuilder().description("a".repeat(201)).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -316,7 +329,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostFilmWithNullDescription() throws IOException, InterruptedException {
 		film = film.toBuilder().description(null).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -331,7 +344,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostFilmWithInvalidReleaseDate() throws IOException, InterruptedException {
 		film = film.toBuilder().releaseDate(LocalDate.of(1850, 9, 27)).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -346,7 +359,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostFilmWithReleaseDateInFuture() throws IOException, InterruptedException {
 		film = film.toBuilder().releaseDate(LocalDate.of(2025, 9, 27)).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -361,7 +374,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPostFilmWithNullReleaseDate() throws IOException, InterruptedException {
 		film = film.toBuilder().releaseDate(null).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -377,7 +390,7 @@ class FilmorateApplicationTests {
 	@ValueSource(ints = { -1, 0 })
 	void shouldNotPostFilmWithNegativeOrNullDuration(int duration) throws IOException, InterruptedException {
 		film = film.toBuilder().duration(duration).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -392,7 +405,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldReturnListsOfSavedUsers() throws IOException, InterruptedException {
 		user = user.toBuilder().email("kuzkin_otec@yandex.ru").build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -410,14 +423,14 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		UserRestCommand[] usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		UserRestView[] usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(2, usersFromServer.length);
 	}
 
 	@Test
 	void shouldReturnListsOfSavedFilms() throws IOException, InterruptedException {
 		film = film.toBuilder().name("Приключения Ашота").build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -435,14 +448,14 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		FilmRestCommand[] filmsFromServer = jackson.readValue(response.body(), FilmRestCommand[].class);
+		FilmRestView[] filmsFromServer = jackson.readValue(response.body(), FilmRestView[].class);
 		assertEquals(2, filmsFromServer.length);
 	}
 
 	@Test
 	void shouldReturnSavedUserById() throws IOException, InterruptedException {
 		user = user.toBuilder().email("sladkayakoshechka1953@list.ru").build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -451,7 +464,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		UserRestCommand userFromServer = jackson.readValue(response.body(), UserRestCommand.class);
+		UserRestView userFromServer = jackson.readValue(response.body(), UserRestView.class);
 		assertEquals(200, response.statusCode());
 
 		request = HttpRequest.newBuilder()
@@ -461,13 +474,14 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		userFromServer = jackson.readValue(response.body(), UserRestCommand.class);
-		assertEquals(new UserRestCommand(user.toBuilder().id(userFromServer.getId()).build()), userFromServer);
+		userFromServer = jackson.readValue(response.body(), UserRestView.class);
+		assertEquals(UserObjectConverter.toRestView(user.toBuilder().id(userFromServer.getId()).build()),
+				userFromServer);
 	}
 
 	@Test
 	void shouldReturnSavedFilmById() throws IOException, InterruptedException {
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -476,7 +490,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		FilmRestCommand filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
+		FilmRestView filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
 		assertEquals(200, response.statusCode());
 
 		request = HttpRequest.newBuilder()
@@ -486,14 +500,15 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
-		assertEquals(new FilmRestCommand(film.toBuilder().id(filmFromServer.getId()).build()), filmFromServer);
+		filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
+		assertEquals(FilmObjectConverter.toRestView(film.toBuilder().id(filmFromServer.getId()).build()),
+				filmFromServer);
 	}
 
 	@Test
 	void shouldUpdateValidUser() throws IOException, InterruptedException {
 		user = user.toBuilder().email("vagonchikSerundoy123@ui.ru").build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -503,10 +518,10 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		UserRestCommand userFromServer = jackson.readValue(response.body(), UserRestCommand.class);
+		UserRestView userFromServer = jackson.readValue(response.body(), UserRestView.class);
 
 		user = user.toBuilder().id(userFromServer.getId()).build();
-		userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -520,7 +535,7 @@ class FilmorateApplicationTests {
 
 	@Test
 	void shouldUpdateValidFilm() throws IOException, InterruptedException {
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -530,10 +545,10 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		FilmRestCommand filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
+		FilmRestView filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
 
 		film = film.toBuilder().id(filmFromServer.getId()).build();
-		filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -548,7 +563,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldDeleteUserById() throws IOException, InterruptedException {
 		user = user.toBuilder().email("178@kj.se").build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -558,7 +573,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		UserRestCommand userFromServer = jackson.readValue(response.body(), UserRestCommand.class);
+		UserRestView userFromServer = jackson.readValue(response.body(), UserRestView.class);
 
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users/" + userFromServer.getId()))
@@ -568,13 +583,14 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		userFromServer = jackson.readValue(response.body(), UserRestCommand.class);
-		assertEquals(new UserRestCommand(user.toBuilder().id(userFromServer.getId()).build()), userFromServer);
+		userFromServer = jackson.readValue(response.body(), UserRestView.class);
+		assertEquals(UserObjectConverter.toRestView(user.toBuilder().id(userFromServer.getId()).build()),
+				userFromServer);
 	}
 
 	@Test
 	void shouldDeleteFilmById() throws IOException, InterruptedException {
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -584,7 +600,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		FilmRestCommand filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
+		FilmRestView filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
 
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films/" + filmFromServer.getId()))
@@ -593,15 +609,16 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
+		filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
 		assertEquals(200, response.statusCode());
-		assertEquals(new FilmRestCommand(film.toBuilder().id(filmFromServer.getId()).build()), filmFromServer);
+		assertEquals(FilmObjectConverter.toRestView(film.toBuilder().id(filmFromServer.getId()).build()),
+				filmFromServer);
 	}
 
 	@Test
 	void shouldNotPutUserWhenIncorrectId() throws IOException, InterruptedException {
 		user = user.toBuilder().id(777).build();
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -624,7 +641,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		int code = response.statusCode();
-		assertTrue(code == 400 || code == 404 || code == 500);
+		assertTrue(code == 400 || code == 404);
 	}
 
 	@Test
@@ -642,7 +659,7 @@ class FilmorateApplicationTests {
 	@Test
 	void shouldNotPutFilmWhenIncorrectId() throws IOException, InterruptedException {
 		film = film.toBuilder().id(123).build();
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(film));
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -687,13 +704,15 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		UserRestCommand[] usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		UserRestView[] usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(0, usersFromServer.length);
 	}
 
 	@Test
 	void shouldMakeAndUnmakeFriends() throws IOException, InterruptedException {
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user.toBuilder().email("12@rt.y").build()));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user.toBuilder()
+				.email("12@rt.y")
+				.build()));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -703,7 +722,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		UserRestCommand userFromServer = jackson.readValue(response.body(), UserRestCommand.class);
+		UserRestView userFromServer = jackson.readValue(response.body(), UserRestView.class);
 
 		bodyPublisher = HttpRequest.BodyPublishers.ofString("");
 		request = HttpRequest.newBuilder()
@@ -722,7 +741,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		UserRestCommand[] usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		UserRestView[] usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(1, usersFromServer.length);
 		assertEquals(userFromServer.getId(), usersFromServer[0].getId());
 
@@ -733,7 +752,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(1, usersFromServer.length);
 		assertEquals(user.getId(), usersFromServer[0].getId());
 
@@ -753,7 +772,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(0, usersFromServer.length);
 
 		request = HttpRequest.newBuilder()
@@ -763,14 +782,16 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(0, usersFromServer.length);
 	}
 
 	@Test
 	void shouldReturnCommonFriendsListWithFriendAfterAddingAndWithoutFriendsAfterRemoving()
 			throws IOException, InterruptedException {
-		String userJson = jackson.writeValueAsString(new UserRestCommand(user.toBuilder().email("12@rt.y").build()));
+		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user.toBuilder()
+				.email("12@rt.y")
+				.build()));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -780,9 +801,9 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		UserRestCommand userFromServer1 = jackson.readValue(response.body(), UserRestCommand.class);
+		UserRestView userFromServer1 = jackson.readValue(response.body(), UserRestView.class);
 
-		userJson = jackson.writeValueAsString(new UserRestCommand(user.toBuilder().email("34@rt.y").build()));
+		userJson = jackson.writeValueAsString(createCommandObjectForTest(user.toBuilder().email("34@rt.y").build()));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "users"))
@@ -792,7 +813,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		UserRestCommand userFromServer2 = jackson.readValue(response.body(), UserRestCommand.class);
+		UserRestView userFromServer2 = jackson.readValue(response.body(), UserRestView.class);
 
 		bodyPublisher = HttpRequest.BodyPublishers.ofString("");
 		request = HttpRequest.newBuilder()
@@ -820,7 +841,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		UserRestCommand[] usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		UserRestView[] usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(1, usersFromServer.length);
 		assertEquals(userFromServer1.getId(), usersFromServer[0].getId());
 
@@ -840,7 +861,7 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		usersFromServer = jackson.readValue(response.body(), UserRestCommand[].class);
+		usersFromServer = jackson.readValue(response.body(), UserRestView[].class);
 		assertEquals(0, usersFromServer.length);
 	}
 
@@ -863,9 +884,9 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		FilmRestCommand filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
-		assertEquals(1, filmFromServer.convertToDomainObject().getLikes().size());
-		assertTrue(filmFromServer.convertToDomainObject().getLikes().contains(user.getId()));
+		FilmRestView filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
+		assertEquals(1, filmFromServer.getLikes().size());
+		assertTrue(filmFromServer.getLikes().contains(user.getId()));
 
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + user.getId()))
@@ -883,13 +904,13 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		filmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
-		assertEquals(0, filmFromServer.convertToDomainObject().getLikes().size());
+		filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
+		assertEquals(0, filmFromServer.getLikes().size());
 	}
 
 	@Test
 	void shouldReturnListOfSortedByNumberOfLikesFilms() throws IOException, InterruptedException {
-		String filmJson = jackson.writeValueAsString(new FilmRestCommand(Film.builder().name("Crazy Potato")
+		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(Film.builder().name("Crazy Potato")
 				.description("Potato").releaseDate(LocalDate.of(1975, 11,17))
 				.duration(85).build()));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
@@ -901,7 +922,7 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
-		FilmRestCommand anotherFilmFromServer = jackson.readValue(response.body(), FilmRestCommand.class);
+		FilmRestView anotherFilmFromServer = jackson.readValue(response.body(), FilmRestView.class);
 
 		bodyPublisher = HttpRequest.BodyPublishers.ofString("");
 		request = HttpRequest.newBuilder()
@@ -921,9 +942,9 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		FilmRestCommand[] filmsFromServer = jackson.readValue(response.body(), FilmRestCommand[].class);
+		FilmRestView[] filmsFromServer = jackson.readValue(response.body(), FilmRestView[].class);
 		assertEquals(1, filmsFromServer.length);
-		assertEquals(new FilmRestCommand(film), filmsFromServer[0]);
+		assertEquals(FilmObjectConverter.toRestView(film), filmsFromServer[0]);
 
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films/popular"))
@@ -932,9 +953,9 @@ class FilmorateApplicationTests {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		filmsFromServer = jackson.readValue(response.body(), FilmRestCommand[].class);
+		filmsFromServer = jackson.readValue(response.body(), FilmRestView[].class);
 		assertEquals(2, filmsFromServer.length);
-		assertEquals(new FilmRestCommand(film), filmsFromServer[0]);
+		assertEquals(FilmObjectConverter.toRestView(film), filmsFromServer[0]);
 		assertEquals(anotherFilmFromServer, filmsFromServer[1]);
 
 		request = HttpRequest.newBuilder()
@@ -1157,6 +1178,54 @@ class FilmorateApplicationTests {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(400, response.statusCode());
+	}
+
+	private UserRestCommand createCommandObjectForTest(User user) {
+		UserRestCommand command = new UserRestCommand();
+		command.setId(user.getId());
+		command.setEmail(user.getEmail());
+		command.setLogin(user.getLogin());
+		command.setName(user.getName());
+		command.setBirthday(user.getBirthday());
+		command.setFriends(user.getFriends());
+		return command;
+	}
+
+	private FilmRestCommand createCommandObjectForTest(Film film) {
+		FilmRestCommand command = new FilmRestCommand();
+		command.setId(film.getId());
+		command.setName(film.getName());
+		command.setDescription(film.getDescription());
+		command.setReleaseDate(film.getReleaseDate());
+		command.setDuration(film.getDuration());
+		command.setLikes(film.getLikes());
+		return command;
+	}
+
+	private User readUserForTest(String userView) throws JsonProcessingException {
+		UserRestView view = jackson.readValue(userView, UserRestView.class);
+		User user = User.builder()
+				.id(view.getId())
+				.email(view.getEmail())
+				.login(view.getLogin())
+				.name(view.getName())
+				.birthday(view.getBirthday())
+				.build();
+		view.getFriends().forEach(userViewId -> user.getFriends().add(userViewId));
+		return user;
+	}
+
+	private Film readFilmForTest(String filmView) throws JsonProcessingException {
+		FilmRestView view = jackson.readValue(filmView, FilmRestView.class);
+		Film film = Film.builder()
+				.id(view.getId())
+				.name(view.getName())
+				.description(view.getDescription())
+				.releaseDate(view.getReleaseDate())
+				.duration(view.getDuration())
+				.build();
+		view.getLikes().forEach(userViewId -> film.getLikes().add(userViewId));
+		return film;
 	}
 
 }

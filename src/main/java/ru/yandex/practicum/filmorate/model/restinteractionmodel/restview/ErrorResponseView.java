@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.model.controllercommandclasses;
+package ru.yandex.practicum.filmorate.model.restinteractionmodel.restview;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 
 @lombok.Data
-public class ErrorResponse {
+public class ErrorResponseView {
     private final int statusCode;
     private final String exception;
     private final String debugMessage;

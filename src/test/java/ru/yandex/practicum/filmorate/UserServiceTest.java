@@ -7,12 +7,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.impl.UserStorage;
+import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 
 public class UserServiceTest {
     private static UserService service;
@@ -76,14 +77,13 @@ public class UserServiceTest {
         commonFriend1 = userStorage.save(commonFriend1);
         service.addUserToAnotherUserFriendsSet(user.getId(), commonFriend1.getId());
         service.addUserToAnotherUserFriendsSet(friend.getId(), commonFriend1.getId());
-        List<UserRestCommand> commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), friend.getId());
+        List<UserRestView> commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), friend.getId());
         assertEquals(1, commonFriendsList.size());
-        assertEquals(commonFriend1, commonFriendsList.get(0).convertToDomainObject());
-
+        assertEquals(commonFriendsList.get(0), UserObjectConverter.toRestView(commonFriend1));
         service.addUserToAnotherUserFriendsSet(user.getId(), friend.getId());
         commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), commonFriend1.getId());
         assertEquals(1, commonFriendsList.size());
-        assertEquals(friend, commonFriendsList.get(0).convertToDomainObject());
+        assertEquals(commonFriendsList.get(0), UserObjectConverter.toRestView(friend));
         service.removeUserFromAnotherUserFriendsSet(user.getId(), friend.getId());
 
         User commonFriend2 = User.builder()
@@ -97,8 +97,8 @@ public class UserServiceTest {
         service.addUserToAnotherUserFriendsSet(user.getId(), commonFriend2.getId());
         commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), friend.getId());
         assertEquals(2, commonFriendsList.size());
-        assertTrue(commonFriendsList.contains(new UserRestCommand(commonFriend1)));
-        assertTrue(commonFriendsList.contains(new UserRestCommand(commonFriend2)));
+        assertTrue(commonFriendsList.contains(UserObjectConverter.toRestView(commonFriend1)));
+        assertTrue(commonFriendsList.contains(UserObjectConverter.toRestView(commonFriend2)));
 
         service.removeUserFromAnotherUserFriendsSet(user.getId(), commonFriend1.getId());
         service.removeUserFromAnotherUserFriendsSet(user.getId(), commonFriend2.getId());
@@ -108,7 +108,7 @@ public class UserServiceTest {
 
     @Test
     public void shouldReturnListOfFriends() {
-        List<UserRestCommand> friendsList = service.getUsersFriendsSet(user.getId());
+        List<UserRestView> friendsList = service.getUsersFriendsSet(user.getId());
         assertNotNull(friendsList);
         assertTrue(friendsList.isEmpty());
     }

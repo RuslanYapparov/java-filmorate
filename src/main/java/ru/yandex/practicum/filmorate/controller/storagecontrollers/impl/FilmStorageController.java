@@ -1,23 +1,24 @@
 package ru.yandex.practicum.filmorate.controller.storagecontrollers.impl;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.FilmRestCommand;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
+
 public interface FilmStorageController {
 
-    List<FilmRestCommand> getAll();
+    List<FilmRestView> getAll();
 
-    FilmRestCommand getOneById(@Positive long id);
+    FilmRestView getOneById(@Positive long id);
 
-    FilmRestCommand post(@Valid FilmRestCommand command);
+    FilmRestView post(@Valid FilmRestCommand command);
 
-    FilmRestCommand put(@Valid FilmRestCommand command);
+    FilmRestView put(@Valid FilmRestCommand command);
 
     void deleteAll();
 
-    FilmRestCommand deleteOneById(@Positive long id);
+    FilmRestView deleteOneById(@Positive long id);
 
 }

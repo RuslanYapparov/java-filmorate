@@ -1,17 +1,17 @@
 package ru.yandex.practicum.filmorate.service;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
 
 import java.util.List;
 
 public interface UserService {
 
-    List<UserRestCommand> addUserToAnotherUserFriendsSet(long userId, long friendId);
+    List<UserRestView> addUserToAnotherUserFriendsSet(long userId, long friendId);
 
-    List<UserRestCommand> removeUserFromAnotherUserFriendsSet(long userId, long friendId);
+    List<UserRestView> removeUserFromAnotherUserFriendsSet(long userId, long friendId);
 
-    List<UserRestCommand> getUsersFriendsSet(long userId);
+    List<UserRestView> getUsersFriendsSet(long userId);
 
-    List<UserRestCommand> getCommonFriendsOfTwoUsers(long userId, long friendId);
+    List<UserRestView> getCommonFriendsOfTwoUsers(long userId, long friendId);
 
 }

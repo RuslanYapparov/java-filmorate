@@ -6,9 +6,9 @@ import javax.validation.constraints.Positive;
 
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 @Validated
@@ -21,29 +21,29 @@ public class FilmServiceControllerImpl implements FilmServiceController {
 
     @Override
     @GetMapping("/popular")
-    public List<FilmRestCommand> getPopularFilms(@RequestParam(name = "count", defaultValue = "10")
+    public List<FilmRestView> getPopularFilms(@RequestParam(name = "count", defaultValue = "10")
                                                  @Positive int size) {
-        List<FilmRestCommand> popularFilms = service.getMostLikedFilms(size);
+        List<FilmRestView> popularFilms = service.getMostLikedFilms(size);
         log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", size));
         return popularFilms;
     }
 
     @Override
     @DeleteMapping("{film_id}/like/{user_id}")
-    public List<UserRestCommand> removeLike(@PathVariable(value = "film_id") @Positive long filmId,
-                                            @PathVariable(value = "user_id") @Positive long userId)
+    public List<UserRestView> removeLike(@PathVariable(value = "film_id") @Positive long filmId,
+                                         @PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        List<UserRestCommand> filmLikesList = service.removeLikeFromFilmLikesSet(filmId, userId);
+        List<UserRestView> filmLikesList = service.removeLikeFromFilmLikesSet(filmId, userId);
         log.debug(String.format("Пользователь id%d убрал лайк с фильма id%d", userId, filmId));
         return filmLikesList;
     }
 
     @Override
     @PutMapping("{film_id}/like/{user_id}")
-    public List<UserRestCommand> addLike(@PathVariable(value = "film_id") @Positive long filmId,
+    public List<UserRestView> addLike(@PathVariable(value = "film_id") @Positive long filmId,
                              @PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        List<UserRestCommand> filmLikesList = service.addLikeToFilmLikesSet(filmId, userId);
+        List<UserRestView> filmLikesList = service.addLikeToFilmLikesSet(filmId, userId);
         log.debug(String.format("Пользователь id%d поставил лайк фильму id%d", userId, filmId));
         return filmLikesList;
     }

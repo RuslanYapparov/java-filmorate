@@ -9,14 +9,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.FilmRestCommand;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.storage.impl.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.impl.UserStorage;
+import ru.yandex.practicum.filmorate.util.FilmObjectConverter;
 
 public class FilmServiceTest {
     private static FilmService service;
@@ -78,9 +79,9 @@ public class FilmServiceTest {
     public void shouldReturnListWithLikedFilms() {
         Film anotherFilm = filmStorage.save(Film.builder().build());
         service.addLikeToFilmLikesSet(anotherFilm.getId(), user.getId());
-        List<FilmRestCommand> filmList = service.getMostLikedFilms(7);
+        List<FilmRestView> filmList = service.getMostLikedFilms(7);
         assertEquals(2, filmList.size());
-        assertEquals(anotherFilm, filmList.get(0).convertToDomainObject());
+        assertEquals(FilmObjectConverter.toRestView(anotherFilm), filmList.get(0));
     }
 
     @Test
@@ -93,8 +94,8 @@ public class FilmServiceTest {
                 userStorage.getAll().stream()
                         .limit(randomFilm.getId())
                         .forEach(randomUser -> service.addLikeToFilmLikesSet(randomFilm.getId(), randomUser.getId())));
-        List<FilmRestCommand> filmList = service.getMostLikedFilms(10);
-        assertEquals(101, filmList.get(0).convertToDomainObject().getLikes().size());
+        List<FilmRestView> filmList = service.getMostLikedFilms(10);
+        assertEquals(101, filmList.get(0).getLikes().size());
     }
 
 }

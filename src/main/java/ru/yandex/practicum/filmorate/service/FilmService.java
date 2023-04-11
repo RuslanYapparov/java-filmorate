@@ -2,15 +2,15 @@ package ru.yandex.practicum.filmorate.service;
 
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
 
 public interface FilmService {
 
-    List<UserRestCommand> addLikeToFilmLikesSet(long filmId, long userId);
+    List<UserRestView> addLikeToFilmLikesSet(long filmId, long userId);
 
-    List<UserRestCommand> removeLikeFromFilmLikesSet(long filmId, long userId);
+    List<UserRestView> removeLikeFromFilmLikesSet(long filmId, long userId);
 
-    List<FilmRestCommand> getMostLikedFilms(int count);
+    List<FilmRestView> getMostLikedFilms(int count);
 
 }

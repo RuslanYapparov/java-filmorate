@@ -4,20 +4,21 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.controllercommandclasses.restcommand.impl.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
 
 public interface UserStorageController {
 
-    List<UserRestCommand> getAll();
+    List<UserRestView> getAll();
 
-    UserRestCommand getOneById(@Positive long id);
+    UserRestView getOneById(@Positive long id);
 
-    UserRestCommand post(@Valid UserRestCommand command);
+    UserRestView post(@Valid UserRestCommand command);
 
-    UserRestCommand put(@Valid UserRestCommand command);
+    UserRestView put(@Valid UserRestCommand command);
 
     void deleteAll();
 
-    UserRestCommand deleteOneById(@Positive long id);
+    UserRestView deleteOneById(@Positive long id);
 
 }
