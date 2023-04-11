@@ -162,7 +162,7 @@ public class ValidatorTest {
         filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
-    
+
     private UserRestCommand createCommandObjectForTest(User user) {
         UserRestCommand command = new UserRestCommand();
         command.setId(user.getId());
