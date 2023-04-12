@@ -7,78 +7,78 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.time.LocalDate;
 
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmModel;
 
-public class FilmTest {
+public class FilmModelTest {
 
     @Test
     public void shouldBeCreatedWithValidFieldsBeEqualToItsCloneAndHaveEqualHashCode() {
-        Film film1 = Film.builder()
+        FilmModel filmModel1 = FilmModel.builder()
                 .id(0)
                 .name("Whores & whales")
                 .description("Adventures of women in whales world")
                 .releaseDate(LocalDate.of(1996, 12, 12))
                 .duration(127)
                 .build();
-        assertNotNull(film1);
-        Film film2 = Film.builder()
+        assertNotNull(filmModel1);
+        FilmModel filmModel2 = FilmModel.builder()
                 .id(0)
                 .name("Whores & whales")
                 .description("Adventures of women in whales world")
                 .releaseDate(LocalDate.of(1996, 12, 12))
                 .duration(127)
                 .build();
-        assertEquals(film1, film2);
-        assertEquals(film1.hashCode(), film2.hashCode());
+        assertEquals(filmModel1, filmModel2);
+        assertEquals(filmModel1.hashCode(), filmModel2.hashCode());
     }
 
     @Test
     public void shouldBeNotEqualToItsCloneWithSomeDifferencesAndHaveNotSameHashCode() {
-        Film film1 = Film.builder()
+        FilmModel filmModel1 = FilmModel.builder()
                 .id(0)
                 .name("Whores & whales")
                 .description("Adventures of women in whales world")
                 .releaseDate(LocalDate.of(1996, 12, 12))
                 .duration(127)
                 .build();
-        Film film2 = film1.toBuilder()
+        FilmModel filmModel2 = filmModel1.toBuilder()
                 .id(1)
                 .build();
-        Film film3 = film1.toBuilder()
+        FilmModel filmModel3 = filmModel1.toBuilder()
                 .name("Whores & holes")
                 .build();
-        Film film4 = film1.toBuilder()
+        FilmModel filmModel4 = filmModel1.toBuilder()
                 .description("Adventures of women in video world")
                 .build();
-        Film film5 = film1.toBuilder()
+        FilmModel filmModel5 = filmModel1.toBuilder()
                 .duration(125)
                 .build();
-        Film film6 = film1.toBuilder()
+        FilmModel filmModel6 = filmModel1.toBuilder()
                 .releaseDate(LocalDate.of(1996, 12, 13))
                 .build();
-        assertNotEquals(film1, film2);
-        assertNotEquals(film1.hashCode(), film2.hashCode());
-        assertNotEquals(film1, film3);
-        assertNotEquals(film1.hashCode(), film3.hashCode());
-        assertNotEquals(film1, film4);
-        assertNotEquals(film1.hashCode(), film4.hashCode());
-        assertNotEquals(film1, film5);
-        assertNotEquals(film1.hashCode(), film5.hashCode());
-        assertNotEquals(film1, film6);
-        assertNotEquals(film1.hashCode(), film6.hashCode());
+        assertNotEquals(filmModel1, filmModel2);
+        assertNotEquals(filmModel1.hashCode(), filmModel2.hashCode());
+        assertNotEquals(filmModel1, filmModel3);
+        assertNotEquals(filmModel1.hashCode(), filmModel3.hashCode());
+        assertNotEquals(filmModel1, filmModel4);
+        assertNotEquals(filmModel1.hashCode(), filmModel4.hashCode());
+        assertNotEquals(filmModel1, filmModel5);
+        assertNotEquals(filmModel1.hashCode(), filmModel5.hashCode());
+        assertNotEquals(filmModel1, filmModel6);
+        assertNotEquals(filmModel1.hashCode(), filmModel6.hashCode());
     }
 
     @Test
     public void shouldCorrectToStringResult() {
-        Film film1 = Film.builder()
+        FilmModel filmModel1 = FilmModel.builder()
                 .id(0)
                 .name("Whores & whales")
                 .description("Adventures of women in whales world")
                 .releaseDate(LocalDate.of(1996, 12, 12))
                 .duration(127)
                 .build();
-        assertEquals("Film(id=0, name=Whores & whales, description=Adventures of women in whales world, " +
-                "releaseDate=1996-12-12, duration=127)", film1.toString());
+        assertEquals("FilmModel(id=0, name=Whores & whales, description=Adventures of women in whales world, " +
+                "releaseDate=1996-12-12, duration=127, likes=[])", filmModel1.toString());
     }
 
 }
