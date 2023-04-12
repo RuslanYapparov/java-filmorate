@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller.storagecontrollers.impl;
+package ru.yandex.practicum.filmorate.controller.storagecontrollers;
 
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -8,12 +8,12 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.model.dto.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
+import ru.yandex.practicum.filmorate.model.FilmModel;
+import ru.yandex.practicum.filmorate.model.dto.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.storage.InMemoryStorage;
-import ru.yandex.practicum.filmorate.util.FilmObjectConverter;
 
 @Validated
 @RestController
@@ -21,14 +21,15 @@ import ru.yandex.practicum.filmorate.util.FilmObjectConverter;
 @lombok.extern.slf4j.Slf4j
 @lombok.RequiredArgsConstructor
 public class FilmStorageControllerImpl implements FilmStorageController {
-    private final InMemoryStorage<Film> filmData;
+    private final InMemoryStorage<FilmModel> filmData;
+    private final FilmMapper filmMapper;
 
     @Override
     @GetMapping
     public List<FilmRestView> getAll() {
         log.debug("Запрошен список всех фильмов. Количество сохраненных фильмов: {}", filmData.getSize());
         return filmData.getAll().stream()
-                .map(FilmObjectConverter::toRestView)
+                .map(filmMapper::toRestView)
                 .collect(Collectors.toList());
     }
 
@@ -36,29 +37,29 @@ public class FilmStorageControllerImpl implements FilmStorageController {
     @GetMapping("{film_id}")
     public FilmRestView getOneById(@PathVariable(value = "film_id") @Positive long filmId)
             throws ObjectNotFoundInStorageException {
-        Film film = filmData.getById(filmId);
-        log.debug("Запрошен фильм с идентификатором {}. Фильм найден и отправлен клиенту", film.getId());
-        return FilmObjectConverter.toRestView(film);
+        FilmModel filmModel = filmData.getById(filmId);
+        log.debug("Запрошен фильм с идентификатором {}. Фильм найден и отправлен клиенту", filmModel.getId());
+        return filmMapper.toRestView(filmModel);
     }
 
     @Override
     @PostMapping
     public FilmRestView post(@RequestBody @Valid FilmRestCommand postFilmCommand) {
-        Film film = FilmObjectConverter.toDomainObject(postFilmCommand);
-        film = filmData.save(film);
+        FilmModel filmModel = filmMapper.toModel(postFilmCommand);
+        filmModel = filmData.save(filmModel);
         log.debug("Сохранен новый фильм '{}'. Присвоен идентификатор {}",
-                film.getName(), film.getId());
-        return FilmObjectConverter.toRestView(film);
+                filmModel.getName(), filmModel.getId());
+        return filmMapper.toRestView(filmModel);
     }
 
     @Override
     @PutMapping
     public FilmRestView put(@RequestBody @Valid FilmRestCommand putFilmCommand)
             throws ObjectNotFoundInStorageException {
-        Film film = FilmObjectConverter.toDomainObject(putFilmCommand);
-        film = filmData.update(film);
-        log.debug("Обновлены данные фильма '{}'. Идентификатор фильма: {}", film.getName(), film.getId());
-        return FilmObjectConverter.toRestView(film);
+        FilmModel filmModel = filmMapper.toModel(putFilmCommand);
+        filmModel = filmData.update(filmModel);
+        log.debug("Обновлены данные фильма '{}'. Идентификатор фильма: {}", filmModel.getName(), filmModel.getId());
+        return filmMapper.toRestView(filmModel);
     }
 
     @Override
@@ -72,9 +73,9 @@ public class FilmStorageControllerImpl implements FilmStorageController {
     @DeleteMapping("{film_id}")
     public FilmRestView deleteOneById(@PathVariable(value = "film_id") @Positive long filmId)
             throws ObjectNotFoundInStorageException {
-        Film film = filmData.deleteById(filmId);
+        FilmModel filmModel = filmData.deleteById(filmId);
         log.debug("Запрошено удаление фильма с идентификатором {}. Фильм удален", filmId);
-        return FilmObjectConverter.toRestView(film);
+        return filmMapper.toRestView(filmModel);
     }
 
 }

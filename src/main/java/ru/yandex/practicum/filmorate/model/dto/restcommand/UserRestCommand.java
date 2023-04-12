@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand;
+package ru.yandex.practicum.filmorate.model.dto.restcommand;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,24 +13,24 @@ import ru.yandex.practicum.filmorate.customvalidation.customannotations.WithoutS
 public class UserRestCommand {
     @JsonProperty("id")
     @PositiveOrZero
-    long id;
+    private long id;
     @JsonProperty("email")
     @Email
     @NotNull
     @NotBlank
-    String email;
+    private String email;
     @JsonProperty("login")
     @NotBlank      // Аннотация для проверки на случай, если строка состоит из символов новой строки и возврата каретки
     @WithoutSpaces                            // Аннотация для проверки неравенства null и отсутствия пробелов в строке
-    String login;
+    private String login;
     @JsonProperty("name")
-    String name;
+    private String name;
     @JsonProperty("birthday")
     @PastOrPresent
     @NotNull
-    LocalDate birthday;
+    private LocalDate birthday;
     @JsonProperty(value = "friends")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    Set<Long> friends;
+    private Set<Long> friends;
 
 }

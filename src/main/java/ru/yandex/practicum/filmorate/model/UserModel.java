@@ -6,7 +6,7 @@ import java.util.Set;
 
 @lombok.Value
 @lombok.Builder(toBuilder = true)
-public class User {
+public class UserModel {
     long id;
     String email;
     String login;

@@ -10,40 +10,46 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
+import ru.yandex.practicum.filmorate.mapper.FilmMapper;
+import ru.yandex.practicum.filmorate.mapper.FilmMapperImpl;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.mapper.UserMapperImpl;
+import ru.yandex.practicum.filmorate.model.FilmModel;
+import ru.yandex.practicum.filmorate.model.UserModel;
+import ru.yandex.practicum.filmorate.model.dto.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.FilmServiceImpl;
 import ru.yandex.practicum.filmorate.storage.impl.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.impl.UserStorage;
-import ru.yandex.practicum.filmorate.util.FilmObjectConverter;
 
-public class FilmServiceTest {
+public class FilmlServiceTest {
     private static FilmService service;
     private static FilmStorage filmStorage;
     private static UserStorage userStorage;
-    private static User user;
-    private static Film film;
+    private static UserModel userModel;
+    private static FilmModel filmModel;
+    private static FilmMapper filmMapper;
 
     @BeforeAll
     public static void initialize() {
         filmStorage = new FilmStorage();
         userStorage = new UserStorage();
-        service = new FilmServiceImpl(filmStorage, userStorage);
+        filmMapper = new FilmMapperImpl();
+        UserMapper userMapper = new UserMapperImpl();
+        service = new FilmServiceImpl(filmStorage, userStorage, filmMapper, userMapper);
     }
 
     @BeforeEach
     public void shouldBePreparedForTests() {
         filmStorage.deleteAll();
         userStorage.deleteAll();
-        film = filmStorage.save(Film.builder()
+        filmModel = filmStorage.save(FilmModel.builder()
                 .name("Dance with seals")
                 .description("Young girl and her friend seal try to fly to the moon and back.")
                 .releaseDate(LocalDate.of(1990, 7, 15))
                 .duration(115)
                 .build());
-        user = userStorage.save(User.builder()
+        userModel = userStorage.save(UserModel.builder()
                 .email("job@dog.ru")
                 .login("kiss_all_human")
                 .name("Василиса")
@@ -53,12 +59,12 @@ public class FilmServiceTest {
 
     @Test
     public void shouldAddLikeToFilmAndRemoveIt() {
-        service.addLikeToFilmLikesSet(film.getId(), user.getId());
-        assertEquals(1, film.getLikes().size());
-        assertTrue(film.getLikes().contains(user.getId()));
-        service.removeLikeFromFilmLikesSet(film.getId(), user.getId());
-        assertEquals(0, film.getLikes().size());
-        assertFalse(film.getLikes().contains(user.getId()));
+        service.addLikeToFilmLikesSet(filmModel.getId(), userModel.getId());
+        assertEquals(1, filmModel.getLikes().size());
+        assertTrue(filmModel.getLikes().contains(userModel.getId()));
+        service.removeLikeFromFilmLikesSet(filmModel.getId(), userModel.getId());
+        assertEquals(0, filmModel.getLikes().size());
+        assertFalse(filmModel.getLikes().contains(userModel.getId()));
     }
 
     @Test
@@ -77,18 +83,18 @@ public class FilmServiceTest {
 
     @Test
     public void shouldReturnListWithLikedFilms() {
-        Film anotherFilm = filmStorage.save(Film.builder().build());
-        service.addLikeToFilmLikesSet(anotherFilm.getId(), user.getId());
+        FilmModel anotherFilmModel = filmStorage.save(FilmModel.builder().build());
+        service.addLikeToFilmLikesSet(anotherFilmModel.getId(), userModel.getId());
         List<FilmRestView> filmList = service.getMostLikedFilms(7);
         assertEquals(2, filmList.size());
-        assertEquals(FilmObjectConverter.toRestView(anotherFilm), filmList.get(0));
+        assertEquals(filmMapper.toRestView(anotherFilmModel), filmList.get(0));
     }
 
     @Test
     public void shouldReturnListOf10FilmsWithLikes() {
         Stream.iterate(1L, count -> count + 1).limit(100).forEach(count -> {
-                    userStorage.save(User.builder().email(count + "@r.r").build());
-                    filmStorage.save(Film.builder().build());
+                    userStorage.save(UserModel.builder().email(count + "@r.r").build());
+                    filmStorage.save(FilmModel.builder().build());
                 });
         filmStorage.getAll().forEach(randomFilm ->
                 userStorage.getAll().stream()

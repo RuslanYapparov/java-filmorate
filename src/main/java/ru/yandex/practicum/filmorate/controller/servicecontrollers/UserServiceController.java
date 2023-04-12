@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 
 import javax.validation.constraints.Positive;
 import java.util.List;

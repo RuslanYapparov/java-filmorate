@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.controller.storagecontrollers.impl;
+package ru.yandex.practicum.filmorate.controller.storagecontrollers;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.dto.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 
 public interface UserStorageController {
 

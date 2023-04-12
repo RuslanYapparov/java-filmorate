@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller.storagecontrollers.impl;
+package ru.yandex.practicum.filmorate.controller.storagecontrollers;
 
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
@@ -8,13 +8,13 @@ import javax.validation.constraints.Positive;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.dto.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.UserModel;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 import ru.yandex.practicum.filmorate.storage.InMemoryStorage;
-import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 
 @Validated
 @RestController
@@ -22,7 +22,8 @@ import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 @RequestMapping("/users")
 @lombok.RequiredArgsConstructor
 public class UserStorageControllerImpl implements UserStorageController {
-    private final InMemoryStorage<User> userData;
+    private final InMemoryStorage<UserModel> userData;
+    private final UserMapper userMapper;
 
     @Override
     @GetMapping
@@ -32,7 +33,7 @@ public class UserStorageControllerImpl implements UserStorageController {
          * узнать, когда и из-за чего произошла ошибка. В настройках программы установил уровень логирования DEBUG */
         log.debug("Запрошен список всех пользователей. Количество сохраненных пользователей: {}", userData.getSize());
         return userData.getAll().stream()
-                .map(UserObjectConverter::toRestView)
+                .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
 
@@ -40,28 +41,28 @@ public class UserStorageControllerImpl implements UserStorageController {
     @GetMapping("{user_id}")
     public UserRestView getOneById(@PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        User user = userData.getById(userId);
-        log.debug("Запрошен пользователь с идентификатором {}. Пользователь найден и отправлен клиенту", user.getId());
-        return UserObjectConverter.toRestView(user);
+        UserModel userModel = userData.getById(userId);
+        log.debug("Запрошен пользователь с идентификатором {}. Пользователь найден и отправлен клиенту", userModel.getId());
+        return userMapper.toRestView(userModel);
     }
 
     @PostMapping
     public UserRestView post(@RequestBody @Valid UserRestCommand postUserCommand) throws UserValidationException {
-        User user = UserObjectConverter.toDomainObject(postUserCommand);
-        user = userData.save(user);
+        UserModel userModel = userMapper.toModel(postUserCommand);
+        userModel = userData.save(userModel);
         log.debug("Сохранен новый пользователь с логином '{}'. Присвоен идентификатор {}",
-                user.getLogin(), user.getId());
-        return UserObjectConverter.toRestView(user);
+                userModel.getLogin(), userModel.getId());
+        return userMapper.toRestView(userModel);
     }
 
     @PutMapping
     public UserRestView put(@RequestBody UserRestCommand putUserCommand)
             throws ObjectNotFoundInStorageException {
-        User user = UserObjectConverter.toDomainObject(putUserCommand);
-        user = userData.update(user);
-        log.debug("Обновлены данные пользователя с логином '{}'. Идентификатор пользователя: {}", user.getLogin(),
-                user.getId());
-        return UserObjectConverter.toRestView(user);
+        UserModel userModel = userMapper.toModel(putUserCommand);
+        userModel = userData.update(userModel);
+        log.debug("Обновлены данные пользователя с логином '{}'. Идентификатор пользователя: {}", userModel.getLogin(),
+                userModel.getId());
+        return userMapper.toRestView(userModel);
     }
 
     @Override
@@ -75,9 +76,9 @@ public class UserStorageControllerImpl implements UserStorageController {
     @DeleteMapping("{user_id}")
     public UserRestView deleteOneById(@PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
-        User user = userData.deleteById(userId);
+        UserModel userModel = userData.deleteById(userId);
         log.debug("Запрошено удаление пользователя с идентификатором {}. Пользователь удален", userId);
-        return UserObjectConverter.toRestView(user);
+        return userMapper.toRestView(userModel);
     }
 
 }

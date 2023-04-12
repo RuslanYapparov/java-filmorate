@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 import javax.validation.constraints.Positive;
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.FilmRestView;
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.dto.restview.FilmRestView;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 
 public interface FilmServiceController {
 

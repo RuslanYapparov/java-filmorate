@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model.restinteractionmodel.restcommand;
+package ru.yandex.practicum.filmorate.model.dto.restcommand;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,25 +13,25 @@ import ru.yandex.practicum.filmorate.customvalidation.customannotations.ReleaseD
 public class FilmRestCommand {
     @JsonProperty("id")
     @PositiveOrZero
-    long id;
+    private long id;
     @JsonProperty("name")
     @NotNull
     @NotBlank
-    String name;
+    private String name;
     @JsonProperty("description")
     @NotNull
     @Size(max = 200)
-    String description;
+    private String description;
     @JsonProperty("releaseDate")
     @ReleaseDateAfterCinemaBirthday
     // Кастомная аннотация, проверяющая неравенство null и не принимающая дату релиза раньше 28 декабря 1895 г.
     @Past
-    LocalDate releaseDate;
+    private LocalDate releaseDate;
     @JsonProperty("duration")
     @Positive
-    int duration;
+    private int duration;
     @JsonProperty("likes")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    Set<Long> likes;
+    private Set<Long> likes;
 
 }

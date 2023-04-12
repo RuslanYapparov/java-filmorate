@@ -7,78 +7,78 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.time.LocalDate;
 
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserModel;
 
-public class UserTest {
+public class UserModelTest {
 
     @Test
     public void shouldBeCreatedWithValidFieldsBeEqualToItsCloneAndHaveEqualHashCode() {
-        User user1 = User.builder()
+        UserModel userModel1 = UserModel.builder()
                 .id(0)
                 .email("sexmaster96@gmail.com")
                 .login("tecktonick_killer")
                 .name("Владимир")
                 .birthday(LocalDate.of(1996, 12, 12))
                 .build();
-        assertNotNull(user1);
-        User user2 = User.builder()
+        assertNotNull(userModel1);
+        UserModel userModel2 = UserModel.builder()
                 .id(0)
                 .email("sexmaster96@gmail.com")
                 .login("tecktonick_killer")
                 .name("Владимир")
                 .birthday(LocalDate.of(1996, 12, 12))
                 .build();
-        assertEquals(user1, user2);
-        assertEquals(user1.hashCode(), user2.hashCode());
+        assertEquals(userModel1, userModel2);
+        assertEquals(userModel1.hashCode(), userModel2.hashCode());
     }
 
     @Test
     public void shouldBeNotEqualToItsCloneWithSomeDifferencesAndHaveNotSameHashCode() {
-        User user1 = User.builder()
+        UserModel userModel1 = UserModel.builder()
                 .id(0)
                 .email("sexmaster96@gmail.com")
                 .login("tecktonick_killer")
                 .name("Владимир")
                 .birthday(LocalDate.of(1996, 12, 12))
                 .build();
-        User user2 = user1.toBuilder()
+        UserModel userModel2 = userModel1.toBuilder()
                 .id(1)
                 .build();
-        User user3 = user1.toBuilder()
+        UserModel userModel3 = userModel1.toBuilder()
                 .email("sexmaster97@gmail.com")
                 .build();
-        User user4 = user1.toBuilder()
+        UserModel userModel4 = userModel1.toBuilder()
                 .login("tecktonick_kisser")
                 .build();
-        User user5 = user1.toBuilder()
+        UserModel userModel5 = userModel1.toBuilder()
                 .name("Владомир")
                 .build();
-        User user6 = user1.toBuilder()
+        UserModel userModel6 = userModel1.toBuilder()
                 .birthday(LocalDate.of(1996, 12, 13))
                 .build();
-        assertNotEquals(user1, user2);
-        assertNotEquals(user1.hashCode(), user2.hashCode());
-        assertNotEquals(user1, user3);
-        assertNotEquals(user1.hashCode(), user3.hashCode());
-        assertNotEquals(user1, user4);
-        assertNotEquals(user1.hashCode(), user4.hashCode());
-        assertNotEquals(user1, user5);
-        assertNotEquals(user1.hashCode(), user5.hashCode());
-        assertNotEquals(user1, user6);
-        assertNotEquals(user1.hashCode(), user6.hashCode());
+        assertNotEquals(userModel1, userModel2);
+        assertNotEquals(userModel1.hashCode(), userModel2.hashCode());
+        assertNotEquals(userModel1, userModel3);
+        assertNotEquals(userModel1.hashCode(), userModel3.hashCode());
+        assertNotEquals(userModel1, userModel4);
+        assertNotEquals(userModel1.hashCode(), userModel4.hashCode());
+        assertNotEquals(userModel1, userModel5);
+        assertNotEquals(userModel1.hashCode(), userModel5.hashCode());
+        assertNotEquals(userModel1, userModel6);
+        assertNotEquals(userModel1.hashCode(), userModel6.hashCode());
     }
 
     @Test
     public void shouldHaveDefiniteToStringResult() {
-        User user1 = User.builder()
+        UserModel userModel1 = UserModel.builder()
                 .id(0)
                 .email("sexmaster96@gmail.com")
                 .login("tecktonick_killer")
                 .name("Владимир")
                 .birthday(LocalDate.of(1996, 12, 12))
                 .build();
-        assertEquals("User(id=0, email=sexmaster96@gmail.com, login=tecktonick_killer, name=Владимир, " +
-                "birthday=1996-12-12, friends=[])", user1.toString());
+        assertEquals("UserModel(id=0, email=sexmaster96@gmail.com, login=tecktonick_killer, name=Владимир, " +
+                "birthday=1996-12-12, friends=[])", userModel1.toString());
     }
 
 }

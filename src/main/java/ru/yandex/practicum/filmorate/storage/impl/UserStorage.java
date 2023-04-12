@@ -4,30 +4,30 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserModel;
 
 @Component
-public class UserStorage extends InMemoryStorageImpl<User> {
+public class UserStorage extends InMemoryStorageImpl<UserModel> {
 
     @Override
-    public User save(User user) throws UserValidationException {
-        user = UserEmailAndNameValidator.checkUserBeforeSaving(user, this.getAll());
+    public UserModel save(UserModel userModel) throws UserValidationException {
+        userModel = UserEmailAndNameValidator.checkUserBeforeSaving(userModel, this.getAll());
         long idForUser = produceId();
-        user = user.toBuilder().id(idForUser).build();
-        dataMap.put(idForUser, user);
-        return user;
+        userModel = userModel.toBuilder().id(idForUser).build();
+        dataMap.put(idForUser, userModel);
+        return userModel;
     }
 
     @Override
-    public User update(User user) throws ObjectNotFoundInStorageException {
-        user = UserEmailAndNameValidator.getUserWithCheckedName(user);
-        if (dataMap.containsKey(user.getId())) {
-            dataMap.put(user.getId(), user);
+    public UserModel update(UserModel userModel) throws ObjectNotFoundInStorageException {
+        userModel = UserEmailAndNameValidator.getUserWithCheckedName(userModel);
+        if (dataMap.containsKey(userModel.getId())) {
+            dataMap.put(userModel.getId(), userModel);
         } else {
             throw new ObjectNotFoundInStorageException("Данные не могут быть обновлены, т.к. пользователь " +
                     "с указанным идентификатором не был сохранен");
         }
-        return user;
+        return userModel;
     }
 
 }

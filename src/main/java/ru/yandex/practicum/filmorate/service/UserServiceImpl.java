@@ -6,64 +6,65 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.UserModel;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 import ru.yandex.practicum.filmorate.storage.InMemoryStorage;
-import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 
 @Service
 @lombok.RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    private final InMemoryStorage<User> users;
+    private final InMemoryStorage<UserModel> users;
+    private final UserMapper userMapper;
 
     @Override
     public List<UserRestView> addUserToAnotherUserFriendsSet(long userId, long friendId)
             throws ObjectNotFoundInStorageException {
-        User user = users.getById(userId);
-        User friend = users.getById(friendId);
-        user.getFriends().add(friendId);
+        UserModel userModel = users.getById(userId);
+        UserModel friend = users.getById(friendId);
+        userModel.getFriends().add(friendId);
         friend.getFriends().add(userId);
-        users.update(user);        // Думаю, если изменится способ хранения, нужно будет обновлять изменения в объектах
+        users.update(userModel);        // Думаю, если изменится способ хранения, нужно будет обновлять изменения в объектах
         users.update(friend);
-        return user.getFriends().stream()
+        return userModel.getFriends().stream()
                 .map(users::getById)
-                .map(UserObjectConverter::toRestView)
+                .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<UserRestView> removeUserFromAnotherUserFriendsSet(long userId, long friendId)
             throws ObjectNotFoundInStorageException {
-        User user = users.getById(userId);
-        User friend = users.getById(friendId);
-        user.getFriends().remove(friendId);
+        UserModel userModel = users.getById(userId);
+        UserModel friend = users.getById(friendId);
+        userModel.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
-        users.update(user);
+        users.update(userModel);
         users.update(friend);
-        return user.getFriends().stream()
+        return userModel.getFriends().stream()
                 .map(users::getById)
-                .map(UserObjectConverter::toRestView)
+                .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<UserRestView> getUsersFriendsSet(long userId) throws ObjectNotFoundInStorageException {
-        User user = users.getById(userId);
-        return user.getFriends().stream()
+        UserModel userModel = users.getById(userId);
+        return userModel.getFriends().stream()
                 .map(users::getById)
-                .map(UserObjectConverter::toRestView)
+                .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<UserRestView> getCommonFriendsOfTwoUsers(long userId, long friendId)
             throws ObjectNotFoundInStorageException {
-        User user = users.getById(userId);
-        User friend = users.getById(friendId);
-        return user.getFriends().stream()
+        UserModel userModel = users.getById(userId);
+        UserModel friend = users.getById(friendId);
+        return userModel.getFriends().stream()
                 .filter(fiendId -> friend.getFriends().contains(fiendId))
                 .map(users::getById)
-                .map(UserObjectConverter::toRestView)
+                .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
 

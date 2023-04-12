@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 
 import java.util.List;
 

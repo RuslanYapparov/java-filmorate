@@ -3,28 +3,28 @@ package ru.yandex.practicum.filmorate.storage.impl;
 import org.springframework.stereotype.Component;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmModel;
 
 @Component
-public class FilmStorage extends InMemoryStorageImpl<Film> {
+public class FilmStorage extends InMemoryStorageImpl<FilmModel> {
 
     @Override
-    public Film save(Film film) {
+    public FilmModel save(FilmModel filmModel) {
         long idForFilm = produceId();
-        film = film.toBuilder().id(idForFilm).build();
-        dataMap.put(idForFilm, film);
-        return film;
+        filmModel = filmModel.toBuilder().id(idForFilm).build();
+        dataMap.put(idForFilm, filmModel);
+        return filmModel;
     }
 
     @Override
-    public Film update(Film film) throws ObjectNotFoundInStorageException {
-        if (dataMap.containsKey(film.getId())) {
-            dataMap.put(film.getId(), film);
+    public FilmModel update(FilmModel filmModel) throws ObjectNotFoundInStorageException {
+        if (dataMap.containsKey(filmModel.getId())) {
+            dataMap.put(filmModel.getId(), filmModel);
         } else {
             throw new ObjectNotFoundInStorageException("Данные не могут быть обновлены, т.к. фильм с указанным " +
                     "идентификатором не был сохранен");
         }
-        return film;
+        return filmModel;
     }
 
 }

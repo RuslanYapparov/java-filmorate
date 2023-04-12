@@ -7,53 +7,55 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.restinteractionmodel.restview.UserRestView;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.mapper.UserMapperImpl;
+import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserModel;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.impl.UserStorage;
-import ru.yandex.practicum.filmorate.util.UserObjectConverter;
 
-public class UserServiceTest {
+public class UserlServiceTest {
     private static UserService service;
     private static UserStorage userStorage;
-    private static User user;
-
-    private static User friend;
+    private static UserMapper userMapper;
+    private static UserModel userModel;
+    private static UserModel friend;
 
     @BeforeAll
     public static void initialize() {
         userStorage = new UserStorage();
-        userStorage.save(User.builder()
+        userStorage.save(UserModel.builder()
                 .email("cat@dog.ru")
                 .login("kill_all_human")
                 .name("Василий")
                 .birthday(LocalDate.of(1999, 1, 1))
                 .build());
-        userStorage.save(User.builder()
+        userStorage.save(UserModel.builder()
                 .email("job@dog.ru")
                 .login("kiss_all_human")
                 .name("Василиса")
                 .birthday(LocalDate.of(1950, 1, 1))
                 .build());
-        service = new UserServiceImpl(userStorage);
-        user = userStorage.getById(1);
+        userMapper = new UserMapperImpl();
+        service = new UserServiceImpl(userStorage, userMapper);
+        userModel = userStorage.getById(1);
         friend = userStorage.getById(2);
     }
 
     @Test
     public void shouldMakeAndUnmakeFriends() {
-        service.addUserToAnotherUserFriendsSet(user.getId(), friend.getId());
-        assertEquals(1, user.getFriends().size());
+        service.addUserToAnotherUserFriendsSet(userModel.getId(), friend.getId());
+        assertEquals(1, userModel.getFriends().size());
         assertEquals(1, friend.getFriends().size());
-        assertTrue(user.getFriends().contains(friend.getId()));
-        assertTrue(friend.getFriends().contains(user.getId()));
-        service.removeUserFromAnotherUserFriendsSet(user.getId(), friend.getId());
-        assertEquals(0, user.getFriends().size());
+        assertTrue(userModel.getFriends().contains(friend.getId()));
+        assertTrue(friend.getFriends().contains(userModel.getId()));
+        service.removeUserFromAnotherUserFriendsSet(userModel.getId(), friend.getId());
+        assertEquals(0, userModel.getFriends().size());
         assertEquals(0, friend.getFriends().size());
-        assertFalse(user.getFriends().contains(friend.getId()));
-        assertFalse(friend.getFriends().contains(user.getId()));
+        assertFalse(userModel.getFriends().contains(friend.getId()));
+        assertFalse(friend.getFriends().contains(userModel.getId()));
     }
 
     @Test
@@ -68,25 +70,25 @@ public class UserServiceTest {
 
     @Test
     public void shouldReturnListWithCommonFriend() {
-        User commonFriend1 = User.builder()
+        UserModel commonFriend1 = UserModel.builder()
                 .email("pig@dog.ru")
                 .login("miss_all_human")
                 .name("Иннокентий")
                 .birthday(LocalDate.of(1989, 1, 1))
                 .build();
         commonFriend1 = userStorage.save(commonFriend1);
-        service.addUserToAnotherUserFriendsSet(user.getId(), commonFriend1.getId());
+        service.addUserToAnotherUserFriendsSet(userModel.getId(), commonFriend1.getId());
         service.addUserToAnotherUserFriendsSet(friend.getId(), commonFriend1.getId());
-        List<UserRestView> commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), friend.getId());
+        List<UserRestView> commonFriendsList = service.getCommonFriendsOfTwoUsers(userModel.getId(), friend.getId());
         assertEquals(1, commonFriendsList.size());
-        assertEquals(commonFriendsList.get(0), UserObjectConverter.toRestView(commonFriend1));
-        service.addUserToAnotherUserFriendsSet(user.getId(), friend.getId());
-        commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), commonFriend1.getId());
+        assertEquals(commonFriendsList.get(0), userMapper.toRestView(commonFriend1));
+        service.addUserToAnotherUserFriendsSet(userModel.getId(), friend.getId());
+        commonFriendsList = service.getCommonFriendsOfTwoUsers(userModel.getId(), commonFriend1.getId());
         assertEquals(1, commonFriendsList.size());
-        assertEquals(commonFriendsList.get(0), UserObjectConverter.toRestView(friend));
-        service.removeUserFromAnotherUserFriendsSet(user.getId(), friend.getId());
+        assertEquals(commonFriendsList.get(0), userMapper.toRestView(friend));
+        service.removeUserFromAnotherUserFriendsSet(userModel.getId(), friend.getId());
 
-        User commonFriend2 = User.builder()
+        UserModel commonFriend2 = UserModel.builder()
                 .email("cow@dog.ru")
                 .login("lick_all_human")
                 .name("Тамара")
@@ -94,21 +96,21 @@ public class UserServiceTest {
                 .build();
         commonFriend2 = userStorage.save(commonFriend2);
         service.addUserToAnotherUserFriendsSet(friend.getId(), commonFriend2.getId());
-        service.addUserToAnotherUserFriendsSet(user.getId(), commonFriend2.getId());
-        commonFriendsList = service.getCommonFriendsOfTwoUsers(user.getId(), friend.getId());
+        service.addUserToAnotherUserFriendsSet(userModel.getId(), commonFriend2.getId());
+        commonFriendsList = service.getCommonFriendsOfTwoUsers(userModel.getId(), friend.getId());
         assertEquals(2, commonFriendsList.size());
-        assertTrue(commonFriendsList.contains(UserObjectConverter.toRestView(commonFriend1)));
-        assertTrue(commonFriendsList.contains(UserObjectConverter.toRestView(commonFriend2)));
+        assertTrue(commonFriendsList.contains(userMapper.toRestView(commonFriend1)));
+        assertTrue(commonFriendsList.contains(userMapper.toRestView(commonFriend2)));
 
-        service.removeUserFromAnotherUserFriendsSet(user.getId(), commonFriend1.getId());
-        service.removeUserFromAnotherUserFriendsSet(user.getId(), commonFriend2.getId());
+        service.removeUserFromAnotherUserFriendsSet(userModel.getId(), commonFriend1.getId());
+        service.removeUserFromAnotherUserFriendsSet(userModel.getId(), commonFriend2.getId());
         service.removeUserFromAnotherUserFriendsSet(friend.getId(), commonFriend1.getId());
         service.removeUserFromAnotherUserFriendsSet(friend.getId(), commonFriend2.getId());
     }
 
     @Test
     public void shouldReturnListOfFriends() {
-        List<UserRestView> friendsList = service.getUsersFriendsSet(user.getId());
+        List<UserRestView> friendsList = service.getUsersFriendsSet(userModel.getId());
         assertNotNull(friendsList);
         assertTrue(friendsList.isEmpty());
     }
