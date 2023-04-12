@@ -45,7 +45,6 @@ class FilmorateApplicationTests {
 	private static HttpRequest.BodyPublisher bodyPublisher;
 	private static UserModel userModel;
 	private static FilmModel filmModel;
-	
 
 	@Test
 	void contextLoads() {
