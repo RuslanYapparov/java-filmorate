@@ -60,17 +60,19 @@ WHERE user_id IN (SELECT fs1.friend_id
                   FROM friendship AS fs1
                   WHERE fs1.user_id = <userId from request> AND
                         fs1.confirmed = true
-                  INNER JOIN friendship AS fs2 ON 
-                             fs2.user_id = <friendId from request> AND
-                             fs2.confirmed = true
+                  INNER JOIN (SELECT friend_id
+                              FROM friendship
+                              WHERE user_id = <friendId from request> AND
+                                    confirmed = true) AS fs2 ON fs1.friend_id = fs2.friend_id                                                     
                   UNION
                   SELECT fs1.user_id 
                   FROM friendship AS fs1
                   WHERE fs1.friend_id = <userId from request> AND
                         fs1.confirmed = true
-                  INNER JOIN friendship AS fs2 ON 
-                             fs2.friend_id = <friendId from request> AND
-                             fs2.confirmed = true);
+                  INNER JOIN (SELECT user_id
+                              FROM friendship
+                              WHERE friend_id = <friendId from request> AND
+                                    confirmed = true) AS fs2 ON fs1.user_id = fs2.user_id;
 ```
 
 3) Getting a list of users who liked a movie using '*filmId from request*':
