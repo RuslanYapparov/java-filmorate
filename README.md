@@ -63,8 +63,7 @@ WHERE user_id IN (SELECT fs1.friend_id
                               WHERE user_id = <friendId from request> AND
                                     confirmed = true) AS fs2 ON fs1.friend_id = fs2.friend_id
                   WHERE fs1.user_id = <userId from request> AND
-                        fs1.confirmed = true
-                                                                       
+                        fs1.confirmed = true                                                                      
                   UNION
                   SELECT fs1.user_id 
                   FROM friendship AS fs1
@@ -73,7 +72,7 @@ WHERE user_id IN (SELECT fs1.friend_id
                               WHERE friend_id = <friendId from request> AND
                                     confirmed = true) AS fs2 ON fs1.user_id = fs2.user_id
                   WHERE fs1.friend_id = <userId from request> AND
-                        fs1.confirmed = true;
+                        fs1.confirmed = true);
 ```
 
 3) Getting a list of users who liked a movie using '*filmId from request*':
