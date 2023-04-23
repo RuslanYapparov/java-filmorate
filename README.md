@@ -12,7 +12,7 @@ to watch a movie based on user likes.
 This application provides:
 
 1. Ability to store basic information about users and movies;
-2. Ability to interaction between users:
+2. Ability to interactions between users:
     - adding/deleting to/from friend list;
     - getting a list with all the user's friends;
     - getting a list with all mutual friends between two users.
@@ -58,21 +58,22 @@ SELECT *
 FROM users 
 WHERE user_id IN (SELECT fs1.friend_id 
                   FROM friendship AS fs1
-                  WHERE fs1.user_id = <userId from request> AND
-                        fs1.confirmed = true
                   INNER JOIN (SELECT friend_id
                               FROM friendship
                               WHERE user_id = <friendId from request> AND
-                                    confirmed = true) AS fs2 ON fs1.friend_id = fs2.friend_id                                                     
+                                    confirmed = true) AS fs2 ON fs1.friend_id = fs2.friend_id
+                  WHERE fs1.user_id = <userId from request> AND
+                        fs1.confirmed = true
+                                                                       
                   UNION
                   SELECT fs1.user_id 
                   FROM friendship AS fs1
-                  WHERE fs1.friend_id = <userId from request> AND
-                        fs1.confirmed = true
                   INNER JOIN (SELECT user_id
                               FROM friendship
                               WHERE friend_id = <friendId from request> AND
-                                    confirmed = true) AS fs2 ON fs1.user_id = fs2.user_id;
+                                    confirmed = true) AS fs2 ON fs1.user_id = fs2.user_id
+                  WHERE fs1.friend_id = <userId from request> AND
+                        fs1.confirmed = true;
 ```
 
 3) Getting a list of users who liked a movie using '*filmId from request*':
