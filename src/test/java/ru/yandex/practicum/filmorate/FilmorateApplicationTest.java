@@ -23,8 +23,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.mapper.FilmMapperImpl;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapperImpl;
 import ru.yandex.practicum.filmorate.model.domain.Film;
@@ -45,7 +43,6 @@ class FilmorateApplicationTest {
 	private static final ObjectMapper jackson = new ObjectMapper();
 	private static final HttpResponse.BodyHandler<String> BODY_HANDLER = HttpResponse.BodyHandlers.ofString();
 	private static final UserMapper userMapper = new UserMapperImpl();
-	private static final FilmMapper filmMapper = new FilmMapperImpl();
 	private static HttpRequest request;
 	private static HttpResponse<String> response;
 	private static HttpRequest.BodyPublisher bodyPublisher;
@@ -1202,9 +1199,9 @@ class FilmorateApplicationTest {
 				.rate(film.getRate())
 				.mpa(new RatingMpaRestCommand(film.getRating().getId()))
 				.likes(film.getLikes())
-				.genres(film.getGenres().stream().
-						map(genre -> new GenreRestCommand(genre.getId())).
-						collect(Collectors.toSet()))
+				.genres(film.getGenres().stream()
+						.map(genre -> new GenreRestCommand(genre.getId()))
+						.collect(Collectors.toSet()))
 				.build();
 		command.setName(film.getName());
 		command.setDescription(film.getDescription());
