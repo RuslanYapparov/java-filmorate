@@ -95,8 +95,7 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
                 .map(fs -> {
                     if (fs.getUserId() == userId | fs.getUserId() == friendId) {
                         return fs.getFriendId();
-                    }
-                    else {
+                    } else {
                         return fs.getUserId();
                     }
                 })
