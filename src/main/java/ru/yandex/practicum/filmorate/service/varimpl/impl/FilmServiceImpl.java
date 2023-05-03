@@ -132,7 +132,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getAllFilmsLikedByUser(long userId){
+    public List<Film> getAllFilmsLikedByUser(long userId) {
         List<Long> filmIdsFromLikes = likeDao.getAllFilmIdsLikedByUser(userId);
         return this.getAll().stream()
                 .filter(film -> filmIdsFromLikes.contains(film.getId()))
