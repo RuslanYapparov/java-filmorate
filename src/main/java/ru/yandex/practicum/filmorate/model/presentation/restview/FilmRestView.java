@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.model.presentation.restview;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
 
 import java.time.LocalDate;
 import java.util.Set;
