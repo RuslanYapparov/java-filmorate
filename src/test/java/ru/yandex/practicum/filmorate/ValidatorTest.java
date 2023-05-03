@@ -192,9 +192,9 @@ public class ValidatorTest {
                 .rate(film.getRate())
                 .mpa(new RatingMpaRestCommand(film.getRating().getId()))
                 .likes(film.getLikes())
-                .genres(film.getGenres().stream().
-                        map(genre -> new GenreRestCommand(genre.getId())).
-                        collect(Collectors.toSet()))
+                .genres(film.getGenres().stream()
+                        .map(genre -> new GenreRestCommand(genre.getId()))
+                        .collect(Collectors.toSet()))
                 .build();
         return command;
     }
