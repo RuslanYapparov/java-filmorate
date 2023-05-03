@@ -10,21 +10,26 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.yandex.practicum.filmorate.model.dto.restcommand.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.dto.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.FilmModel;
-import ru.yandex.practicum.filmorate.model.UserModel;
+import ru.yandex.practicum.filmorate.model.domain.Film;
+import ru.yandex.practicum.filmorate.model.domain.RatingMpa;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.domain.User;
 
 import javax.validation.Validator;
 import javax.validation.Validation;
 import javax.validation.ConstraintViolation;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ValidatorTest {
     private static Validator validator;
-    private static UserModel userModel;
-    private static FilmModel filmModel;
+    private static User user;
+    private static Film film;
     private static Set<ConstraintViolation<UserRestCommand>> userViolations;
     private static Set<ConstraintViolation<FilmRestCommand>> filmViolations;
 
@@ -35,40 +40,43 @@ public class ValidatorTest {
 
     @BeforeEach
     public void makeValidObjects() {
-        userModel = UserModel.builder()
-                .id(0)
+        user = User.builder()
                 .email("sexmaster96@gmail.com")
                 .login("tecktonick_killer")
                 .name("Владимир")
                 .birthday(LocalDate.of(1996, 12, 12))
+                .friends(new HashSet<>())
                 .build();
-        filmModel = FilmModel.builder()
-                .id(0)
-                .name("Whores & Whales")
+        film = Film.builder()
+                .name("Whores & whales")
                 .description("Adventures of women in whales world")
                 .releaseDate(LocalDate.of(1996, 12, 12))
                 .duration(127)
+                .rate((byte) 2)
+                .rating(RatingMpa.R)
+                .likes(new HashSet<>())
+                .genres(new HashSet<>())
                 .build();
     }
 
     @Test
     public void shouldCheckValidObjectsWithoutViolations() {
-        userViolations = validator.validate(createCommandObjectForTest(userModel));
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        userViolations = validator.validate(createCommandObjectForTest(user));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertTrue(userViolations.isEmpty());
         assertTrue(filmViolations.isEmpty());
     }
 
     @Test
     public void shouldProduceViolationsWhenCheckObjectsWithNegativeId() {
-        userModel = userModel.toBuilder()
+        user = user.toBuilder()
                 .id(-7)
                 .build();
-        filmModel = FilmModel.builder()
+        film = film.toBuilder()
                 .id(-7)
                 .build();
-        userViolations = validator.validate(createCommandObjectForTest(userModel));
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        userViolations = validator.validate(createCommandObjectForTest(user));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(userViolations.isEmpty());
         assertFalse(filmViolations.isEmpty());
     }
@@ -77,10 +85,10 @@ public class ValidatorTest {
     @ValueSource(strings = { " ", "\r", "\t", "\n", "sosiska", "@", "yahoo kiss@tu.bg", "ru\\m@tk.g", "177" })
     @NullAndEmptySource
     public void shouldProduceViolationsWhenCheckUserWithInvalidEmail(String email) {
-        userModel = userModel.toBuilder()
+        user = user.toBuilder()
                 .email(email)
                 .build();
-        userViolations = validator.validate(createCommandObjectForTest(userModel));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         System.out.println(userViolations);
         assertFalse(userViolations.isEmpty());
     }
@@ -89,24 +97,24 @@ public class ValidatorTest {
     @ValueSource(strings = { " ", "\r", "\t", "\n", "sosiska ru" })
     @NullAndEmptySource
     public void shouldProduceViolationsWhenCheckUserWithInvalidLogin(String login) {
-        userModel = userModel.toBuilder()
+        user = user.toBuilder()
                 .login(login)
                 .build();
-        userViolations = validator.validate(createCommandObjectForTest(userModel));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
     }
 
     @Test
     public void shouldProduceViolationsWhenCheckUserWithInvalidBirtdate() {
-        userModel = userModel.toBuilder()
+        user = user.toBuilder()
                 .birthday(LocalDate.of(2025, 11, 9))
                 .build();
-        userViolations = validator.validate(createCommandObjectForTest(userModel));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
-        userModel = UserModel.builder()
+        user = User.builder()
                 .birthday(null)
                 .build();
-        userViolations = validator.validate(createCommandObjectForTest(userModel));
+        userViolations = validator.validate(createCommandObjectForTest(user));
         assertFalse(userViolations.isEmpty());
     }
 
@@ -114,10 +122,10 @@ public class ValidatorTest {
     @ValueSource(strings = { " ", "\r", "\t", "\n" })
     @NullAndEmptySource
     public void shouldProduceViolationsWhenCheckFilmWithInvalidName(String name) {
-        filmModel = filmModel.toBuilder()
+        film = film.toBuilder()
                 .name(name)
                 .build();
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
@@ -127,61 +135,67 @@ public class ValidatorTest {
             "What if some whores can visit it too?" })
     @NullSource
     public void shouldProduceViolationsWhenCheckFilmWithInvalidDescription(String description) {
-        filmModel = filmModel.toBuilder()
+        film = film.toBuilder()
                 .description(description)
                 .build();
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
     @Test
     public void shouldProduceViolationsWhenCheckFilmWithInvalidReleaseDate() {
-        filmModel = filmModel.toBuilder()
+        film = film.toBuilder()
                 .releaseDate(null)
                 .build();
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
-        filmModel = filmModel.toBuilder()
+        film = film.toBuilder()
                 .releaseDate(LocalDate.of(2026, 12, 12))
                 .build();
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
-        filmModel = filmModel.toBuilder()
+        film = film.toBuilder()
                 .releaseDate(LocalDate.of(1890, 12, 12))
                 .build();
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
     @ParameterizedTest
     @ValueSource(ints = { 0, -7 })
     public void shouldProduceViolationsWhenCheckFilmWithInvalidDuration(int duration) {
-        filmModel = filmModel.toBuilder()
+        film = film.toBuilder()
                 .duration(duration)
                 .build();
-        filmViolations = validator.validate(createCommandObjectForTest(filmModel));
+        filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
     }
 
-    private UserRestCommand createCommandObjectForTest(UserModel userModel) {
+    private UserRestCommand createCommandObjectForTest(User user) {
         UserRestCommand command = new UserRestCommand();
-        command.setId(userModel.getId());
-        command.setEmail(userModel.getEmail());
-        command.setLogin(userModel.getLogin());
-        command.setName(userModel.getName());
-        command.setBirthday(userModel.getBirthday());
-        command.setFriends(userModel.getFriends());
+        command.setId(user.getId());
+        command.setEmail(user.getEmail());
+        command.setLogin(user.getLogin());
+        command.setName(user.getName());
+        command.setBirthday(user.getBirthday());
+        command.setFriends(user.getFriends());
         return command;
     }
 
-    private FilmRestCommand createCommandObjectForTest(FilmModel filmModel) {
-        FilmRestCommand command = new FilmRestCommand();
-        command.setId(filmModel.getId());
-        command.setName(filmModel.getName());
-        command.setDescription(filmModel.getDescription());
-        command.setReleaseDate(filmModel.getReleaseDate());
-        command.setDuration(filmModel.getDuration());
-        command.setLikes(filmModel.getLikes());
+    private FilmRestCommand createCommandObjectForTest(Film film) {
+        FilmRestCommand command = FilmRestCommand.builder()
+                .id(film.getId())
+                .name(film.getName())
+                .description(film.getDescription())
+                .releaseDate(film.getReleaseDate())
+                .duration(film.getDuration())
+                .rate(film.getRate())
+                .mpa(new RatingMpaRestCommand(film.getRating().getId()))
+                .likes(film.getLikes())
+                .genres(film.getGenres().stream().
+                        map(genre -> new GenreRestCommand(genre.getId())).
+                        collect(Collectors.toSet()))
+                .build();
         return command;
     }
 

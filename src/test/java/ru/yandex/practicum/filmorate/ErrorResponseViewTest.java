@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import ru.yandex.practicum.filmorate.model.dto.restview.ErrorResponseView;
+import ru.yandex.practicum.filmorate.model.presentation.restview.ErrorResponseView;
 
 public class ErrorResponseViewTest {
     ErrorResponseView errorResponseView;

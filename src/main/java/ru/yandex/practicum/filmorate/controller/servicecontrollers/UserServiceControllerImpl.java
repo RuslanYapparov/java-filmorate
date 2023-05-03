@@ -1,59 +1,72 @@
 package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.Positive;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
-import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.domain.FriendshipRequest;
+import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
+import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Validated
 @RestController
 @lombok.extern.slf4j.Slf4j
 @RequestMapping("/users/{user_id}/friends")
 @lombok.RequiredArgsConstructor
-public class UserServiceControllerImpl implements UserServiceController {
-    private final UserService service;
+public class UserServiceControllerImpl  {
+    @Qualifier("userService")
+    private final UserService userService;
+    private final UserMapper userMapper;
 
-    @Override
     @GetMapping
     public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId)
             throws ObjectNotFoundInStorageException {
         log.debug("Запрошен список друзей пользователя с id" + userId);
-        return service.getUsersFriendsSet(userId);
+        return userService.getUsersFriendsSet(userId).stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
     }
 
-    @Override
     @GetMapping("/common/{friend_id}")
     public List<UserRestView> getCommonFriends(@PathVariable(value = "user_id") @Positive long userId,
                                                   @PathVariable(value = "friend_id") @Positive long friendId)
         throws ObjectNotFoundInStorageException {
-        List<UserRestView> commonFriendsList = service.getCommonFriendsOfTwoUsers(userId, friendId);
+        List<User> commonFriendsList = userService.getCommonFriendsOfTwoUsers(userId, friendId);
         log.debug(String.format("Запрошен список общих друзей пользователей id%d id%d", userId, friendId));
-        return commonFriendsList;
+        return commonFriendsList.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
     }
 
-    @Override
+    @PutMapping("{friend_id}")
+    public List<UserRestView> addToFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
+                                              @PathVariable(value = "friend_id") @Positive long friendId)
+            throws ObjectNotFoundInStorageException {
+        FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
+        List<User> usersFriendsList = userService.addUserToAnotherUserFriendsSet(friendshipRequest);
+        log.debug(String.format("Пользователи id%d id%d теперь друзья", userId, friendId));
+        return usersFriendsList.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
+    }
+
     @DeleteMapping("{friend_id}")
     public List<UserRestView> removeFromFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
                                           @PathVariable(value = "friend_id") @Positive long friendId)
         throws ObjectNotFoundInStorageException {
-        List<UserRestView> usersFriendsList = service.removeUserFromAnotherUserFriendsSet(userId, friendId);
+        FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
+        List<User> usersFriendsList = userService.removeUserFromAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d больше не друзья", userId, friendId));
-        return usersFriendsList;
-    }
-
-    @Override
-    @PutMapping("{friend_id}")
-    public List<UserRestView> addToFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
-                                     @PathVariable(value = "friend_id") @Positive long friendId)
-            throws ObjectNotFoundInStorageException {
-        List<UserRestView> usersFriendsList = service.addUserToAnotherUserFriendsSet(userId, friendId);
-        log.debug(String.format("Пользователи id%d id%d теперь друзья", userId, friendId));
-        return usersFriendsList;
+        return usersFriendsList.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
     }
 
 }

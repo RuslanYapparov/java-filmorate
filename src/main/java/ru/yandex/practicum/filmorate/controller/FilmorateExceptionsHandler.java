@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.dto.restview.ErrorResponseView;
+import ru.yandex.practicum.filmorate.model.presentation.restview.ErrorResponseView;
 
 @RestControllerAdvice()
 @Slf4j
