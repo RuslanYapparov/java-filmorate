@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.dao;
 
-public interface FilmorateVariableStorageDao<TE, T> extends FilmorateConstantStorageDao<TE> {  // T - Type - тип объекта
+public interface FilmorateVariableStorageDao<E, T> extends FilmorateConstantStorageDao<E> {  // T - Type - тип объекта
                                                                                                     // Сервисного слоя
-    TE save(T object);
+    E save(T object);
 
-    TE update(T object);
+    E update(T object);
 
-    TE deleteById(long objectId, long anotherObjectId);
+    E deleteById(long objectId, long anotherObjectId);
 
     void deleteAll();
 

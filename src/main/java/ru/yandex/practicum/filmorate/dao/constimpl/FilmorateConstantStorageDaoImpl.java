@@ -9,11 +9,11 @@ import java.util.List;
 import ru.yandex.practicum.filmorate.dao.FilmorateConstantStorageDao;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 
-public class FilmorateConstantStorageDaoImpl<TE> implements FilmorateConstantStorageDao<TE> {
+public class FilmorateConstantStorageDaoImpl<E> implements FilmorateConstantStorageDao<E> {
     protected String type;
     protected String sql;
     protected final JdbcTemplate jdbcTemplate;
-    protected RowMapper<TE> objectEntityRowMapper;
+    protected RowMapper<E> objectEntityRowMapper;
 
     public FilmorateConstantStorageDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -27,7 +27,7 @@ public class FilmorateConstantStorageDaoImpl<TE> implements FilmorateConstantSto
     }
 
     @Override
-    public TE getById(long objectId) throws ObjectNotFoundInStorageException {
+    public E getById(long objectId) throws ObjectNotFoundInStorageException {
         sql = String.format("select * from %ss where %s_id = ?", type, type);
         try {
             return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, objectId);
@@ -38,7 +38,7 @@ public class FilmorateConstantStorageDaoImpl<TE> implements FilmorateConstantSto
     }
 
     @Override
-    public List<TE> getAll() {
+    public List<E> getAll() {
         sql = String.format("select * from %ss order by %s_id", type, type);
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }

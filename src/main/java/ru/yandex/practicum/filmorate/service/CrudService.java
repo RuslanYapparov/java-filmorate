@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 
-public interface CrudService<T, TRC> extends ReadConstantObjectService<T> {
-                             // TRC - TypeRestCommand - тип объекта, поступающего в RequestBody HTTP-запроса
-    T save(TRC objectRestCommand);
+public interface CrudService<T, C> extends ReadConstantObjectService<T> {
+                             // C - RestCommand - тип объекта, поступающего в RequestBody HTTP-запроса
+    T save(C objectRestCommand);
 
-    T update(TRC objectRestCommand) throws ObjectNotFoundInStorageException;
+    T update(C objectRestCommand) throws ObjectNotFoundInStorageException;
 
     T deleteById(long objectId) throws ObjectNotFoundInStorageException;
 

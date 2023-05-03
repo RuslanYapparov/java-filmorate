@@ -4,10 +4,10 @@ import javax.validation.constraints.Positive;
 
 import java.util.List;
 
-public interface ConstantStorageController<TRV> {
-                                       //  TRV - TypeRestView - тип представления объекта во внешней среде
-    List<TRV> getAll();
+public interface ConstantStorageController<V> {
+                                       //  V - TypeRestView - тип представления объекта во внешней среде
+    List<V> getAll();
 
-    TRV getOneById(@Positive long id);
+    V getOneById(@Positive long id);
 
 }
