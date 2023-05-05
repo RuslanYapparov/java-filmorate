@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.controller.storagecontrollers.constimpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.Positive;
 import java.util.List;
@@ -10,16 +12,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.ConstantStorageController;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.domain.RatingMpa;
 import ru.yandex.practicum.filmorate.model.presentation.restview.RatingMpaRestView;
 import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 
 @Validated
 @RestController
-@lombok.extern.slf4j.Slf4j
+@Slf4j
 @RequestMapping("/mpa")
-@lombok.RequiredArgsConstructor
+@RequiredArgsConstructor
 public class RatingMpaStorageControllerImpl implements ConstantStorageController<RatingMpaRestView> {
     @Qualifier("ratingService")
     private final ReadConstantObjectService<RatingMpa> ratingMpaService;
@@ -38,8 +39,7 @@ public class RatingMpaStorageControllerImpl implements ConstantStorageController
 
     @Override
     @GetMapping("{rating_id}")
-    public RatingMpaRestView getOneById(@PathVariable(value = "rating_id") @Positive long ratingId)
-            throws ObjectNotFoundInStorageException {
+    public RatingMpaRestView getOneById(@PathVariable(value = "rating_id") @Positive long ratingId) {
         RatingMpa ratingMpa = ratingMpaService.getById(ratingId);
         log.debug("Запрошен рейтинг с идентификатором {}. Рейтинг найден и отправлен клиенту", ratingMpa.getId());
         return toRestViewConverter.apply(ratingMpa);

@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,17 +14,15 @@ import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStorageController;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.domain.User;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Validated
 @RestController
-@lombok.extern.slf4j.Slf4j
 @RequestMapping("/users")
-@lombok.RequiredArgsConstructor
+@Slf4j
+@RequiredArgsConstructor
 public class UserStorageControllerImpl implements VariableStorageController<UserRestCommand, UserRestView> {
     @Qualifier("userService")
     private final UserService userService;
@@ -42,15 +42,14 @@ public class UserStorageControllerImpl implements VariableStorageController<User
 
     @Override
     @GetMapping("{user_id}")
-    public UserRestView getOneById(@PathVariable(value = "user_id") @Positive long userId)
-            throws ObjectNotFoundInStorageException {
+    public UserRestView getOneById(@PathVariable(value = "user_id") @Positive long userId) {
         User user = userService.getById(userId);
         log.debug("Запрошен пользователь с идентификатором {}. Пользователь найден и отправлен клиенту", user.getId());
         return userMapper.toRestView(user);
     }
 
     @PostMapping
-    public UserRestView post(@RequestBody @Valid UserRestCommand postUserCommand) throws UserValidationException {
+    public UserRestView post(@RequestBody @Valid UserRestCommand postUserCommand) {
         User user = userService.save(postUserCommand);
         log.debug("Сохранен новый пользователь с логином '{}'. Присвоен идентификатор {}",
                 user.getLogin(), user.getId());
@@ -58,8 +57,7 @@ public class UserStorageControllerImpl implements VariableStorageController<User
     }
 
     @PutMapping
-    public UserRestView put(@RequestBody UserRestCommand putUserCommand)
-            throws ObjectNotFoundInStorageException {
+    public UserRestView put(@RequestBody UserRestCommand putUserCommand) {
         User user = userService.update(putUserCommand);
         log.debug("Обновлены данные пользователя с логином '{}'. Идентификатор пользователя: {}", user.getLogin(),
                 user.getId());
@@ -75,8 +73,7 @@ public class UserStorageControllerImpl implements VariableStorageController<User
 
     @Override
     @DeleteMapping("{user_id}")
-    public UserRestView deleteOneById(@PathVariable(value = "user_id") @Positive long userId)
-            throws ObjectNotFoundInStorageException {
+    public UserRestView deleteOneById(@PathVariable(value = "user_id") @Positive long userId) {
         User user = userService.deleteById(userId);
         log.debug("Запрошено удаление пользователя с идентификатором {}. Пользователь удален", userId);
         return userMapper.toRestView(user);

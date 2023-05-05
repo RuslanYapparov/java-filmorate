@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -22,11 +20,12 @@ import ru.yandex.practicum.filmorate.model.presentation.restview.RatingMpaRestVi
 @Mapper(componentModel = "spring")
 public interface FilmMapper {
 
-    @Mapping(target = "mpa", source = "rating", qualifiedByName = "mapMpaRestView")
-    @Mapping(target = "genres", source = "genres", qualifiedByName = "mapGenreSetRestView")
+    @Mapping(target = "mpa", source = "rating")
+    @Mapping(target = "genres", source = "genres",qualifiedByName = "mapGenreSetRestView")
+    @Mapping(target = "likes", source = "likes", qualifiedByName = "mapLikes")
     FilmRestView toRestView(Film film);
 
-    @Mapping(target = "rating", source = "mpa", qualifiedByName = "mapRating")
+    @Mapping(target = "rating", source = "mpa")
     @Mapping(target = "genres", source = "genres", qualifiedByName = "mapGenreSet")
     @Mapping(target = "likes", source = "likes", qualifiedByName = "mapLikes")
     Film fromRestCommand(FilmRestCommand filmRestCommand);
@@ -45,19 +44,20 @@ public interface FilmMapper {
         return RatingMpa.getRatingById(id);
     }
 
-    @Named("mapMpaRestView")
     default RatingMpaRestView mapMpaRestView(RatingMpa rating) {
         return new RatingMpaRestView(rating.getId(), rating.getName());
     }
 
     @Named("mapGenreSetRestView")
     default Set<GenreRestView> mapGenreSetRestView(Set<Genre> genreSet) {
-        return genreSet.stream()
-                .map(genre -> new GenreRestView(genre.getId(), genre.getByRus()))
-                .collect(Collectors.toSet());
+        if (genreSet != null) {
+            return genreSet.stream()
+                    .map(genre -> new GenreRestView(genre.getId(), genre.getByRus()))
+                    .collect(Collectors.toSet());
+        }
+        return new HashSet<>();
     }
 
-    @Named("mapRating")
     default RatingMpa mapRating(RatingMpaRestCommand rating) {
         if (rating != null) {
             return RatingMpa.getRatingById(rating.getId());
@@ -66,19 +66,11 @@ public interface FilmMapper {
     }
 
     @Named("mapGenreSet")
-    default Set<Genre> mapGenreSet(Set<GenreRestCommand> genreSet) {
-        if (genreSet != null) {
-            return genreSet.stream()
+    default Set<Genre> mapGenreSet(Set<GenreRestCommand> genreRestCommandSet) {
+        if (genreRestCommandSet != null) {
+            return genreRestCommandSet.stream()
                     .map(genreRestCommand -> Genre.getGenreById(genreRestCommand.getId()))
                     .collect(Collectors.toSet());
-        }
-        return new HashSet<>();
-    }
-
-    @Named("mapLikes")
-    default Set<Long> mapLikesSet(Set<Long> likesSet) {
-        if (likesSet != null) {
-            return likesSet;
         }
         return new HashSet<>();
     }
@@ -93,4 +85,22 @@ public interface FilmMapper {
         return new HashSet<>();
     }
 
+    @Named("mapLikes")
+    default Set<Long> mapLikesSet(Set<Long> likesSet) {
+        if (likesSet != null) {
+            return likesSet;
+        }
+        return new HashSet<>();
+    }
+    /* Не смог найти способ, чтобы в имплементации производилось действие при значении поля likes = null.
+    * Применение парамтеров nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_DEFAULT,
+    * nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS не помогло, в FilmMapperImpl все равно обработка поля
+    * выглядела так:
+    *
+    * Set<Long> set1 = filmRestCommand.getLikes();
+        if ( set1 != null ) {
+            film.likes( new LinkedHashSet<Long>( set1 ) );
+        }
+    *
+    * В результате получал NPE. Пока решил оставить такое дефолтное определение метода */
 }

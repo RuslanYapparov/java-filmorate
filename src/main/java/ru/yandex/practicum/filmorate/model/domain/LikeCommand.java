@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.model.domain;
 
-@lombok.AllArgsConstructor
-@lombok.Getter
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
 public class LikeCommand {
     private final long filmId;
     private final long userId;

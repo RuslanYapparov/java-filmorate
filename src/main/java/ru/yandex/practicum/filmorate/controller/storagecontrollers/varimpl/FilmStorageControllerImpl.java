@@ -5,6 +5,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +18,6 @@ import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStora
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.domain.Film;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.GenreRestView;
 import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
@@ -24,8 +25,8 @@ import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 @Validated
 @RestController
 @RequestMapping("/films")
-@lombok.extern.slf4j.Slf4j
-@lombok.RequiredArgsConstructor()
+@Slf4j
+@RequiredArgsConstructor
 public class FilmStorageControllerImpl implements VariableStorageController<FilmRestCommand, FilmRestView> {
     @Qualifier("filmService")
     private final FilmService filmService;
@@ -42,8 +43,7 @@ public class FilmStorageControllerImpl implements VariableStorageController<Film
 
     @Override
     @GetMapping("{film_id}")
-    public FilmRestView getOneById(@PathVariable(value = "film_id") @Positive long filmId)
-            throws ObjectNotFoundInStorageException {
+    public FilmRestView getOneById(@PathVariable(value = "film_id") @Positive long filmId) {
         Film film = filmService.getById(filmId);
         log.debug("Запрошен фильм с идентификатором {}. Фильм найден и отправлен клиенту", film.getId());
         return getCorrectFilmRestView(film);
@@ -60,8 +60,7 @@ public class FilmStorageControllerImpl implements VariableStorageController<Film
 
     @Override
     @PutMapping
-    public FilmRestView put(@RequestBody @Valid FilmRestCommand putFilmCommand)
-            throws ObjectNotFoundInStorageException {
+    public FilmRestView put(@RequestBody @Valid FilmRestCommand putFilmCommand) {
         Film film = filmService.update(putFilmCommand);
         log.debug("Обновлены данные фильма '{}'. Идентификатор фильма: {}", film.getName(), film.getId());
         return getCorrectFilmRestView(film);
@@ -76,8 +75,7 @@ public class FilmStorageControllerImpl implements VariableStorageController<Film
 
     @Override
     @DeleteMapping("{film_id}")
-    public FilmRestView deleteOneById(@PathVariable(value = "film_id") @Positive long filmId)
-            throws ObjectNotFoundInStorageException {
+    public FilmRestView deleteOneById(@PathVariable(value = "film_id") @Positive long filmId) {
         Film film = filmService.deleteById(filmId);
         log.debug("Запрошено удаление фильма с идентификатором {}. Фильм удален", filmId);
         return getCorrectFilmRestView(film);
@@ -88,9 +86,7 @@ public class FilmStorageControllerImpl implements VariableStorageController<Film
         Set<GenreRestView> filmGenres = new TreeSet<>(Comparator.comparingInt(GenreRestView::getId));
         Set<Long> filmLikes = new TreeSet<>(filmRestView.getLikes());
         filmGenres.addAll(filmRestView.getGenres());
-        filmRestView.setGenres(filmGenres);
-        filmRestView.setLikes(filmLikes);
-        return filmRestView;
+        return filmRestView.toBuilder().genres(filmGenres).likes(filmLikes).build();
     }
 
 }

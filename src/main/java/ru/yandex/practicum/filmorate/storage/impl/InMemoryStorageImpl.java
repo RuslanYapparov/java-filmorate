@@ -44,7 +44,7 @@ public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
 
     @Override
     public List<T> getAll() {
-        return new ArrayList<>(this.dataMap.values());
+        return new ArrayList<>(dataMap.values());
     }
 
     @Override
@@ -58,7 +58,7 @@ public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
 
     @Override
     public void deleteAll() {
-        this.dataMap.clear();
+        dataMap.clear();
     }
 
 }

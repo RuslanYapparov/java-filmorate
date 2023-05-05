@@ -2,12 +2,16 @@ package ru.yandex.practicum.filmorate.model.presentation.restview;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.List;
 
-@lombok.EqualsAndHashCode
-@lombok.ToString
-@lombok.Getter
+@EqualsAndHashCode
+@ToString
+@Getter
 public class ErrorResponseView {
     @JsonProperty("statusCode")
     private final int statusCode;
@@ -17,7 +21,7 @@ public class ErrorResponseView {
     private final String debugMessage;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @JsonProperty("errors")
-    @lombok.Setter
+    @Setter
     private List<String> errors;
 
     public ErrorResponseView(int statusCode, String exception, String debugMessage) {

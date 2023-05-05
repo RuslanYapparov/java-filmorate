@@ -19,12 +19,12 @@ public class CrudServiceImpl<T, E, C> implements CrudService<T, C> {
 
     @Override
     public int getQuantity() {
-        return this.objectDao.getQuantity();
+        return objectDao.getQuantity();
     }
 
     @Override
     public void deleteAll() {
-        this.objectDao.deleteAll();
+        objectDao.deleteAll();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class CrudServiceImpl<T, E, C> implements CrudService<T, C> {
 
     @Override
     public List<T> getAll() {        // Для всех объектов, имеющих поля-коллекции (User, Film), придется переопределить
-        List<E> allObjectEntities = this.objectDao.getAll();           // Методы getAll, getById, deleteById и update
+        List<E> allObjectEntities = objectDao.getAll();           // Методы getAll, getById, deleteById и update
         return allObjectEntities.stream()
                 .map(objectFromDbEntityMapper)
                 .collect(Collectors.toList());
@@ -43,20 +43,20 @@ public class CrudServiceImpl<T, E, C> implements CrudService<T, C> {
 
     @Override
     public T getById(long id) throws ObjectNotFoundInStorageException {
-        E objectEntity = this.objectDao.getById(id);
-        return this.objectFromDbEntityMapper.apply(objectEntity);
+        E objectEntity = objectDao.getById(id);
+        return objectFromDbEntityMapper.apply(objectEntity);
     }
 
     @Override
     public T update(C objectRestCommand) throws ObjectNotFoundInStorageException {
         T object = objectFromRestCommandMapper.apply(objectRestCommand);
-        return this.objectFromDbEntityMapper.apply(objectDao.update(object));
+        return objectFromDbEntityMapper.apply(objectDao.update(object));
     }
 
     @Override
     public T deleteById(long objectId) throws ObjectNotFoundInStorageException {
-        E objectEntity = this.objectDao.deleteById(objectId, 0);
-        return this.objectFromDbEntityMapper.apply(objectEntity);
+        E objectEntity = objectDao.deleteById(objectId, 0);
+        return objectFromDbEntityMapper.apply(objectEntity);
     }
 
 }

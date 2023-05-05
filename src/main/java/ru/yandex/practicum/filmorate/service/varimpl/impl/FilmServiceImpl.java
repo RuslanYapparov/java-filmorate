@@ -69,10 +69,10 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public Film getById(long filmId) {
-        List<Long> userIds = this.likeDao.getAllUsersIdsWhoLikedFilm(filmId);
-        List<Genre> genres = this.filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
-        FilmEntity filmEntity = this.objectDao.getById(filmId);
-        Film film = this.objectFromDbEntityMapper.apply(filmEntity);
+        List<Long> userIds = likeDao.getAllUsersIdsWhoLikedFilm(filmId);
+        List<Genre> genres = filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
+        FilmEntity filmEntity = objectDao.getById(filmId);
+        Film film = objectFromDbEntityMapper.apply(filmEntity);
         film.getLikes().addAll(userIds);
         film.getGenres().addAll(genres);
         return film;
@@ -80,9 +80,9 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public List<Film> getAll() {
-        Consumer<Film> filmGenresSetFiller = initializeFilmGenresSetFiller(this.filmGenreDao.getAll());
-        Consumer<Film> filmLikesSetFiller = initializeFilmLikesSetFiller(this.likeDao.getAll());
-        return this.objectDao.getAll().stream()
+        Consumer<Film> filmGenresSetFiller = initializeFilmGenresSetFiller(filmGenreDao.getAll());
+        Consumer<Film> filmLikesSetFiller = initializeFilmLikesSetFiller(likeDao.getAll());
+        return objectDao.getAll().stream()
                 .map(objectFromDbEntityMapper)
                 .peek(filmLikesSetFiller)
                 .peek(filmGenresSetFiller)
@@ -91,34 +91,34 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public Film update(FilmRestCommand filmRestCommand) throws ObjectNotFoundInStorageException {
-        Film film = this.filmMapper.fromRestCommand(filmRestCommand);
+        Film film = filmMapper.fromRestCommand(filmRestCommand);
         updateLikeAndGenreStorages(film);
-        this.objectDao.update(film);
+        objectDao.update(film);
         return this.getById(filmRestCommand.getId());
     }
 
     @Override
     public Film deleteById(long filmId) {
-        FilmEntity filmEntity = this.objectDao.deleteById(filmId, 0);
+        FilmEntity filmEntity = objectDao.deleteById(filmId, 0);
         return (filmMapper.fromDbEntity(filmEntity));
     }
 
     @Override
     public List<User> addLikeToFilmLikesSet(LikeCommand like) {
-        this.likeDao.save(like);
+        likeDao.save(like);
         return this.getAllUsersWhoLikedFilm(like.getFilmId());
     }
 
     @Override
     public List<User> removeLikeFromFilmLikesSet(LikeCommand like) {
-        this.likeDao.deleteById(like.getFilmId(), like.getUserId());
+        likeDao.deleteById(like.getFilmId(), like.getUserId());
         return this.getAllUsersWhoLikedFilm(like.getFilmId());
     }
 
     @Override
     public List<User> getAllUsersWhoLikedFilm(long filmId) {
         List<Long> userIdsFromLikes = likeDao.getAllUsersIdsWhoLikedFilm(filmId);
-        return this.userService.getAll().stream()
+        return userService.getAll().stream()
                 .filter(user -> userIdsFromLikes.contains(user.getId()))
                 .collect(Collectors.toList());
     }
@@ -141,19 +141,19 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public List<Genre> addFilmGenreAssociation(FilmGenreCommand filmGenre) {
-        this.filmGenreDao.save(filmGenre);
-        return this.filmGenreDao.getAllGenresOfFilmByFilmId(filmGenre.getFilmId());
+        filmGenreDao.save(filmGenre);
+        return filmGenreDao.getAllGenresOfFilmByFilmId(filmGenre.getFilmId());
     }
 
     @Override
     public List<Genre> removeFilmGenreAssociation(FilmGenreCommand filmGenre) {
-        this.filmGenreDao.deleteById(filmGenre.getFilmId(), filmGenre.getGenre().getId());
-        return this.filmGenreDao.getAllGenresOfFilmByFilmId(filmGenre.getFilmId());
+        filmGenreDao.deleteById(filmGenre.getFilmId(), filmGenre.getGenre().getId());
+        return filmGenreDao.getAllGenresOfFilmByFilmId(filmGenre.getFilmId());
     }
 
     @Override
     public List<Film> getAllFilmsByGenre(Genre genre) {
-        List<Long> filmIdsFromFilmGenres = this.filmGenreDao.getAllFilmIdsByGenre(genre);
+        List<Long> filmIdsFromFilmGenres = filmGenreDao.getAllFilmIdsByGenre(genre);
         return this.getAll().stream()
                 .filter(film -> filmIdsFromFilmGenres.contains(film.getId()))
                 .collect(Collectors.toList());
@@ -161,7 +161,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public List<Genre> getFilmGenresByFilmId(long filmId) {
-        return this.filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
+        return filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
     }
 
     @Override
@@ -194,7 +194,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     public void updateLikeAndGenreStorages(Film film) {
         long filmId = film.getId();
-        List<Genre> oldGenresList = this.filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
+        List<Genre> oldGenresList = filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
         List<Genre> newGenreslist = new ArrayList<>(film.getGenres());
         List<Long> genresToDelete = oldGenresList.stream()
                 .filter(genre -> !newGenreslist.contains(genre))
@@ -207,7 +207,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         batchUpdate("insert into film_genres (film_id, genre_id) values (?, ?)", filmId, genresToAdd);
         batchUpdate("delete from film_genres where film_id = ? and genre_id = ?", filmId, genresToDelete);
 
-        List<Long> oldLikesList = this.likeDao.getAllUsersIdsWhoLikedFilm(filmId);
+        List<Long> oldLikesList = likeDao.getAllUsersIdsWhoLikedFilm(filmId);
         List<Long> newLikesList = new ArrayList<>(film.getLikes());
         List<Long> likesToDelete = oldLikesList.stream()
                 .filter(userId -> !newLikesList.contains(userId))

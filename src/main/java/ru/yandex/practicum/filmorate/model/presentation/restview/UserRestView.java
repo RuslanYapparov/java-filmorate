@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.model.presentation.restview;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-@lombok.EqualsAndHashCode
-@lombok.AllArgsConstructor
-@lombok.Builder   // Пока не нашел способ генерации UserMapperImpl с правильным созданием объекта без данной аннотации
-@lombok.NoArgsConstructor
-@lombok.Getter
+@EqualsAndHashCode
+@AllArgsConstructor
+@Builder   // Пока не нашел способ генерации UserMapperImpl с правильным созданием объекта без данной аннотации
+@NoArgsConstructor
+@Getter
 public class UserRestView {
     @JsonProperty("id")
     private long id;
@@ -22,7 +23,6 @@ public class UserRestView {
     @JsonProperty("birthday")
     private LocalDate birthday;
     @JsonProperty("friends")
-    @lombok.Getter
     private Set<Long> friends;
 
 }

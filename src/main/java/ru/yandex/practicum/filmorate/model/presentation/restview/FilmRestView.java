@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.model.presentation.restview;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
 
-@lombok.EqualsAndHashCode
-@lombok.AllArgsConstructor
-@lombok.Builder   // Пока не нашел способ генерации FilmMapperImpl с правильным созданием объекта без данной аннотации
-@lombok.NoArgsConstructor
-@lombok.Getter
+@EqualsAndHashCode
+@AllArgsConstructor
+@Builder(toBuilder = true)            // Пока не нашел способ генерации FilmMapperImpl с правильным созданием объекта
+@NoArgsConstructor                                                                            // Без данной аннотации
+@Getter
 public class FilmRestView {
     @JsonProperty("id")
     private long id;
@@ -26,10 +27,8 @@ public class FilmRestView {
     @JsonProperty("mpa")
     private RatingMpaRestView mpa;
     @JsonProperty("likes")
-    @lombok.Setter
     private Set<Long> likes;
     @JsonProperty("genres")
-    @lombok.Setter
     private Set<GenreRestView> genres;
 
 }

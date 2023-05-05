@@ -19,7 +19,6 @@ import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.model.domain.User;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 
-
 @Repository
 @Qualifier("userRepository")
 public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, User> {
