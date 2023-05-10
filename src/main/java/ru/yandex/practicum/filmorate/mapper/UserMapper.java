@@ -1,15 +1,52 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import org.mapstruct.Mapper;
-import ru.yandex.practicum.filmorate.model.dto.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
-import ru.yandex.practicum.filmorate.model.UserModel;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import ru.yandex.practicum.filmorate.model.data.UserEntity;
+import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    UserRestView toRestView(UserModel userModel);
+    @Mapping(target = "friends", source = "friends", qualifiedByName = "mapFriends")
+    UserRestView toRestView(User user);
 
-    UserModel toModel(UserRestCommand userRestCommand);
+    @Mapping(target = "friends", source = "friends", qualifiedByName = "mapFriends")
+    User fromRestCommand(UserRestCommand userRestCommand);
 
+    UserEntity toDbEntity(User user);
+
+    @Mapping(target = "friends", source = "id", qualifiedByName = "createFriendsSet")
+    User fromDbEntity(UserEntity userEntity);
+
+    @Named("createFriendsSet")
+    default Set<Long> createFriendsSet(long id) {
+        return new HashSet<>();
+    }
+
+    @Named("mapFriends")
+    default Set<Long> mapFriendsSet(Set<Long> friendsSet) {
+        if (friendsSet != null) {
+            return friendsSet;
+        }
+        return new HashSet<>();
+    }
+    /* Не смог найти способ, чтобы в имплементации производилось действие при значении поля friends = null.
+    * Применение парамтеров nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_DEFAULT,
+    * nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS не помогло, в UserMapperImpl все равно обработка поля
+    * выглядела так:
+    *
+    * Set<Long> set = user.getFriends();
+    *    if ( set != null ) {
+    *        userRestView.friends( new LinkedHashSet<Long>( set ) );
+    *    }
+    *
+    * В результате получал NPE. Пока решил оставить такое дефолтное определение метода */
 }

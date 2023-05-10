@@ -1,18 +1,69 @@
 package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 
-import ru.yandex.practicum.filmorate.model.dto.restview.UserRestView;
-
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.Positive;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
-public interface UserServiceController {
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.domain.FriendshipRequest;
+import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
+import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
-    List<UserRestView> getFriends(@Positive long id);
+@Validated
+@RestController
+@RequestMapping("/users/{user_id}/friends")
+@Slf4j
+@RequiredArgsConstructor
+public class UserServiceController {
+    @Qualifier("userService")
+    private final UserService userService;
+    private final UserMapper userMapper;
 
-    List<UserRestView> getCommonFriends(@Positive long userId, @Positive long friendId);
+    @GetMapping
+    public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId) {
+        log.debug("Запрошен список друзей пользователя с id" + userId);
+        return userService.getUsersFriendsSet(userId).stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
+    }
 
-    List<UserRestView> removeFromFriendsSet(@Positive long userId, @Positive long friendId);
+    @GetMapping("/common/{friend_id}")
+    public List<UserRestView> getCommonFriends(@PathVariable(value = "user_id") @Positive long userId,
+                                                  @PathVariable(value = "friend_id") @Positive long friendId) {
+        List<User> commonFriendsList = userService.getCommonFriendsOfTwoUsers(userId, friendId);
+        log.debug(String.format("Запрошен список общих друзей пользователей id%d id%d", userId, friendId));
+        return commonFriendsList.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
+    }
 
-    List<UserRestView> addToFriendsSet(@Positive long userId, @Positive long friendId);
+    @PutMapping("{friend_id}")
+    public List<UserRestView> addToFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
+                                              @PathVariable(value = "friend_id") @Positive long friendId) {
+        FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
+        List<User> usersFriendsList = userService.addUserToAnotherUserFriendsSet(friendshipRequest);
+        log.debug(String.format("Пользователи id%d id%d теперь друзья", userId, friendId));
+        return usersFriendsList.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("{friend_id}")
+    public List<UserRestView> removeFromFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
+                                          @PathVariable(value = "friend_id") @Positive long friendId) {
+        FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
+        List<User> usersFriendsList = userService.removeUserFromAnotherUserFriendsSet(friendshipRequest);
+        log.debug(String.format("Пользователи id%d id%d больше не друзья", userId, friendId));
+        return usersFriendsList.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
+    }
 
 }

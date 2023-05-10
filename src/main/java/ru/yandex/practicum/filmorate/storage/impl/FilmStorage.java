@@ -1,15 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.FilmModel;
+import ru.yandex.practicum.filmorate.model.domain.Film;
 
 @Component
-public class FilmStorage extends InMemoryStorageImpl<FilmModel> {
+@Qualifier("inMemoryFilmStorage")
+public class FilmStorage extends InMemoryStorageImpl<Film> {
 
     @Override
-    public FilmModel save(FilmModel filmModel) {
+    public Film save(Film filmModel) {
         long idForFilm = produceId();
         filmModel = filmModel.toBuilder().id(idForFilm).build();
         dataMap.put(idForFilm, filmModel);
@@ -17,7 +19,7 @@ public class FilmStorage extends InMemoryStorageImpl<FilmModel> {
     }
 
     @Override
-    public FilmModel update(FilmModel filmModel) throws ObjectNotFoundInStorageException {
+    public Film update(Film filmModel) throws ObjectNotFoundInStorageException {
         if (dataMap.containsKey(filmModel.getId())) {
             dataMap.put(filmModel.getId(), filmModel);
         } else {
