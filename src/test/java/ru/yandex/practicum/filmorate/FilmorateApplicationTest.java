@@ -25,10 +25,10 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapperImpl;
-import ru.yandex.practicum.filmorate.model.domain.Film;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
-import ru.yandex.practicum.filmorate.model.domain.RatingMpa;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.Film;
+import ru.yandex.practicum.filmorate.model.service.Genre;
+import ru.yandex.practicum.filmorate.model.service.RatingMpa;
+import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;

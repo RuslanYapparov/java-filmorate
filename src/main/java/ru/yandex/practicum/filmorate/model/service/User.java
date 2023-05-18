@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model.domain;
+package ru.yandex.practicum.filmorate.model.service;
 
 import lombok.Builder;
 import lombok.Value;

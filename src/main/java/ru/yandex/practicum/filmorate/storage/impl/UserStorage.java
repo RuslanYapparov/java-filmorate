@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 
 import java.util.stream.Collectors;
 

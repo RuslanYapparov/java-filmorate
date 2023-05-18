@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.time.LocalDate;
 
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 
 public class UserTest {
 

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.domain.Film;
+import ru.yandex.practicum.filmorate.model.service.Film;
 
 @Component
 @Qualifier("inMemoryFilmStorage")

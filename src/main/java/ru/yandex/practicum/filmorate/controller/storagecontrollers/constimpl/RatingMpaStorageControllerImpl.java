@@ -12,7 +12,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.ConstantStorageController;
-import ru.yandex.practicum.filmorate.model.domain.RatingMpa;
+import ru.yandex.practicum.filmorate.model.service.RatingMpa;
 import ru.yandex.practicum.filmorate.model.presentation.restview.RatingMpaRestView;
 import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 

@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStorageController;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 

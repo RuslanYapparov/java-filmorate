@@ -12,8 +12,8 @@ import ru.yandex.practicum.filmorate.dao.varimpl.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.*;
-import ru.yandex.practicum.filmorate.model.domain.FilmGenreCommand;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
+import ru.yandex.practicum.filmorate.model.service.FilmGenreCommand;
+import ru.yandex.practicum.filmorate.model.service.Genre;
 
 @Repository
 @Qualifier("filmGenreRepository")

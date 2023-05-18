@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 

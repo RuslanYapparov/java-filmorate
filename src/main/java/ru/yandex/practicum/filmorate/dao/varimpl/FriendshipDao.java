@@ -4,7 +4,7 @@ import java.util.List;
 
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
 import ru.yandex.practicum.filmorate.model.data.FriendshipEntity;
-import ru.yandex.practicum.filmorate.model.domain.FriendshipRequest;
+import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
 
 public interface FriendshipDao extends FilmorateVariableStorageDao<FriendshipEntity, FriendshipRequest> {
 

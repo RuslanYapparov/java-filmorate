@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.domain.*;
+import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.GenreRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
@@ -114,7 +114,7 @@ public class FilmServiceController {
     }
 
     @GetMapping("{film_id}/genres")
-    List<GenreRestView> getFilmGenresByFilmId(@PathVariable(value = "film_id") @Positive long filmId) {
+    List<GenreRestView> getGenresByFilmId(@PathVariable(value = "film_id") @Positive long filmId) {
         List<Genre> genreList = filmService.getFilmGenresByFilmId(filmId);
         log.debug(String.format("Запрошены все жанры фильма с идентификатором %d", filmId));
         return genreList.stream()

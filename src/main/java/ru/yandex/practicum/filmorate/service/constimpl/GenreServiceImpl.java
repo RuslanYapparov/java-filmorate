@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
+import ru.yandex.practicum.filmorate.model.service.Genre;
 import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 
 @Service

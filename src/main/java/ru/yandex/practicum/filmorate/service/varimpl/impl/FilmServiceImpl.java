@@ -20,7 +20,7 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.data.FilmGenreEntity;
 import ru.yandex.practicum.filmorate.model.data.LikeEntity;
-import ru.yandex.practicum.filmorate.model.domain.*;
+import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.service.varimpl.CrudServiceImpl;
 import ru.yandex.practicum.filmorate.service.varimpl.FilmService;

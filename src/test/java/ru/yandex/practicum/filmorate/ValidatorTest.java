@@ -10,13 +10,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.yandex.practicum.filmorate.model.domain.Film;
-import ru.yandex.practicum.filmorate.model.domain.RatingMpa;
+import ru.yandex.practicum.filmorate.model.service.Film;
+import ru.yandex.practicum.filmorate.model.service.RatingMpa;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 
 import javax.validation.Validator;
 import javax.validation.Validation;

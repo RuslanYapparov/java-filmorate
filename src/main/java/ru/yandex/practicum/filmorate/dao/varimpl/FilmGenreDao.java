@@ -4,8 +4,8 @@ import java.util.List;
 
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
 import ru.yandex.practicum.filmorate.model.data.FilmGenreEntity;
-import ru.yandex.practicum.filmorate.model.domain.FilmGenreCommand;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
+import ru.yandex.practicum.filmorate.model.service.FilmGenreCommand;
+import ru.yandex.practicum.filmorate.model.service.Genre;
 
 public interface FilmGenreDao extends FilmorateVariableStorageDao<FilmGenreEntity, FilmGenreCommand> {
 

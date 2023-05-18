@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 
 import java.time.LocalDate;
 import java.util.Collections;

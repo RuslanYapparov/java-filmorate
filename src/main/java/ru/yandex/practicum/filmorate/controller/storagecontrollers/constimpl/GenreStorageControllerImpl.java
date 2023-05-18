@@ -15,7 +15,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.ConstantStorageController;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
+import ru.yandex.practicum.filmorate.model.service.Genre;
 import ru.yandex.practicum.filmorate.model.presentation.restview.GenreRestView;
 import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 

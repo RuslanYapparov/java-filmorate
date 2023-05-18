@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStorageController;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
-import ru.yandex.practicum.filmorate.model.domain.Film;
+import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.GenreRestView;

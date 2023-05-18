@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
-import ru.yandex.practicum.filmorate.model.domain.Film;
-import ru.yandex.practicum.filmorate.model.domain.Genre;
-import ru.yandex.practicum.filmorate.model.domain.RatingMpa;
+import ru.yandex.practicum.filmorate.model.service.Film;
+import ru.yandex.practicum.filmorate.model.service.Genre;
+import ru.yandex.practicum.filmorate.model.service.RatingMpa;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;

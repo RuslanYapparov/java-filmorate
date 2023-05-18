@@ -16,7 +16,7 @@ import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmail
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.domain.User;
+import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 
 @Repository

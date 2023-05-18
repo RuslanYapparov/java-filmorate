@@ -16,7 +16,7 @@ import ru.yandex.practicum.filmorate.dao.varimpl.FriendshipDao;
 import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.FriendshipEntity;
-import ru.yandex.practicum.filmorate.model.domain.FriendshipRequest;
+import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
 
 /* Здесь несоответствие ТЗ и тестов в Postman (проверяется, что если пользователь отправил запрос, то у него в Set
  * с друзьями должна появиться запись о новом друге, а у получателя до одобрения запроса его нет). В любом случае,

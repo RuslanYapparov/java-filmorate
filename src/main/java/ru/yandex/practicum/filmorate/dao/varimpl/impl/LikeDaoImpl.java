@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl
 import ru.yandex.practicum.filmorate.dao.varimpl.LikeDao;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.LikeEntity;
-import ru.yandex.practicum.filmorate.model.domain.LikeCommand;
+import ru.yandex.practicum.filmorate.model.service.LikeCommand;
 
 @Repository
 @Qualifier("likeRepository")

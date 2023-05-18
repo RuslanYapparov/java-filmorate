@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.service.varimpl;
 
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.model.domain.*;
+import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.service.CrudService;
 

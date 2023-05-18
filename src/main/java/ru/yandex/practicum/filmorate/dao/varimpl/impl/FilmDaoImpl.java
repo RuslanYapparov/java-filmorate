@@ -14,7 +14,7 @@ import java.sql.Statement;
 import ru.yandex.practicum.filmorate.dao.varimpl.*;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
-import ru.yandex.practicum.filmorate.model.domain.*;
+import ru.yandex.practicum.filmorate.model.service.*;
 
 @Repository
 @Qualifier("filmRepository")
