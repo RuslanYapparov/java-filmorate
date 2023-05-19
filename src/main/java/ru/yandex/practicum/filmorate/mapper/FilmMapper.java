@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.mapper;
 
 import org.mapstruct.*;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
@@ -50,10 +52,12 @@ public interface FilmMapper {
 
     @Named("mapGenreSetRestView")
     default Set<GenreRestView> mapGenreSetRestView(Set<Genre> genreSet) {
+        Set<GenreRestView> filmGenres = new TreeSet<>(Comparator.comparingInt(GenreRestView::getId));
         if (genreSet != null) {
-            return genreSet.stream()
+            filmGenres.addAll(genreSet.stream()
                     .map(genre -> new GenreRestView(genre.getId(), genre.getByRus()))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toSet()));
+            return filmGenres;
         }
         return new HashSet<>();
     }
@@ -88,19 +92,9 @@ public interface FilmMapper {
     @Named("mapLikes")
     default Set<Long> mapLikesSet(Set<Long> likesSet) {
         if (likesSet != null) {
-            return likesSet;
+            return new TreeSet<>(likesSet);
         }
         return new HashSet<>();
     }
-    /* Не смог найти способ, чтобы в имплементации производилось действие при значении поля likes = null.
-    * Применение парамтеров nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_DEFAULT,
-    * nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS не помогло, в FilmMapperImpl все равно обработка поля
-    * выглядела так:
-    *
-    * Set<Long> set1 = filmRestCommand.getLikes();
-        if ( set1 != null ) {
-            film.likes( new LinkedHashSet<Long>( set1 ) );
-        }
-    *
-    * В результате получал NPE. Пока решил оставить такое дефолтное определение метода */
+
 }

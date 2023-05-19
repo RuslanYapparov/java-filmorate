@@ -34,9 +34,7 @@ public class FilmServiceController {
                                                  @Positive int size) {
         List<Film> popularFilms = filmService.getMostLikedFilms(size);
         log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", size));
-        return popularFilms.stream()
-                .map(filmMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfFilmsToListOfFilmRestViews(popularFilms);
     }
 
     @PutMapping("{film_id}/like/{user_id}")
@@ -45,9 +43,7 @@ public class FilmServiceController {
         LikeCommand likeCommand = new LikeCommand(filmId, userId);
         List<User> userList = filmService.addLikeToFilmLikesSet(likeCommand);
         log.debug(String.format("Пользователь id%d поставил лайк фильму id%d", userId, filmId));
-        return userList.stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfUsersToListOfUserRestViews(userList);
     }
 
     @DeleteMapping("{film_id}/like/{user_id}")
@@ -56,27 +52,21 @@ public class FilmServiceController {
         LikeCommand likeCommand = new LikeCommand(filmId, userId);
         List<User> userList = filmService.removeLikeFromFilmLikesSet(likeCommand);
         log.debug(String.format("Пользователь id%d убрал лайк с фильма id%d", userId, filmId));
-        return userList.stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfUsersToListOfUserRestViews(userList);
     }
 
     @GetMapping("{film_id}/likes")
     List<UserRestView> getAllUsersWhoLikedFilm(@PathVariable(value = "film_id") @Positive long filmId) {
         List<User> userList = filmService.getAllUsersWhoLikedFilm(filmId);
         log.debug(String.format("Запрошен список всех пользователей, поставившиз лайк фильму с id%d", filmId));
-        return userList.stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfUsersToListOfUserRestViews(userList);
     }
 
     @GetMapping("/likedfilms/{user_id}")
     List<FilmRestView> getAllFilmsLikedByUser(@PathVariable(value = "user_id") @Positive long userId) {
         List<Film> filmList = filmService.getAllFilmsLikedByUser(userId);
         log.debug(String.format("Запрошен список фильмов, которые лайкнул пользователь с id%d", userId));
-        return filmList.stream()
-                .map(filmMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfFilmsToListOfFilmRestViews(filmList);
     }
 
     @PutMapping("{film_id}/genre/{genre_id}")
@@ -86,9 +76,7 @@ public class FilmServiceController {
         List<Genre> genreList = filmService.addFilmGenreAssociation(
                 new FilmGenreCommand(filmId, genre));
         log.debug(String.format("Фильму с id%d присвоен жанр '%s'", filmId, genre.getByRus()));
-        return genreList.stream()
-                .map(everyGenre -> new GenreRestView(everyGenre.getId(), everyGenre.getByRus()))
-                .collect(Collectors.toList());
+        return this.mapListOfGenresToListOfGenreRestViews(genreList);
     }
 
     @DeleteMapping("{film_id}/genre/{genre_id}")
@@ -98,9 +86,7 @@ public class FilmServiceController {
         List<Genre> genreList = filmService.removeFilmGenreAssociation(
                 new FilmGenreCommand(filmId, genre));
         log.debug(String.format("Фильм с id%d больше не относится к жанру '%s'", filmId, genre.getByRus()));
-        return genreList.stream()
-                .map(everyGenre -> new GenreRestView(everyGenre.getId(), everyGenre.getByRus()))
-                .collect(Collectors.toList());
+        return this.mapListOfGenresToListOfGenreRestViews(genreList);
     }
 
     @GetMapping("/bygenre/{genre_id}")
@@ -108,18 +94,14 @@ public class FilmServiceController {
         Genre genre = Genre.getGenreById((int) genreId);
         List<Film> filmsByGenre = filmService.getAllFilmsByGenre(genre);
         log.debug(String.format("Запрошены все фильмы, относящиеся к жанру '%s'", genre.getByRus()));
-        return filmsByGenre.stream()
-                .map(filmMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfFilmsToListOfFilmRestViews(filmsByGenre);
     }
 
     @GetMapping("{film_id}/genres")
     List<GenreRestView> getGenresByFilmId(@PathVariable(value = "film_id") @Positive long filmId) {
         List<Genre> genreList = filmService.getFilmGenresByFilmId(filmId);
         log.debug(String.format("Запрошены все жанры фильма с идентификатором %d", filmId));
-        return genreList.stream()
-                .map(everyGenre -> new GenreRestView(everyGenre.getId(), everyGenre.getByRus()))
-                .collect(Collectors.toList());
+        return this.mapListOfGenresToListOfGenreRestViews(genreList);
     }
 
     @GetMapping("/byrating/{rating_id}")
@@ -127,8 +109,24 @@ public class FilmServiceController {
         RatingMpa ratingMpa = RatingMpa.getRatingById((int) ratingId);
         List<Film> filmsByRating = filmService.getAllFilmsByRatingMpa(ratingMpa);
         log.debug(String.format("Запрошены все фильмы, относящиеся к рейтингу '%s'", ratingMpa.getName()));
-        return filmsByRating.stream()
+        return this.mapListOfFilmsToListOfFilmRestViews(filmsByRating);
+    }
+
+    private List<FilmRestView> mapListOfFilmsToListOfFilmRestViews(List<Film> films) {
+        return films.stream()
                 .map(filmMapper::toRestView)
+                .collect(Collectors.toList());
+    }
+
+    private List<UserRestView> mapListOfUsersToListOfUserRestViews(List<User> users) {
+        return users.stream()
+                .map(userMapper::toRestView)
+                .collect(Collectors.toList());
+    }
+
+    private List<GenreRestView> mapListOfGenresToListOfGenreRestViews(List<Genre> genres) {
+        return genres.stream()
+                .map(everyGenre -> new GenreRestView(everyGenre.getId(), everyGenre.getByRus()))
                 .collect(Collectors.toList());
     }
 

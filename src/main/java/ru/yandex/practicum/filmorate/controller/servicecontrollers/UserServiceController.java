@@ -29,9 +29,7 @@ public class UserServiceController {
     @GetMapping
     public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId) {
         log.debug("Запрошен список друзей пользователя с id" + userId);
-        return userService.getUsersFriendsSet(userId).stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfUsersToListOfUserRestViews(userService.getUsersFriendsSet(userId));
     }
 
     @GetMapping("/common/{friend_id}")
@@ -39,9 +37,7 @@ public class UserServiceController {
                                                   @PathVariable(value = "friend_id") @Positive long friendId) {
         List<User> commonFriendsList = userService.getCommonFriendsOfTwoUsers(userId, friendId);
         log.debug(String.format("Запрошен список общих друзей пользователей id%d id%d", userId, friendId));
-        return commonFriendsList.stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfUsersToListOfUserRestViews(commonFriendsList);
     }
 
     @PutMapping("{friend_id}")
@@ -50,9 +46,7 @@ public class UserServiceController {
         FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
         List<User> usersFriendsList = userService.addUserToAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d теперь друзья", userId, friendId));
-        return usersFriendsList.stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
     }
 
     @DeleteMapping("{friend_id}")
@@ -61,7 +55,11 @@ public class UserServiceController {
         FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
         List<User> usersFriendsList = userService.removeUserFromAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d больше не друзья", userId, friendId));
-        return usersFriendsList.stream()
+        return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
+    }
+
+    private List<UserRestView> mapListOfUsersToListOfUserRestViews(List<User> users) {
+        return users.stream()
                 .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
