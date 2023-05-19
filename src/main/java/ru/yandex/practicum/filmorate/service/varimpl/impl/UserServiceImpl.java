@@ -73,7 +73,7 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
     }
 
     @Override
-    public List<User> getUsersFriendsSet(long userId) {
+    public List<User> getUsersFriendsSet(long userId) throws ObjectNotFoundInStorageException {
         List<Long> friendIds = friendshipDao.getAllByUserId(userId).stream()
                 // Преобразуем поток дружб в поток идентификаторов друзей пользователя
                 .map(fs -> fs.getUserId() == userId ? fs.getFriendId() : fs.getUserId())
