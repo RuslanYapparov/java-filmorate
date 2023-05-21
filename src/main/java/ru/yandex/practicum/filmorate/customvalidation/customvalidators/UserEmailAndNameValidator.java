@@ -4,16 +4,17 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
+import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.model.service.User;
 
 @Component
 public class UserEmailAndNameValidator {
 
     public static User checkUserBeforeSaving(User user, List<String> savedUserEmails)
-            throws UserValidationException {
+            throws EmailValidationException {
         if (savedUserEmails.contains(user.getEmail())) {
-            throw new UserValidationException("Пользователь с таким адресом электронной почты уже был сохранен");
+            throw new ObjectAlreadyExistsException("Пользователь с таким адресом электронной почты уже был сохранен");
         }
         return getUserWithCheckedName(user);
     }
@@ -26,10 +27,10 @@ public class UserEmailAndNameValidator {
         return user;
     }
 
-    private static void checkEmailForDotAfterAt(User user) throws UserValidationException {
+    private static void checkEmailForDotAfterAt(User user) throws EmailValidationException {
         String[] emailElements = user.getEmail().split("@");
         if (!emailElements[1].contains(".")) {
-            throw new UserValidationException("Неправильный формат адреса электронной почты");
+            throw new EmailValidationException("Неправильный формат адреса электронной почты");
         }
     }
 

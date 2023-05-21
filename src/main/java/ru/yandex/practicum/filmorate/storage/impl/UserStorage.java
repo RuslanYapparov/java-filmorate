@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.model.service.User;
 
 import java.util.stream.Collectors;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class UserStorage extends InMemoryStorageImpl<User> {
 
     @Override
-    public User save(User userModel) throws UserValidationException {
+    public User save(User userModel) throws EmailValidationException {
         userModel = UserEmailAndNameValidator.checkUserBeforeSaving(userModel,
                 dataMap.values().stream()
                         .map(User::getEmail)

@@ -11,20 +11,19 @@ import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.model.data.*;
-import ru.yandex.practicum.filmorate.model.service.FilmGenreCommand;
+import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
 import ru.yandex.practicum.filmorate.model.service.Genre;
 
 @Repository
 @Qualifier("filmGenreRepository")
-public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreEntity, FilmGenreCommand>
+public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreCommand, FilmGenreCommand>
         implements FilmGenreDao {
 
     public FilmGenreDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
         this.type = "film_genre";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
-                new FilmGenreEntity(resultSet.getLong("film_id"),
+                new FilmGenreCommand(resultSet.getLong("film_id"),
                         resultSet.getInt("genre_id"));
     }
 
@@ -35,18 +34,18 @@ public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreE
     }
 
     @Override
-    public FilmGenreEntity getById(long id) {
+    public FilmGenreCommand getById(long id) {
         return null;
     }
 
     @Override
-    public List<FilmGenreEntity> getAll() {
+    public List<FilmGenreCommand> getAll() {
         sql = "select * from film_genres order by film_id";
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
 
     @Override
-    public FilmGenreEntity deleteById(long filmId, long genreId) throws ObjectNotFoundInStorageException {
+    public FilmGenreCommand deleteById(long filmId, long genreId) throws ObjectNotFoundInStorageException {
         sql = "delete from ?s where film_id = ? and genre_id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, type, filmId, genreId);
@@ -57,12 +56,13 @@ public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreE
     }
 
     @Override
-    public FilmGenreEntity save(FilmGenreCommand filmGenreCommand) {
-        sql = "merge into film_genres (film_id, genre_id) values (?, ?)";
+    public FilmGenreCommand save(FilmGenreCommand filmGenreCommand) {
+        sql = "merge into ?s (film_id, genre_id) values (?, ?)";
         long filmId = filmGenreCommand.getFilmId();
-        int genreId = filmGenreCommand.getGenre().getId();
-        return jdbcTemplate.queryForObject(sql, objectEntityRowMapper,
-                filmId, genreId, filmId, genreId);
+        int genreId = filmGenreCommand.getGenreId();
+        jdbcTemplate.update(sql, type, filmId, genreId);
+        sql = "select * from ?s where film_id = ? and genre_id =?";
+        return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, type, filmId, genreId);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreE
         sql = "select * from film_genres where film_id = ? order by genre_id asc";
         try {
             return jdbcTemplate.query(sql, objectEntityRowMapper, filmId).stream()
-                    .map(FilmGenreEntity::getGenreId)
+                    .map(FilmGenreCommand::getGenreId)
                     .map(Genre::getGenreById)
                     .collect(Collectors.toList());
         } catch (DataRetrievalFailureException exception) {
@@ -85,7 +85,7 @@ public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreE
         int genreId = genre.getId();
         try {
             return jdbcTemplate.query(sql, objectEntityRowMapper, genreId).stream()
-                    .map(FilmGenreEntity::getFilmId)
+                    .map(FilmGenreCommand::getFilmId)
                     .collect(Collectors.toList());
         } catch (DataRetrievalFailureException exception) {
             throw new ObjectNotFoundInStorageException(String.format("Для жанра '%s' пока не определены фильмы...",

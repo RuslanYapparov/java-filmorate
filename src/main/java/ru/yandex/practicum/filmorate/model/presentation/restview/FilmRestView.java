@@ -30,5 +30,7 @@ public class FilmRestView {
     private Set<Long> likes;
     @JsonProperty("genres")
     private Set<GenreRestView> genres;
+    @JsonProperty("directors")
+    private Set<DirectorRestView> directors;
 
 }

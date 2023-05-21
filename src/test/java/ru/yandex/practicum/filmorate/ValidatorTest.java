@@ -56,6 +56,7 @@ public class ValidatorTest {
                 .rating(RatingMpa.R)
                 .likes(new HashSet<>())
                 .genres(new HashSet<>())
+                .directors(new HashSet<>())
                 .build();
     }
 
@@ -150,10 +151,10 @@ public class ValidatorTest {
         filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
         film = film.toBuilder()
-                .releaseDate(LocalDate.of(2026, 12, 12))
-                .build();
+                .releaseDate(LocalDate.of(2026, 12, 12))    // Пришлось убрать аннотацию @Past
+                .build();                // С поля releaseDate из-за теста в Postman, в котором есть фильм из будущего
         filmViolations = validator.validate(createCommandObjectForTest(film));
-        assertFalse(filmViolations.isEmpty());
+        assertTrue(filmViolations.isEmpty());
         film = film.toBuilder()
                 .releaseDate(LocalDate.of(1890, 12, 12))
                 .build();

@@ -15,7 +15,7 @@ import java.util.List;
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 
@@ -37,7 +37,7 @@ public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, Use
     }
 
     @Override
-    public UserEntity save(User user) throws UserValidationException {
+    public UserEntity save(User user) throws EmailValidationException {
         //  Для сохранения поступает новый пользователь, поэтому его список друзей точно пуст
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -56,12 +56,12 @@ public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, Use
             ps.setString(3, name);
             ps.setDate(4, birthday);
             return ps;
-        }, keyHolder);
+            }, keyHolder);
         return this.getById(keyHolder.getKey().longValue());
     }
 
     @Override
-    public UserEntity update(User user) throws ObjectNotFoundInStorageException, UserValidationException {
+    public UserEntity update(User user) throws ObjectNotFoundInStorageException, EmailValidationException {
         user = UserEmailAndNameValidator.getUserWithCheckedName(user);
         sql = "update users set email = ?, login = ?, user_name = ?, birthday = ? " +
                 "where user_id = ?";

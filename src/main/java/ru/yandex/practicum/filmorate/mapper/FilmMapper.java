@@ -9,6 +9,9 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.DirectorRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restview.DirectorRestView;
+import ru.yandex.practicum.filmorate.model.service.Director;
 import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.service.Genre;
 import ru.yandex.practicum.filmorate.model.service.RatingMpa;
@@ -25,17 +28,18 @@ public interface FilmMapper {
     @Mapping(target = "mpa", source = "rating")
     @Mapping(target = "genres", source = "genres",qualifiedByName = "mapGenreSetRestView")
     @Mapping(target = "likes", source = "likes", qualifiedByName = "mapLikes")
+    @Mapping(target = "directors", source = "directors", qualifiedByName = "mapDirectorSetRestView")
     FilmRestView toRestView(Film film);
 
     @Mapping(target = "rating", source = "mpa")
     @Mapping(target = "genres", source = "genres", qualifiedByName = "mapGenreSet")
     @Mapping(target = "likes", source = "likes", qualifiedByName = "mapLikes")
+    @Mapping(target = "directors", source = "directors", qualifiedByName = "mapDirectorSet")
     Film fromRestCommand(FilmRestCommand filmRestCommand);
-
-    FilmEntity toDbEntity(Film film);
 
     @Mapping(target = "likes", source = "id", qualifiedByName = "createLikesSet")
     @Mapping(target = "genres", source = "id", qualifiedByName = "createGenreSet")
+    @Mapping(target = "directors", source = "id", qualifiedByName = "createDirectorSet")
     Film fromDbEntity(FilmEntity filmEntity);
 
     default Integer ratingMpaToInt(RatingMpa ratingMpa) {
@@ -62,6 +66,18 @@ public interface FilmMapper {
         return new HashSet<>();
     }
 
+    @Named("mapDirectorSetRestView")
+    default Set<DirectorRestView> mapDirectorSetRestView(Set<Director> directorSet) {
+        Set<DirectorRestView> filmDirectors = new TreeSet<>(Comparator.comparingInt(DirectorRestView::getId));
+        if (directorSet != null) {
+            filmDirectors.addAll(directorSet.stream()
+                    .map(director -> new DirectorRestView(director.getId(), director.getName()))
+                    .collect(Collectors.toSet()));
+            return filmDirectors;
+        }
+        return new HashSet<>();
+    }
+
     default RatingMpa mapRating(RatingMpaRestCommand rating) {
         if (rating != null) {
             return RatingMpa.getRatingById(rating.getId());
@@ -69,11 +85,29 @@ public interface FilmMapper {
         return RatingMpa.G;
     }
 
+    @Named("mapLikes")
+    default Set<Long> mapLikesSet(Set<Long> likesSet) {
+        if (likesSet != null) {
+            return new TreeSet<>(likesSet);
+        }
+        return new HashSet<>();
+    }
+
     @Named("mapGenreSet")
     default Set<Genre> mapGenreSet(Set<GenreRestCommand> genreRestCommandSet) {
         if (genreRestCommandSet != null) {
             return genreRestCommandSet.stream()
                     .map(genreRestCommand -> Genre.getGenreById(genreRestCommand.getId()))
+                    .collect(Collectors.toSet());
+        }
+        return new HashSet<>();
+    }
+
+    @Named("mapDirectorSet")
+    default Set<Director> mapDirectorSet(Set<DirectorRestCommand> directorRestCommandSet) {
+        if (directorRestCommandSet != null) {
+            return directorRestCommandSet.stream()
+                    .map(directorRestCommand -> new Director(directorRestCommand.getId(), "name"))
                     .collect(Collectors.toSet());
         }
         return new HashSet<>();
@@ -89,11 +123,8 @@ public interface FilmMapper {
         return new HashSet<>();
     }
 
-    @Named("mapLikes")
-    default Set<Long> mapLikesSet(Set<Long> likesSet) {
-        if (likesSet != null) {
-            return new TreeSet<>(likesSet);
-        }
+    @Named("createDirectorSet")
+    default Set<Director> createDirectorSet(long id) {
         return new HashSet<>();
     }
 

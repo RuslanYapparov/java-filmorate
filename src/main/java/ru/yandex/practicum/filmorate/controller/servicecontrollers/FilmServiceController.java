@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
+import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
 import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.GenreRestView;
@@ -71,21 +73,20 @@ public class FilmServiceController {
 
     @PutMapping("{film_id}/genre/{genre_id}")
     List<GenreRestView> addFilmGenreAssociation(@PathVariable(value = "film_id") @Positive long filmId,
-                                                @PathVariable(value = "genre_id") @Positive long genreId) {
-        Genre genre = Genre.getGenreById((int) genreId);
+                                                @PathVariable(value = "genre_id") @Positive int genreId) {
         List<Genre> genreList = filmService.addFilmGenreAssociation(
-                new FilmGenreCommand(filmId, genre));
-        log.debug(String.format("Фильму с id%d присвоен жанр '%s'", filmId, genre.getByRus()));
+                new FilmGenreCommand(filmId, genreId));
+        log.debug(String.format("Фильму с id%d присвоен жанр '%s'", filmId, Genre.getGenreById(genreId).getByRus()));
         return this.mapListOfGenresToListOfGenreRestViews(genreList);
     }
 
     @DeleteMapping("{film_id}/genre/{genre_id}")
     List<GenreRestView> removeFilmGenreAssociation(@PathVariable(value = "film_id") @Positive long filmId,
-                                           @PathVariable(value = "genre_id") @Positive long genreId) {
-        Genre genre = Genre.getGenreById((int) genreId);
+                                           @PathVariable(value = "genre_id") @Positive int genreId) {
         List<Genre> genreList = filmService.removeFilmGenreAssociation(
-                new FilmGenreCommand(filmId, genre));
-        log.debug(String.format("Фильм с id%d больше не относится к жанру '%s'", filmId, genre.getByRus()));
+                new FilmGenreCommand(filmId, genreId));
+        log.debug(String.format("Фильм с id%d больше не относится к жанру '%s'", filmId,
+                Genre.getGenreById(genreId).getByRus()));
         return this.mapListOfGenresToListOfGenreRestViews(genreList);
     }
 
@@ -110,6 +111,15 @@ public class FilmServiceController {
         List<Film> filmsByRating = filmService.getAllFilmsByRatingMpa(ratingMpa);
         log.debug(String.format("Запрошены все фильмы, относящиеся к рейтингу '%s'", ratingMpa.getName()));
         return this.mapListOfFilmsToListOfFilmRestViews(filmsByRating);
+    }
+
+    @GetMapping("/director/{director_id}")
+    public List<FilmRestView> getFilmsByDirectorIdSortedByParameter(
+            @PathVariable(value = "director_id") @Positive int id,
+            @RequestParam(name = "sortBy") String param) {
+        List<Film> filmsByDirector = filmService.getAllFilmsByDirectorIdSortedBySomeParameter(id, param);
+        log.debug(String.format("Запрошен список фильмов режиссера с id%d с признаком сортировки %s", id, param));
+        return this.mapListOfFilmsToListOfFilmRestViews(filmsByDirector);
     }
 
     private List<FilmRestView> mapListOfFilmsToListOfFilmRestViews(List<Film> films) {
