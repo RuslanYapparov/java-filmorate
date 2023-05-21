@@ -107,7 +107,7 @@ public interface FilmMapper {
     default Set<Director> mapDirectorSet(Set<DirectorRestCommand> directorRestCommandSet) {
         if (directorRestCommandSet != null) {
             return directorRestCommandSet.stream()
-                    .map(directorRestCommand -> new Director(directorRestCommand.getId(), "name") )
+                    .map(directorRestCommand -> new Director(directorRestCommand.getId(), "name"))
                     .collect(Collectors.toSet());
         }
         return new HashSet<>();
