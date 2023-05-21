@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.service.varimpl;
 
 import java.util.List;
 
+import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
+import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
 import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.service.CrudService;
@@ -27,5 +29,7 @@ public interface FilmService extends CrudService<Film, FilmRestCommand> {
     List<Genre> getFilmGenresByFilmId(long filmId);
 
     List<Film> getAllFilmsByRatingMpa(RatingMpa ratingMpa);
+
+    List<Film> getAllFilmsByDirectorIdSortedBySomeParameter(int id, String sortParameter);
 
 }

@@ -19,8 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ru.yandex.practicum.filmorate.exception.BadRequestParameterException;
+import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.model.presentation.restview.ErrorResponseView;
 
 @RestControllerAdvice
@@ -35,8 +37,24 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
                 exception.getMessage());
     }
 
-    @ExceptionHandler(UserValidationException.class)
-    public ResponseEntity<ErrorResponseView> handleUserValidationException(UserValidationException exception) {
+    @ExceptionHandler(ObjectAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponseView handleObjectAlreadyExistsException(ObjectAlreadyExistsException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.CONFLICT.value(), "ObjectAlreadyExistsException",
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseView handleBadRequestParameterException(BadRequestParameterException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "BadRequestParameterException",
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(EmailValidationException.class)
+    public ResponseEntity<ErrorResponseView> handleUserValidationException(EmailValidationException exception) {
         String message = exception.getMessage();
         ErrorResponseView error;
         log.warn(message);

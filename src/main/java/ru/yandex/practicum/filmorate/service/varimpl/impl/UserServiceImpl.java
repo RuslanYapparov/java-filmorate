@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.FriendshipDao;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
@@ -55,7 +55,7 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
 
     @Override
     public User update(UserRestCommand userRestCommand)
-            throws UserValidationException, ObjectNotFoundInStorageException {
+            throws EmailValidationException, ObjectNotFoundInStorageException {
         User user = userMapper.fromRestCommand(userRestCommand);
         user = userMapper.fromDbEntity(objectDao.update(user));
         userFriendsSetFiller = initializeUserFriendsSetFiller(friendshipDao.getAllByUserId(user.getId()));

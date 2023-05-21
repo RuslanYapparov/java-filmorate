@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class LikeEntity {
-    private final long filmId;
-    private final long userId;
+public class DirectorEntity {
+    private final int id;
+    private final String name;
 
 }

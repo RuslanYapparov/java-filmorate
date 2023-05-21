@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model.service;
+package ru.yandex.practicum.filmorate.model.data.command;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class FilmGenreCommand {
     private final long filmId;
-    private final Genre genre;
+    private final int genreId;
 
 }

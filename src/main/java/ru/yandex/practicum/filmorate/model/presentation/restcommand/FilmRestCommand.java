@@ -28,7 +28,6 @@ public class FilmRestCommand {
     @JsonProperty("releaseDate")
     @ReleaseDateAfterCinemaBirthday
     // Кастомная аннотация, проверяющая неравенство null и не принимающая дату релиза раньше 28 декабря 1895 г.
-    @Past
     private LocalDate releaseDate;
     @JsonProperty("duration")
     @Positive
@@ -44,5 +43,8 @@ public class FilmRestCommand {
     @JsonProperty("genres")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<GenreRestCommand> genres;
+    @JsonProperty("directors")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Set<DirectorRestCommand> directors;
 
 }

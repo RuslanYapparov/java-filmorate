@@ -55,7 +55,7 @@ public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Fil
             ps.setInt(5, rate);
             ps.setInt(6, rating);
             return ps;
-        }, keyHolder);
+            }, keyHolder);
         long filmId = keyHolder.getKey().longValue();
         return this.getById(filmId);
     }

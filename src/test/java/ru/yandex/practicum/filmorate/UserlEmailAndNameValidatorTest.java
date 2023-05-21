@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
+import ru.yandex.practicum.filmorate.exception.EmailValidationException;
+import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.model.service.User;
 
 import java.time.LocalDate;
@@ -30,8 +31,8 @@ public class UserlEmailAndNameValidatorTest {
 
     @Test
     public void shouldThrowExceptionWhenCheckWithListWithDuplicates() {
-        assertThrows(UserValidationException.class, () -> UserEmailAndNameValidator.checkUserBeforeSaving(user, List.of(
-                "sexmaster97@gmail.com", "sexmaster96@gmail.com", "sugaronsand@yandex.ru")));
+        assertThrows(ObjectAlreadyExistsException.class, () -> UserEmailAndNameValidator.checkUserBeforeSaving(user,
+                List.of("sexmaster97@gmail.com", "sexmaster96@gmail.com", "sugaronsand@yandex.ru")));
     }
 
     @Test

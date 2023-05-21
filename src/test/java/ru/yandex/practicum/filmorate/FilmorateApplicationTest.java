@@ -81,6 +81,7 @@ class FilmorateApplicationTest {
 				.rating(RatingMpa.R)
 				.likes(new HashSet<>())
 				.genres(new HashSet<>())
+				.directors(new HashSet<>())
 				.build();
 
 		request = HttpRequest.newBuilder()
@@ -357,7 +358,7 @@ class FilmorateApplicationTest {
 	}
 
 	@Test
-	void shouldNotPostFilmWithReleaseDateInFuture() throws IOException, InterruptedException {
+	void shouldPostFilmWithReleaseDateInFuture() throws IOException, InterruptedException {
 		film = film.toBuilder().releaseDate(LocalDate.of(2025, 9, 27)).build();
 		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
@@ -368,7 +369,7 @@ class FilmorateApplicationTest {
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		assertEquals(400, response.statusCode());
+		assertEquals(200, response.statusCode());
 	}
 
 	@Test
