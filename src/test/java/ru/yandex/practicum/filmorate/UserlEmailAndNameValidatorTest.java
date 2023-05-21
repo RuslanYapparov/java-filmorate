@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
-import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.model.service.User;
 
