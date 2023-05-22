@@ -43,4 +43,36 @@ public class FilmorateConstantStorageDaoImpl<E> implements FilmorateConstantStor
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
 
+    @Override
+    public List<E> getAllBySearch(String keyWord, String parameter) {
+        if (parameter.equals("director")) {
+            sql = String.format("select * from %ss join directors on %s.director_id = directors.id "
+                    + "where lcase(directors.name) like lcase('%\\%s%') order by %s_id", type, type, keyWord, type);
+
+            try {
+                return jdbcTemplate.query(sql, objectEntityRowMapper, keyWord);
+            } catch (DataRetrievalFailureException exception) {
+                throw new ObjectNotFoundInStorageException(String.format("Объекты %s, имя режиссера которого "
+                        + "содержит %s, отсутствуют в базе данных приложения", type, keyWord));
+            }
+        } else if (parameter.equals("title")) {
+            sql = String.format("select * from %ss where lcase(%s_name) like lcase('%\\%s%') order by %s_id",
+                    type, type, keyWord, type);
+            try {
+                return jdbcTemplate.query(sql, objectEntityRowMapper, keyWord);
+            } catch (DataRetrievalFailureException exception) {
+                throw new ObjectNotFoundInStorageException(String.format("Объекты %s, содержащие в названии %s, "
+                        + "отсутствуют в базе данных приложения", type, keyWord));
+            }
+        }
+        sql = String.format("select * from %ss join directors on %s.director_id = directors.id "
+                + "where lcase(directors.name) like lcase('%" + keyWord
+                + "%') and lcase(%s_name) like lcase('%" + keyWord + "%') order by %s_id", type, type, type, type);
+        try {
+            return jdbcTemplate.query(sql, objectEntityRowMapper, keyWord);
+        } catch (DataRetrievalFailureException exception) {
+            throw new ObjectNotFoundInStorageException(String.format("Объекты %s, название и имя режиссера которых "
+                    + "содержит %s, отсутствуют в базе данных приложения", type, keyWord));
+        }
+    }
 }

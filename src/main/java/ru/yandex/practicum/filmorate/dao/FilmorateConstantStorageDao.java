@@ -12,4 +12,5 @@ public interface FilmorateConstantStorageDao<E> { // Здесь и далее п
 
     List<E> getAll();
 
+    List<E> getAllBySearch(String keyWord, String parameter);
 }

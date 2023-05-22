@@ -25,8 +25,9 @@ import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 @RequestMapping("/films")
 @Slf4j
 @RequiredArgsConstructor
+@Qualifier("filmService")
 public class FilmServiceController {
-    @Qualifier("filmService")
+
     private final FilmService filmService;
     private final FilmMapper filmMapper;
     private final UserMapper userMapper;
@@ -37,6 +38,15 @@ public class FilmServiceController {
         List<Film> popularFilms = filmService.getMostLikedFilms(size);
         log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", size));
         return this.mapListOfFilmsToListOfFilmRestViews(popularFilms);
+    }
+
+    @GetMapping("/search")
+    public List<FilmRestView> getPopularFilmsBySearch(@RequestParam(name = "query") String keyWord,
+                                                      @RequestParam(name = "by") String parameter) {
+        List<Film> searchFilms = filmService.getMostLikedFilmsBySearch(keyWord, parameter);
+        log.debug(String.format("Запрошен список фильмов по популярности, содержащих в названии "
+                + "либо имени режиссера %s", keyWord));
+        return this.mapListOfFilmsToListOfFilmRestViews(searchFilms);
     }
 
     @PutMapping("{film_id}/like/{user_id}")

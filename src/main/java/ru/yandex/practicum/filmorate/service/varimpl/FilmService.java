@@ -16,6 +16,8 @@ public interface FilmService extends CrudService<Film, FilmRestCommand> {
 
     List<Film> getMostLikedFilms(int count);
 
+    List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter);
+
     List<User> getAllUsersWhoLikedFilm(long filmId);
 
     List<Film> getAllFilmsLikedByUser(long userId);
