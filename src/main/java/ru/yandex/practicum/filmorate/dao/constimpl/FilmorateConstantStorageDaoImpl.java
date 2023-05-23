@@ -45,34 +45,35 @@ public class FilmorateConstantStorageDaoImpl<E> implements FilmorateConstantStor
 
     @Override
     public List<E> getAllBySearch(String keyWord, String parameter) {
-        if (parameter.equals("director")) {
-            sql = String.format("select * from %ss join directors on %s.director_id = directors.id "
-                    + "where lcase(directors.name) like lcase('%\\%s%') order by %s_id", type, type, keyWord, type);
+        /*String lowerKeyWord = keyWord.toLowerCase();
+        List<E> result = new ArrayList<>();
+        switch (parameter) {
+            case "director":
+                sql = String.format("select f.* from %ss f "
+                        + "join directors on f.director_id = directors.director_id "
+                        + "where lower(directors.director_name) like '%s' order by %s_id", type, lowerKeyWord, type);
 
-            try {
-                return jdbcTemplate.query(sql, objectEntityRowMapper, keyWord);
-            } catch (DataRetrievalFailureException exception) {
-                throw new ObjectNotFoundInStorageException(String.format("Объекты %s, имя режиссера которого "
-                        + "содержит %s, отсутствуют в базе данных приложения", type, keyWord));
-            }
-        } else if (parameter.equals("title")) {
-            sql = String.format("select * from %ss where lcase(%s_name) like lcase('%\\%s%') order by %s_id",
-                    type, type, keyWord, type);
-            try {
-                return jdbcTemplate.query(sql, objectEntityRowMapper, keyWord);
-            } catch (DataRetrievalFailureException exception) {
-                throw new ObjectNotFoundInStorageException(String.format("Объекты %s, содержащие в названии %s, "
-                        + "отсутствуют в базе данных приложения", type, keyWord));
-            }
-        }
-        sql = String.format("select * from %ss join directors on %s.director_id = directors.id "
-                + "where lcase(directors.name) like lcase('%" + keyWord
-                + "%') and lcase(%s_name) like lcase('%" + keyWord + "%') order by %s_id", type, type, type, type);
-        try {
-            return jdbcTemplate.query(sql, objectEntityRowMapper, keyWord);
-        } catch (DataRetrievalFailureException exception) {
-            throw new ObjectNotFoundInStorageException(String.format("Объекты %s, название и имя режиссера которых "
-                    + "содержит %s, отсутствуют в базе данных приложения", type, keyWord));
-        }
+                result.addAll(jdbcTemplate.query(sql, objectEntityRowMapper));
+                return result;
+            case "title":
+
+                sql = String.format("select * from %ss where lower(%s_name) like '%s' order by %s_id",
+                        type, type, lowerKeyWord, type);
+
+                result.addAll(jdbcTemplate.query(sql, objectEntityRowMapper));
+                return result;
+            case "title,director":
+            case "director,title":
+                sql = String.format("select %ss.* from %ss join directors on %ss.director_id = directors.director_id "
+                        + "where lower(directors.director_name) like '%s' "
+                        + "or lower(%ss.%s_name) like '%s' order by %s_id",
+                        type, type, type, lowerKeyWord, type, type, lowerKeyWord, type);
+
+                 result.addAll(jdbcTemplate.query(sql, objectEntityRowMapper));
+                 return result;
+            default:
+                throw new BadRequestParameterException("Указан неверный параметр для поиска: " + parameter);
+        }*/
+       return null;
     }
 }

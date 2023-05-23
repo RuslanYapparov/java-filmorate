@@ -75,5 +75,4 @@ public class DirectorStorageControllerImpl implements VariableStorageController<
         log.debug("Запрошено удаление режиссера '{}'. Режиссер удален", director.getName());
         return directorMapper.toRestView(director);
     }
-
 }

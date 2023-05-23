@@ -24,8 +24,10 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.DirectorRestCommand;
 import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.service.CrudService;
 import ru.yandex.practicum.filmorate.service.varimpl.CrudServiceImpl;
 import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
@@ -41,9 +43,12 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     private final FilmGenreDao filmGenreDao;
     @Qualifier("filmDirectorRepository")
     private final FilmDirectorDao filmDirectorDao;
+
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
+    private final CrudService<Director, DirectorRestCommand> directorService;
+
 
     public FilmServiceImpl(@Qualifier("filmRepository") FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
@@ -52,7 +57,8 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                            FilmDirectorDao filmDirectorDao,
                            FilmMapper filmMapper,
                            DirectorMapper directorMapper,
-                           JdbcTemplate jdbcTemplate) {
+                           JdbcTemplate jdbcTemplate,
+                           DirectorServiceImpl directorService) {
         super(objectDao);
         this.userService = userService;
         this.likeDao = likeDao;
@@ -63,6 +69,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         this.batchUpdater = jdbcTemplate;
         this.objectFromDbEntityMapper = filmMapper::fromDbEntity;
         this.objectFromRestCommandMapper = filmMapper::fromRestCommand;
+        this.directorService = directorService;
     }
 
     @Override
@@ -118,6 +125,25 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
+    public List<Film> getAllBySearch(String keyWord, String parameter) {
+
+        switch (parameter) {
+            case "title":
+                return getFilmsSearchByTitle(keyWord);
+            case "director":
+                return getFilmsSearchByDirector(keyWord);
+            case "title,director":
+            case "director,title":
+                List<Film> films = getFilmsSearchByTitle(keyWord);
+                films.addAll(getFilmsSearchByDirector(keyWord));
+                return films;
+
+            default:
+                throw new BadRequestParameterException("Указан неверный параметр для поиска: " + parameter);
+        }
+    }
+
+    @Override
     public Film update(FilmRestCommand filmRestCommand) throws ObjectNotFoundInStorageException {
         Film film = filmMapper.fromRestCommand(filmRestCommand);
         updateLikeStorages(film);
@@ -158,6 +184,14 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         return this.getAll().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter) {
+
+        return this.getAllBySearch(keyWord, parameter).stream()
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .collect(Collectors.toList());
     }
 
@@ -220,6 +254,30 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             default:
                 throw new BadRequestParameterException("Указан неверный параметер для сортировки: " + sortParameter);
         }
+    }
+
+    private List<Film> getFilmsSearchByTitle(String keyWord) {
+        return this.getAll().stream()
+                .filter(film -> film.getName().toLowerCase().contains(keyWord.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    private List<Film> getFilmsSearchByDirector(String keyWord) {
+
+        List<Integer> idDirectors = directorService.getAll().stream()
+        .filter(director -> director.getName().toLowerCase().contains(keyWord.toLowerCase()))
+        .map(director -> director.getId())
+        .collect(Collectors.toList());
+
+        List<Film> filmsByDirectors = new ArrayList<>();
+        for (int directorId : idDirectors) {
+            List<Film> films = filmDirectorDao.getAllFilmIdsByDirectorId(directorId)
+                    .stream()
+                    .map(l -> this.getById(l))
+                    .collect(Collectors.toList());
+            filmsByDirectors.addAll(films);
+        }
+        return filmsByDirectors;
     }
 
     private void updateGenreStorages(Film film) {
@@ -308,5 +366,4 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             });
         }
     }
-
 }
