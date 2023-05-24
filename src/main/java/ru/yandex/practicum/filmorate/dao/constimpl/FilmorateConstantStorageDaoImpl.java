@@ -43,37 +43,4 @@ public class FilmorateConstantStorageDaoImpl<E> implements FilmorateConstantStor
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
 
-    @Override
-    public List<E> getAllBySearch(String keyWord, String parameter) {
-        /*String lowerKeyWord = keyWord.toLowerCase();
-        List<E> result = new ArrayList<>();
-        switch (parameter) {
-            case "director":
-                sql = String.format("select f.* from %ss f "
-                        + "join directors on f.director_id = directors.director_id "
-                        + "where lower(directors.director_name) like '%s' order by %s_id", type, lowerKeyWord, type);
-
-                result.addAll(jdbcTemplate.query(sql, objectEntityRowMapper));
-                return result;
-            case "title":
-
-                sql = String.format("select * from %ss where lower(%s_name) like '%s' order by %s_id",
-                        type, type, lowerKeyWord, type);
-
-                result.addAll(jdbcTemplate.query(sql, objectEntityRowMapper));
-                return result;
-            case "title,director":
-            case "director,title":
-                sql = String.format("select %ss.* from %ss join directors on %ss.director_id = directors.director_id "
-                        + "where lower(directors.director_name) like '%s' "
-                        + "or lower(%ss.%s_name) like '%s' order by %s_id",
-                        type, type, type, lowerKeyWord, type, type, lowerKeyWord, type);
-
-                 result.addAll(jdbcTemplate.query(sql, objectEntityRowMapper));
-                 return result;
-            default:
-                throw new BadRequestParameterException("Указан неверный параметр для поиска: " + parameter);
-        }*/
-       return null;
-    }
 }

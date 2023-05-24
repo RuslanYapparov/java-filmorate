@@ -37,6 +37,8 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestCommand> implements FilmService {
     @Qualifier("userService")
     private final UserService userService;
+    @Qualifier("directorService")
+    private final CrudService<Director, DirectorRestCommand> directorService;
     @Qualifier("likeRepository")
     private final LikeDao likeDao;
     @Qualifier("filmGenreRepository")
@@ -47,18 +49,17 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
-    private final CrudService<Director, DirectorRestCommand> directorService;
-
 
     public FilmServiceImpl(@Qualifier("filmRepository") FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
+                           CrudService<Director, DirectorRestCommand> directorService,
                            LikeDao likeDao,
                            FilmGenreDao filmGenreDao,
                            FilmDirectorDao filmDirectorDao,
                            FilmMapper filmMapper,
                            DirectorMapper directorMapper,
-                           JdbcTemplate jdbcTemplate,
-                           DirectorServiceImpl directorService) {
+                           JdbcTemplate jdbcTemplate
+                           ) {
         super(objectDao);
         this.userService = userService;
         this.likeDao = likeDao;
@@ -125,18 +126,27 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getAllBySearch(String keyWord, String parameter) {
+    public List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter) {
 
         switch (parameter) {
             case "title":
-                return getFilmsSearchByTitle(keyWord);
+                return this.getAll().stream()
+                        .filter(film -> film.getName().toLowerCase().contains(keyWord.toLowerCase()))
+                        .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                        .collect(Collectors.toList());
             case "director":
-                return getFilmsSearchByDirector(keyWord);
+                return directorService.getAll().stream()
+                        .filter(director -> director.getName().toLowerCase().contains(keyWord.toLowerCase()))
+                        .flatMap(director -> this.getAllFilmsByDirectorIdSortedBySomeParameter(director.getId(),
+                                "likes").stream())
+                        .collect(Collectors.toList());
             case "title,director":
             case "director,title":
-                List<Film> films = getFilmsSearchByTitle(keyWord);
-                films.addAll(getFilmsSearchByDirector(keyWord));
-                return films;
+                List<Film> films = this.getMostLikedFilmsBySearch(keyWord, "title");
+                films.addAll(this.getMostLikedFilmsBySearch(keyWord, "director"));
+                return films.stream()
+                        .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                        .collect(Collectors.toList());
 
             default:
                 throw new BadRequestParameterException("Указан неверный параметр для поиска: " + parameter);
@@ -184,14 +194,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         return this.getAll().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .limit(count)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter) {
-
-        return this.getAllBySearch(keyWord, parameter).stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .collect(Collectors.toList());
     }
 
@@ -254,30 +256,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             default:
                 throw new BadRequestParameterException("Указан неверный параметер для сортировки: " + sortParameter);
         }
-    }
-
-    private List<Film> getFilmsSearchByTitle(String keyWord) {
-        return this.getAll().stream()
-                .filter(film -> film.getName().toLowerCase().contains(keyWord.toLowerCase()))
-                .collect(Collectors.toList());
-    }
-
-    private List<Film> getFilmsSearchByDirector(String keyWord) {
-
-        List<Integer> idDirectors = directorService.getAll().stream()
-        .filter(director -> director.getName().toLowerCase().contains(keyWord.toLowerCase()))
-        .map(director -> director.getId())
-        .collect(Collectors.toList());
-
-        List<Film> filmsByDirectors = new ArrayList<>();
-        for (int directorId : idDirectors) {
-            List<Film> films = filmDirectorDao.getAllFilmIdsByDirectorId(directorId)
-                    .stream()
-                    .map(l -> this.getById(l))
-                    .collect(Collectors.toList());
-            filmsByDirectors.addAll(films);
-        }
-        return filmsByDirectors;
     }
 
     private void updateGenreStorages(Film film) {
@@ -366,4 +344,5 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             });
         }
     }
+
 }

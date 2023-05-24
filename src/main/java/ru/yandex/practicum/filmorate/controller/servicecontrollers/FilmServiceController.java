@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,27 +27,26 @@ import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 @RequestMapping("/films")
 @Slf4j
 @RequiredArgsConstructor
-@Qualifier("filmService")
 public class FilmServiceController {
-
     private final FilmService filmService;
     private final FilmMapper filmMapper;
     private final UserMapper userMapper;
 
     @GetMapping("/popular")
     public List<FilmRestView> getPopularFilms(@RequestParam(name = "count", defaultValue = "10")
-                                                 @Positive int size) {
+                                              @Positive int size) {
         List<Film> popularFilms = filmService.getMostLikedFilms(size);
         log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", size));
         return this.mapListOfFilmsToListOfFilmRestViews(popularFilms);
     }
 
     @GetMapping("/search")
-    public List<FilmRestView> getPopularFilmsBySearch(@RequestParam(name = "query") String keyWord,
-                                                      @RequestParam(name = "by") String parameter) {
+    public List<FilmRestView> getPopularFilmsBySearch(@RequestParam(name = "query") @NotBlank String keyWord,
+                                                      @RequestParam(name = "by", defaultValue = "title,director")
+                                                      String parameter) {
         List<Film> searchFilms = filmService.getMostLikedFilmsBySearch(keyWord, parameter);
-        log.debug(String.format("Запрошен список фильмов по популярности, содержащих в названии "
-                + "либо имени режиссера %s", keyWord));
+        log.debug(String.format("Запрошен поиск фильмов по ключевому слову '%s' в параметре '%s'. "
+                + "Количество фильмов, удовлетворяющих условиям поиска: %d", keyWord, parameter, searchFilms.size()));
         return this.mapListOfFilmsToListOfFilmRestViews(searchFilms);
     }
 
@@ -92,7 +93,7 @@ public class FilmServiceController {
 
     @DeleteMapping("{film_id}/genre/{genre_id}")
     List<GenreRestView> removeFilmGenreAssociation(@PathVariable(value = "film_id") @Positive long filmId,
-                                           @PathVariable(value = "genre_id") @Positive int genreId) {
+                                                   @PathVariable(value = "genre_id") @Positive int genreId) {
         List<Genre> genreList = filmService.removeFilmGenreAssociation(
                 new FilmGenreCommand(filmId, genreId));
         log.debug(String.format("Фильм с id%d больше не относится к жанру '%s'", filmId,
