@@ -24,8 +24,10 @@ import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.DirectorRestCommand;
 import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
+import ru.yandex.practicum.filmorate.service.CrudService;
 import ru.yandex.practicum.filmorate.service.varimpl.CrudServiceImpl;
 import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
@@ -35,24 +37,29 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestCommand> implements FilmService {
     @Qualifier("userService")
     private final UserService userService;
+    @Qualifier("directorService")
+    private final CrudService<Director, DirectorRestCommand> directorService;
     @Qualifier("likeRepository")
     private final LikeDao likeDao;
     @Qualifier("filmGenreRepository")
     private final FilmGenreDao filmGenreDao;
     @Qualifier("filmDirectorRepository")
     private final FilmDirectorDao filmDirectorDao;
+
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
 
     public FilmServiceImpl(@Qualifier("filmRepository") FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
+                           CrudService<Director, DirectorRestCommand> directorService,
                            LikeDao likeDao,
                            FilmGenreDao filmGenreDao,
                            FilmDirectorDao filmDirectorDao,
                            FilmMapper filmMapper,
                            DirectorMapper directorMapper,
-                           JdbcTemplate jdbcTemplate) {
+                           JdbcTemplate jdbcTemplate
+                           ) {
         super(objectDao);
         this.userService = userService;
         this.likeDao = likeDao;
@@ -63,6 +70,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         this.batchUpdater = jdbcTemplate;
         this.objectFromDbEntityMapper = filmMapper::fromDbEntity;
         this.objectFromRestCommandMapper = filmMapper::fromRestCommand;
+        this.directorService = directorService;
     }
 
     @Override
@@ -115,6 +123,34 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                     film.getDirectors().addAll(directors);
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter) {
+
+        switch (parameter) {
+            case "title":
+                return this.getAll().stream()
+                        .filter(film -> film.getName().toLowerCase().contains(keyWord.toLowerCase()))
+                        .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                        .collect(Collectors.toList());
+            case "director":
+                return directorService.getAll().stream()
+                        .filter(director -> director.getName().toLowerCase().contains(keyWord.toLowerCase()))
+                        .flatMap(director -> this.getAllFilmsByDirectorIdSortedBySomeParameter(director.getId(),
+                                "likes").stream())
+                        .collect(Collectors.toList());
+            case "title,director":
+            case "director,title":
+                List<Film> films = this.getMostLikedFilmsBySearch(keyWord, "title");
+                films.addAll(this.getMostLikedFilmsBySearch(keyWord, "director"));
+                return films.stream()
+                        .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                        .collect(Collectors.toList());
+
+            default:
+                throw new BadRequestParameterException("Указан неверный параметр для поиска: " + parameter);
+        }
     }
 
     @Override
