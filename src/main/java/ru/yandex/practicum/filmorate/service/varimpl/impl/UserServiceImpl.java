@@ -3,15 +3,21 @@ package ru.yandex.practicum.filmorate.service.varimpl.impl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
+import ru.yandex.practicum.filmorate.dao.constimpl.FilmorateConstantStorageDaoImpl;
 import ru.yandex.practicum.filmorate.dao.varimpl.FriendshipDao;
+import ru.yandex.practicum.filmorate.dao.varimpl.impl.RecommendationsDaoIpl;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.UserValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
 import ru.yandex.practicum.filmorate.model.service.User;
@@ -25,14 +31,21 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
     @Qualifier("friendshipRepository")
     private final FriendshipDao friendshipDao;
     private final UserMapper userMapper;
+
+    @Qualifier("recommendationsDaoIpl")
+    private final RecommendationsDaoIpl recommendationsDaoIpl;
+
+    private final FilmorateConstantStorageDaoImpl<FilmEntity> filmorateConstantStorageDao;
     private Consumer<User> userFriendsSetFiller;
 
     public UserServiceImpl(@Qualifier("userRepository") FilmorateVariableStorageDao<UserEntity, User> objectDao,
                            FriendshipDao friendshipDao,
-                           UserMapper userMapper) {
+                           UserMapper userMapper, RecommendationsDaoIpl recommendationsDaoIpl, FilmorateConstantStorageDaoImpl<FilmEntity> filmorateConstantStorageDao) {
         super(objectDao);
         this.friendshipDao = friendshipDao;
         this.userMapper = userMapper;
+        this.recommendationsDaoIpl = recommendationsDaoIpl;
+        this.filmorateConstantStorageDao = filmorateConstantStorageDao;
         this.objectFromDbEntityMapper = this.userMapper::fromDbEntity;
         this.objectFromRestCommandMapper = this.userMapper::fromRestCommand;
     }
@@ -122,11 +135,85 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
             long currentUserId = user.getId();
             friendships.stream()
                     // Отсеиваем все дружбы, в которых не фигурирует идентификатор пользователя
-                    .filter(fs ->  fs.getUserId() == currentUserId | fs.getFriendId() == currentUserId)
+                    .filter(fs -> fs.getUserId() == currentUserId | fs.getFriendId() == currentUserId)
                     // В потоке оставляем только идентификаторы, не принадлежащие пользователю
                     .map(fs -> fs.getUserId() == currentUserId ? fs.getFriendId() : fs.getUserId())
                     .forEach(friendId -> user.getFriends().add(friendId));
         };
+    }
+
+    public List<FilmEntity> getRecommendationsFilms(long userId) {
+        // проверям существует ли пользователь
+        recommendationsDaoIpl.userExists(userId);
+
+        List<FilmEntity> films = new ArrayList<>();
+
+        if (recommendationsDaoIpl.numberLikes(userId) == 0) {
+            // если нету понравившихся фильмов возвращаем рандомные 5
+            return  getRandomFilms();
+        }
+
+        Set<Long> filmId = new HashSet<>();
+        // ищем пользователей со схожими на 80% интересами
+        List<Long> usersMatchingInterests = recommendationsDaoIpl.getUsersMatchingInterests(userId);
+        if (usersMatchingInterests.size() != 0) {
+
+            // получаем id фильмов которые они оценили а user нет
+            for (Long id : usersMatchingInterests) {
+              filmId.addAll(recommendationsDaoIpl.getFilmIdNonMatchingMovies(userId,id));
+            }
+
+            // получаем список рекомендованных фильмов
+            for (Long id: filmId){
+                films.add(filmorateConstantStorageDao.getById(id));
+            }
+            return films;
+        }
+
+        // список из 5 пользователей с самым большим совпадением по лайкам
+        List<Long> users = recommendationsDaoIpl.getUsersIdCoincidencesInterests(userId);
+
+        if (users.size() == 0){
+            // если нет совпадений возвращаем 5 случайных фильмов
+            return getRandomFilms();
+        }
+
+        // получаем id фильмов которые они оценили а user нет
+        for (Long id : usersMatchingInterests) {
+            filmId.addAll(recommendationsDaoIpl.getFilmIdNonMatchingMovies(userId,id));
+        }
+
+        // получаем список рекомендованных фильмов
+        for (Long id: filmId){
+            films.add(filmorateConstantStorageDao.getById(id));
+        }
+        return films;
+
+        // логика:
+        // если у пользователя 0 оценённых фильмов -> возвращаем 5 рандомных фильмов
+
+        // количество совпадающих на 80% с user фильмов у других пользователей не 0 ->
+        // -> возвращаем их фильмы которые user не оценивал
+
+        // если количество совпадающих на 80% с user фильмов у других пользователей 0 ->
+        // -> проверям 10 самых близких по интересам пользователей и возвращаем их фильмы которые user не оценивал
+
+        // если не нашли ни одного близкого по интересам пользователя -> возвращаем 5 рандомных фильмов
+
+
+    }
+
+    private List<FilmEntity> getRandomFilms(){
+        List<FilmEntity> films = new ArrayList<>();
+
+        Set<Long> filmsId = recommendationsDaoIpl.getRandomFilm();
+
+        for (Long filmId : filmsId) {
+            films.add(filmorateConstantStorageDao.getById(filmId));
+            // я не уверен что filmorateConstantStorageDao.getById(filmId) возвращает FilmEntity
+            // но другого метода получения фильма по id я не нашёл
+        }
+        return films;
     }
 
 }

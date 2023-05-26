@@ -65,5 +65,4 @@ public class UserServiceController {
                 .map(userMapper::toRestView)
                 .collect(Collectors.toList());
     }
-
 }

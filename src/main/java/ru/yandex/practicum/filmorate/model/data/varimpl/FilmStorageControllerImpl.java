@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller.storagecontrollers.varimpl;
+package ru.yandex.practicum.filmorate.model.data.varimpl;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;

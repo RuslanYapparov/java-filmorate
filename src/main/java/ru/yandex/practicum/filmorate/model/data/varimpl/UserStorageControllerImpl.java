@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller.storagecontrollers.varimpl;
+package ru.yandex.practicum.filmorate.model.data.varimpl;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStorageController;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
@@ -79,4 +80,13 @@ public class UserStorageControllerImpl implements VariableStorageController<User
         return userMapper.toRestView(user);
     }
 
+    @GetMapping("{user_id}/recommendations")
+    public List<FilmEntity> getRecommendationsFilms(@PathVariable(value = "user_id") @Positive long userId){
+        // здесь должен использоваться метод по получению рекомендаций,
+        // но его  нельзя использовать
+        // я не понял что не так
+
+        List<FilmEntity> recommendations = userService.getRecommendationsFilms(userId);
+        return recommendations;
+    }
 }
