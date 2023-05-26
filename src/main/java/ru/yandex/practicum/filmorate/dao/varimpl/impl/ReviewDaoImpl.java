@@ -6,34 +6,30 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.GetMapping;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
-import ru.yandex.practicum.filmorate.dao.varimpl.ReviewDao;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.ReviewEntity;
 import ru.yandex.practicum.filmorate.model.service.Review;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @Qualifier("reviewRepository")
-public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity, Review> implements ReviewDao {
+public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity, Review> {
 
     public ReviewDaoImpl(JdbcTemplate template) {
         super(template);
-        this.type = "review";
+        this.type = "film_review";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
                 ReviewEntity.builder()
-                        .reviewId(resultSet.getLong("review_id"))
+                        .reviewId(resultSet.getLong("film_review_id"))
                         .content(resultSet.getString("content"))
-                        .isPositive(resultSet.getBoolean("isPositive"))
-                        .userId(resultSet.getLong("userId"))
-                        .filmId(resultSet.getLong("filmId"))
-                        .useful(resultSet.getLong("useful"))
+                        .isPositive(resultSet.getBoolean("is_positive"))
+                        .userId(resultSet.getLong("user_id"))
+                        .filmId(resultSet.getLong("film_id"))
+                        .useful(resultSet.getInt("useful"))
                         .build();
     }
 
@@ -45,14 +41,14 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
         long userId = review.getUserId();
         long filmId = review.getFilmId();
         long useful = review.getUseful();
-        sql = "insert into film_reviews (content, isPositive, userId, filmId, useful) values (?, ?, ?, ?, ?)";
+        sql = "insert into film_reviews (content, is_positive, user_id, film_id, useful) values (?, ?, ?, ?, ?)";
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, content);
             ps.setBoolean(2, isPositive);
             ps.setLong(3, userId);
             ps.setLong(4, filmId);
-            ps.setLong(4, useful);
+            ps.setLong(5, useful);
             return ps;
         }, keyHolder);
         return this.getById(keyHolder.getKey().longValue());
@@ -60,7 +56,7 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
 
     @Override
     public ReviewEntity update(Review review) throws ObjectNotFoundInStorageException {
-        sql = "update film_reviews set content = ?, isPositive = ? where review_id = ?";
+        sql = "update film_reviews set content = ?, is_positive = ? where film_review_id = ?";
         try {
             jdbcTemplate.update(sql,
                     review.getContent(),
@@ -73,85 +69,10 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
         }
     }
 
-    @GetMapping
-    public List<ReviewEntity> getAllByFilmId(long filmId, int count) {
-        List<ReviewEntity> reviews = new ArrayList<>();
-        if (filmId == -1) {
-            reviews = getAll();
-        } else {
-            sql = "select * from film_reviews where review_id = ? order by useful desc";
-        }
-        if (reviews.size() > count) {
-            reviews = reviews.stream().limit(count).collect(Collectors.toList());
-
-        }
-        return reviews;
-    }
-
-    @Override
-    public void addLike(long reviewId, long userId) {
-        addRating(reviewId, userId, Boolean.TRUE);
-    }
-
-    @Override
-    public void addDislike(long reviewId, long userId) {
-        addRating(reviewId, userId, Boolean.FALSE);
-    }
-
-    @Override
-    public void deleteLike(long reviewId, long userId) {
-        deleteRating(reviewId, userId);
-    }
-
-    @Override
-    public void deleteDislike(long reviewId, long userId) {
-        deleteRating(reviewId, userId);
-    }
-
-    private void addRating(long reviewId, long userId, boolean isPositive) {
-        sql = "insert into film_review_likes (review_id, user_id, isLike) VALUES (?, ?, ?)";
-        jdbcTemplate.update(sql, reviewId, userId, isPositive);
-        increaseUsefulScore(reviewId);
-    }
-
-    private void deleteRating(long reviewId, long userId) {
-        sql = "delete from film_review_ratings where review_id = ? and user_id = ?";
-        jdbcTemplate.update(sql, reviewId, userId);
-        decreaseUsefulScore(reviewId);
-    }
-
-    private void increaseUsefulScore(long reviewId) {
-        sql = "update film_reviews set useful = useful + 1 where review_id = ?";
-        jdbcTemplate.update(sql, reviewId);
-    }
-
-    private void decreaseUsefulScore(long reviewId) {
-        sql = "update film_reviews set useful = useful - 1 where review_id = ?";
-        jdbcTemplate.update(sql, reviewId);
-    }
-
-    /*@Override
-    public ReviewEntity getById(long id) {
-        return null;
-    }
-
     @Override
     public List<ReviewEntity> getAll() {
-        sql = "select * from reviews order by useful DESC";
+        sql = String.format("select * from %ss order by useful desc", type);
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
-
-    @Override
-    public ReviewCommand deleteById(long reviewId) {
-        sql = "delete from likes where film_id = ? and user_id = ?";
-        try {
-            jdbcTemplate.update(sql, filmId, userId);
-        } catch (DataRetrievalFailureException exception) {
-            throw new ObjectNotFoundInStorageException(String.format("Пользователь с id%d не ставил лайк фильму с id%d",
-                    userId, filmId));
-        }
-        return new LikeCommand(filmId, userId);
-    }*/
-
 
 }

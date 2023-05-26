@@ -48,6 +48,7 @@ public class UserStorageControllerImpl implements VariableStorageController<User
         return userMapper.toRestView(user);
     }
 
+    @Override
     @PostMapping
     public UserRestView post(@RequestBody @Valid UserRestCommand postUserCommand) {
         User user = userService.save(postUserCommand);
@@ -56,6 +57,7 @@ public class UserStorageControllerImpl implements VariableStorageController<User
         return userMapper.toRestView(user);
     }
 
+    @Override
     @PutMapping
     public UserRestView put(@RequestBody UserRestCommand putUserCommand) {
         User user = userService.update(putUserCommand);

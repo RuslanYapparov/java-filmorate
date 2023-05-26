@@ -2,16 +2,19 @@ package ru.yandex.practicum.filmorate.model.service;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
 public class Review {
-    Integer reviewId;
+    long reviewId;
     String content;
-    Boolean isPositive;
-    Long userId;
-    Long filmId;
-    Long useful;
+    boolean isPositive;
+    long userId;
+    long filmId;
+    int useful;
+
+    public boolean getIsPositive() {  // Пришлось реализовать метод-геттер для boolean-поля с неправильными (согласно
+        return isPositive; // принятым и описанным в теории правилам), потому что он необходим для мэппинга в mapstruct
+    }
+
 }

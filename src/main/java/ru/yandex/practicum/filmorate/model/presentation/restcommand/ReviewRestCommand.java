@@ -16,22 +16,25 @@ import javax.validation.constraints.Size;
 public class ReviewRestCommand {
     @JsonProperty("reviewId")
     @PositiveOrZero
-    Long reviewId;
+    long reviewId;
     @JsonProperty("content")
     @NotNull
     @NotBlank
-    @Size(max = 1000)
+    @Size(max = 10000)
     String content;
     @JsonProperty("isPositive")
     @NotNull
     Boolean isPositive;
     @JsonProperty("userId")
-    @PositiveOrZero
-    Long userId;
+    long userId;
     @JsonProperty("filmId")
-    @PositiveOrZero
-    Long filmId;
+    long filmId;
     @JsonProperty("useful")
     @PositiveOrZero
-    Long useful;
+    int useful;
+
+    public boolean getIsPositive() {  // Пришлось реализовать метод-геттер для boolean-поля с неправильными (согласно
+        return isPositive; // принятым и описанным в теории правилам), потому что он необходим для мэппинга в mapstruct
+    }
+
 }

@@ -7,13 +7,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStorageController;
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.DirectorRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.ReviewRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restview.DirectorRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.ReviewRestView;
-import ru.yandex.practicum.filmorate.model.service.Director;
 import ru.yandex.practicum.filmorate.model.service.Review;
-import ru.yandex.practicum.filmorate.service.CrudService;
 import ru.yandex.practicum.filmorate.service.varimpl.ReviewService;
 
 import javax.validation.Valid;
@@ -39,6 +35,7 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
         return reviewMapper.toRestView(review);
     }
 
+    @Override
     @PostMapping
     public ReviewRestView post(@RequestBody @Valid ReviewRestCommand reviewRestCommand) {
         Review review = reviewService.save(reviewRestCommand);
@@ -46,6 +43,7 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
         return reviewMapper.toRestView(review);
     }
 
+    @Override
     @PutMapping
     public ReviewRestView put(@RequestBody ReviewRestCommand reviewRestCommand) {
         Review review = reviewService.update(reviewRestCommand);
@@ -69,7 +67,7 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
     }
 
     @Override
-    @GetMapping
+    @GetMapping("/all")
     public List<ReviewRestView> getAll() {
         log.debug("Запрошен список всех отзывов. Количество сохраненных отзывов: {}", reviewService.getQuantity());
         return reviewService.getAll().stream()
@@ -77,42 +75,4 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
                 .collect(Collectors.toList());
     }
 
-    @GetMapping
-    public List<ReviewRestView> getAllByFilmId(
-            @RequestParam(name = "filmId", defaultValue = "-1", required = false) long filmId,
-            @RequestParam(name = "count", defaultValue = "10", required = false) Integer count) {
-        log.debug("Запрошен список всех отзывов фильма с идентификатором '{}'. Если идентификатор фильма не указан, " +
-                        "то запрос всех отзывов", filmId);
-        return reviewService.getAll().stream()
-                .map(reviewMapper::toRestView)
-                .collect(Collectors.toList());
-    }
-
-    @PutMapping("/{review_id}/like/{userId}")
-    public void addLike(@PathVariable("review_id") @Positive long reviewId,
-                            @PathVariable("userId") @Positive long userId) {
-        log.debug("Пользователь с идентификатором '{}' ставит лайк отзыву с идентификатором '{}'", userId, reviewId);
-        reviewService.addLike(reviewId, userId);
-    }
-
-    @PutMapping("/{review_id}/dislike/{userId}")
-    public void addDislike(@PathVariable("review_id") @Positive long reviewId,
-                               @PathVariable("userId") @Positive long userId) {
-        log.debug("Пользователь с идентификатором '{}' ставит дизлайк отзыву с идентификатором '{}'", userId, reviewId);
-        reviewService.addDislike(reviewId, userId);
-    }
-
-    @DeleteMapping("/{review_id}/like/{userId}")
-    public void deleteLike(@PathVariable("review_id") @Positive long reviewId,
-                           @PathVariable("userId") @Positive long userId) {
-        log.debug("Пользователь с идентификатором '{}' удаляет лайк у отзыва с идентификатором '{}'", userId, reviewId);
-        reviewService.deleteLike(reviewId, userId);
-    }
-
-    @DeleteMapping("/{review_id}/dislike/{userId}")
-    public void deleteDislike(@PathVariable("review_id") @Positive long reviewId,
-                              @PathVariable("userId") @Positive long userId) {
-        log.debug("Пользователь с идентификатором '{}' удаляет дизлайк у отзыва с идентификатором '{}'", userId, reviewId);
-        reviewService.deleteDislike(reviewId, userId);
-    }
 }

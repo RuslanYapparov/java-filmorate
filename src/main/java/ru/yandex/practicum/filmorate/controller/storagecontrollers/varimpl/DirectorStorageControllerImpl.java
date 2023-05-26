@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class DirectorStorageControllerImpl implements VariableStorageController<DirectorRestCommand, DirectorRestView> {
-    @Qualifier("userService")
+    @Qualifier("directorService")
     private final CrudService<Director, DirectorRestCommand> directorService;
     private final DirectorMapper directorMapper;
 
@@ -45,6 +45,7 @@ public class DirectorStorageControllerImpl implements VariableStorageController<
         return directorMapper.toRestView(director);
     }
 
+    @Override
     @PostMapping
     public DirectorRestView post(@RequestBody @Valid DirectorRestCommand postDirectorCommand) {
         Director director = directorService.save(postDirectorCommand);
@@ -53,6 +54,7 @@ public class DirectorStorageControllerImpl implements VariableStorageController<
         return directorMapper.toRestView(director);
     }
 
+    @Override
     @PutMapping
     public DirectorRestView put(@RequestBody DirectorRestCommand putDirectorCommand) {
         Director director = directorService.update(putDirectorCommand);

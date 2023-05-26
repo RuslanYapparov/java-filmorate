@@ -19,10 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.exception.BadRequestParameterException;
-import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.EmailValidationException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.presentation.restview.ErrorResponseView;
 
 @RestControllerAdvice
@@ -45,6 +42,14 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
                 exception.getMessage());
     }
 
+    @ExceptionHandler(BadRequestBodyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseView handleBadRequestBodyException(BadRequestBodyException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "BadRequestBodyException",
+                exception.getMessage());
+    }
+
     @ExceptionHandler(BadRequestParameterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponseView handleBadRequestParameterException(BadRequestParameterException exception) {
@@ -59,9 +64,9 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
         ErrorResponseView error;
         log.warn(message);
         if (message.equals("Неправильный формат адреса электронной почты")) {
-            error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "UserValidationException", message);
+            error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "EmailValidationException", message);
         } else {
-            error = new ErrorResponseView(HttpStatus.CONFLICT.value(), "UserValidationException", message);
+            error = new ErrorResponseView(HttpStatus.CONFLICT.value(), "EmailValidationException", message);
         }
         return new ResponseEntity<>(error, HttpStatus.valueOf(error.getStatusCode()));
     }
