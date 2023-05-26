@@ -134,7 +134,7 @@ public class FilmServiceController {
     }
 
     @GetMapping("/common")
-    public List<FilmRestView> getCommonFilmsByRating (@RequestParam(name = "userId") long userId,
+    public List<FilmRestView> getCommonFilmsByRating(@RequestParam(name = "userId") long userId,
                                               @RequestParam(name = "friendId") long friendId) {
         List<Film> commonFilms = filmService.getCommonFilmsByRating(userId, friendId);
         return this.mapListOfFilmsToListOfFilmRestViews(commonFilms);
