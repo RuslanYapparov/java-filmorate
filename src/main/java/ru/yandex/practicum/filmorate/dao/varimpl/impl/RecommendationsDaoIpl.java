@@ -27,8 +27,12 @@ public class RecommendationsDaoIpl {
 
 
     public void userExists(long userId) {
-        SqlRowSet forRowSet = jdbcTemplate.queryForRowSet("SELECT COUNT(*) FROM films WHERE id = ?", userId);
-        if (forRowSet.getInt(1) == 0) throw new ObjectNotFoundInStorageException("Фильм с таким id не найден!");
+        Integer exists = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM films WHERE id = ?",
+                Integer.class,
+                userId
+        );
+
+        if (exists == 0) throw new ObjectNotFoundInStorageException("Фильм с таким id не найден!");
     }
 
     public Integer numberLikes(long userId) {
