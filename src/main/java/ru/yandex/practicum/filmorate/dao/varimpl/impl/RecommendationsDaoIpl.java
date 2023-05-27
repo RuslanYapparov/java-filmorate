@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 
+import javax.sql.RowSet;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -36,15 +37,18 @@ public class RecommendationsDaoIpl {
     }
 
     public Integer numberLikes(long userId) {
-        SqlRowSet forRowSet = jdbcTemplate.queryForRowSet("SELECT COUNT(*) FROM likes WHERE user_id = ?", userId);
-        return forRowSet.getInt(1);
+        Integer numberLikes = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM likes WHERE user_id = ?",
+                Integer.class,
+                userId
+        );
+        return numberLikes;
     }
 
     public Set<Long> getRandomFilm() {
         Set<Long> filmSet = new HashSet<>();
         long maxIdFilm = 0;
-        SqlRowSet forRowSet = jdbcTemplate.queryForRowSet("SELECT MAX(film_id) FROM films");
-        maxIdFilm = forRowSet.getInt(1);
+        Long maxFilmId = jdbcTemplate.queryForObject("SELECT MAX(film_id) FROM films", Long.class);
+
 
         Random rand = new Random();
 
@@ -53,7 +57,6 @@ public class RecommendationsDaoIpl {
         } while (filmSet.size() < 5);
 
         return filmSet;
-
     }
 
     public final static double  COEFFICIENT_OF_COINCIDENCE = 0.8;
