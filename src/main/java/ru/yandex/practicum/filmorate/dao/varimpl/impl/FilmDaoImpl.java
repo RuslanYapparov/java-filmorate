@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.List;
 
 import ru.yandex.practicum.filmorate.dao.varimpl.*;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
