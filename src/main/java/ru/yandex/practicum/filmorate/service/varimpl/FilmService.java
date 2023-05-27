@@ -34,4 +34,6 @@ public interface FilmService extends CrudService<Film, FilmRestCommand> {
 
     List<Film> getAllFilmsByDirectorIdSortedBySomeParameter(int id, String sortParameter);
 
+    List<Film> getRecommendedFilmsForUser(long userId);
+
 }
