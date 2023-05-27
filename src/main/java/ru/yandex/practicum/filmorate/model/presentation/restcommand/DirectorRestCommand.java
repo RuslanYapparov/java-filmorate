@@ -16,5 +16,4 @@ public class DirectorRestCommand {
     @NotBlank
     @Size(max = 255)
     String name;
-
 }

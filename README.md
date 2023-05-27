@@ -31,7 +31,7 @@ The application can run on http-server with application programming interface:
 
 The database of the program has an ER-diagram (created with dbdiagram.io):
 
-![](/src/main/resources/filmorate_er_diagram.jpg)
+![](/src/main/resources/filmorate_er_diagram.png)
 
 Here are some examples of SQL-queries to the database:
 
