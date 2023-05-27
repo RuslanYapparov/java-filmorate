@@ -15,5 +15,4 @@ public interface ReviewLikeDao {
     void deleteLike(long reviewId, long userId);
 
     void deleteDislike(long reviewId, long userId);
-
 }

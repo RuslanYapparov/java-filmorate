@@ -17,5 +17,4 @@ public class ReviewRestView {
     long filmId;
     @JsonProperty("useful")
     int useful;
-
 }

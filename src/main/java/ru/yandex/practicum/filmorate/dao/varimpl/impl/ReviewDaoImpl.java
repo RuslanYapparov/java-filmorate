@@ -74,5 +74,4 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
         sql = String.format("select * from %ss order by useful desc", type);
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
-
 }

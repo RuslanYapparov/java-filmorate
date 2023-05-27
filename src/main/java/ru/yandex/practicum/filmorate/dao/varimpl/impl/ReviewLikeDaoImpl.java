@@ -94,5 +94,4 @@ public class ReviewLikeDaoImpl extends ReviewDaoImpl implements ReviewLikeDao {
         sql = "update film_reviews set useful = useful - 1 where film_review_id = ?";
         jdbcTemplate.update(sql, reviewId);
     }
-
 }

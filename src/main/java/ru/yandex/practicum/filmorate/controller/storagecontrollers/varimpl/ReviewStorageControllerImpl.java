@@ -74,5 +74,4 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
                 .map(reviewMapper::toRestView)
                 .collect(Collectors.toList());
     }
-
 }
