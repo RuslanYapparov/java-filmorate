@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
-import ru.yandex.practicum.filmorate.dao.varimpl.FilmDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmDirectorDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmGenreDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.LikeDao;
@@ -46,8 +45,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     private final FilmGenreDao filmGenreDao;
     @Qualifier("filmDirectorRepository")
     private final FilmDirectorDao filmDirectorDao;
-    @Qualifier("filmRepository")
-    private final FilmDao filmDao;
 
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
@@ -59,7 +56,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                            LikeDao likeDao,
                            FilmGenreDao filmGenreDao,
                            FilmDirectorDao filmDirectorDao,
-                           FilmDao filmDao,
                            FilmMapper filmMapper,
                            DirectorMapper directorMapper,
                            JdbcTemplate jdbcTemplate
@@ -69,7 +65,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         this.likeDao = likeDao;
         this.filmGenreDao = filmGenreDao;
         this.filmDirectorDao = filmDirectorDao;
-        this.filmDao = filmDao;
         this.filmMapper = filmMapper;
         this.directorMapper = directorMapper;
         this.batchUpdater = jdbcTemplate;
@@ -264,19 +259,13 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getCommonFilmsByRating(long userId, long friendId) {
-        Consumer<Film> filmGenresSetFiller = initializeFilmGenresSetFiller(filmGenreDao.getAll());
-        Consumer<Film> filmLikesSetFiller = initializeFilmLikesSetFiller(likeDao.getAll());
-        return filmDao.getCommonFilmsByRating(userId, friendId).stream()
-                .map(objectFromDbEntityMapper)
-                .peek(filmLikesSetFiller)
-                .peek(filmGenresSetFiller)
-                .peek(film -> {
-                    List<Director> directors = filmDirectorDao.getAllDirectorEntitiesByFilmId(film.getId()).stream()
-                            .map(directorMapper::fromDbEntity)
-                            .collect(Collectors.toList());
-                    film.getDirectors().addAll(directors);
-                })
+    public List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId) {
+        List<Film> filmsLikedByFirstUser = this.getAllFilmsLikedByUser(userId);
+        List<Film> filmsLikedBySecondUser = this.getAllFilmsLikedByUser(friendId);
+
+        return filmsLikedByFirstUser.stream()
+                .filter(filmsLikedBySecondUser::contains)
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .collect(Collectors.toList());
     }
 

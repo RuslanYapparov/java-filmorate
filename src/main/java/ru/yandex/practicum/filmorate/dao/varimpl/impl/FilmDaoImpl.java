@@ -19,8 +19,7 @@ import ru.yandex.practicum.filmorate.model.service.*;
 
 @Repository
 @Qualifier("filmRepository")
-public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Film>
-        implements FilmDao {
+public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Film> {
 
     public FilmDaoImpl(JdbcTemplate template) {
         super(template);
@@ -80,24 +79,5 @@ public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Fil
                     "с указанным идентификатором не был сохранен");
         }
         return this.getById(film.getId());
-    }
-
-    @Override
-    public List<FilmEntity> getCommonFilmsByRating(long userId, long friendId) {
-        String sqlQuery =
-                "SELECT f.*, " +
-                        "m.rating_name, " +
-                        "m.mpa_rating_id, " +
-                        "COUNT(lk.film_id) rate " +
-                "FROM films AS f " +
-                "JOIN mpa_ratings AS m ON f.mpa_rating_id = m.mpa_rating_id " +
-                "JOIN likes AS lk ON f.film_id = lk.film_id " +
-                "JOIN likes AS lk2 ON f.film_id = lk2.film_id " +
-                "WHERE lk.user_id = ? " +
-                "AND lk2.user_id = ? " +
-                "GROUP BY f.film_id " +
-                "ORDER BY rate;";
-        List<FilmEntity> films = jdbcTemplate.query(sqlQuery, objectEntityRowMapper, userId, friendId);
-        return films;
     }
 }
