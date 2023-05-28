@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStora
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
@@ -81,12 +82,9 @@ public class UserStorageControllerImpl implements VariableStorageController<User
     }
 
     @GetMapping("{user_id}/recommendations")
-    public List<FilmEntity> getRecommendationsFilms(@PathVariable(value = "user_id") @Positive long userId){
-        // здесь должен использоваться метод по получению рекомендаций,
-        // но его  нельзя использовать
-        // я не понял что не так
+    public List<Film> getRecommendationsFilms(@PathVariable(value = "user_id") @Positive long userId){
 
-        List<FilmEntity> recommendations = userService.getRecommendationsFilms(userId);
+        List<Film> recommendations = userService.getRecommendationsFilms(userId);
         return recommendations;
     }
 }
