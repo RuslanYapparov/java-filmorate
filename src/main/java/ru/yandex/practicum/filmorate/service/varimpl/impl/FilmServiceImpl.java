@@ -188,7 +188,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getMostLikedFilmsWithSorting(int count, Optional<Integer> genreId, Optional<Integer> year) {
+    public List<Film> getMostLikedFilmsWithFilters(int count, Optional<Integer> genreId, Optional<Integer> year) {
         List<Film> mostLikedFilms = this.getAll().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
                 .collect(Collectors.toList());

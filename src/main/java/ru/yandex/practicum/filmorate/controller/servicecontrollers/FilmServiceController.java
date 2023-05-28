@@ -34,11 +34,11 @@ public class FilmServiceController {
     private final UserMapper userMapper;
 
     @GetMapping("/popular")
-    public List<FilmRestView> getPopularFilmsWithSorting(
+    public List<FilmRestView> getPopularFilmsWithFilters(
             @RequestParam(name = "count", defaultValue = "10") @Positive int count,
             @RequestParam(name = "genreId") Optional<Integer> genreId,
             @RequestParam(name = "year") Optional<Integer> year) {
-        List<Film> popular = filmService.getMostLikedFilmsWithSorting(count, genreId, year);
+        List<Film> popular = filmService.getMostLikedFilmsWithFilters(count, genreId, year);
         log.debug(String.format("Запрошен список из %d наиболее популярных фильмов.", count));
         return this.mapListOfFilmsToListOfFilmRestViews(popular);
     }
