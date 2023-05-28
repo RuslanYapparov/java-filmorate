@@ -188,11 +188,31 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getMostLikedFilms(int count) {
-        return this.getAll().stream()
+    public List<Film> getMostLikedFilmsWithFilters(int count, Optional<Integer> genreId, Optional<Integer> year) {
+        List<Film> mostLikedFilms = this.getAll().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
                 .collect(Collectors.toList());
+
+        List<Film> popular;
+
+        if (genreId.isPresent() && year.isPresent()) {
+            popular = mostLikedFilms.stream()
+                    .filter(film -> film.getGenres().contains(Genre.getGenreById(genreId.get())))
+                    .filter(film -> film.getReleaseDate().getYear() == year.get())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else {
+            popular = genreId.map(integer -> mostLikedFilms.stream()
+                    .filter(film -> film.getGenres().contains(Genre.getGenreById(integer)))
+                    .limit(count)
+                    .collect(Collectors.toList())).orElseGet(() -> year.map(integer -> mostLikedFilms.stream()
+                    .filter(film -> film.getReleaseDate().getYear() == integer)
+                    .limit(count)
+                    .collect(Collectors.toList())).orElseGet(() -> mostLikedFilms.stream()
+                    .limit(count)
+                    .collect(Collectors.toList())));
+        }
+        return popular;
     }
 
     @Override
@@ -255,7 +275,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 throw new BadRequestParameterException("Указан неверный параметер для сортировки: " + sortParameter);
         }
     }
-
+  
     @Override
     public List<Film> getRecommendedFilmsForUser(long userId) {
         userService.getById(userId);              // Проверка существования пользователя с указанным id в базе данных
@@ -292,6 +312,15 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 .filter(film -> recommendedFilmsIds.contains(film.getId()))         // Убираем те, которые не в списке
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())     // Рекомендованных
                 .collect(Collectors.toList());                            // Сортируем по количеству лайков у фильма
+
+    public List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId) {
+        List<Film> filmsLikedByFirstUser = this.getAllFilmsLikedByUser(userId);
+        List<Film> filmsLikedBySecondUser = this.getAllFilmsLikedByUser(friendId);
+
+        return filmsLikedByFirstUser.stream()
+                .filter(filmsLikedBySecondUser::contains)
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                .collect(Collectors.toList());
     }
 
     private void updateGenreStorages(Film film) {
