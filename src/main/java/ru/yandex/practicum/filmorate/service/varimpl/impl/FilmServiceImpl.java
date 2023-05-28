@@ -7,9 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -190,11 +188,29 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getMostLikedFilms(int count) {
-        return this.getAll().stream()
+    public List<Film> getMostLikedFilmsWithSorting(int count, Optional<Integer> genreId, Optional<Integer> year) {
+        List<Film> mostLikedFilms = this.getAll().stream()
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
-                .limit(count)
                 .collect(Collectors.toList());
+
+        List<Film> popular;
+
+        if (genreId.isPresent() && year.isPresent()) {
+            popular = mostLikedFilms.stream()
+                    .filter(film -> film.getGenres().contains(Genre.getGenreById(genreId.get())))
+                    .filter(film -> film.getReleaseDate().getYear() == year.get())
+                    .limit(count)
+                    .collect(Collectors.toList());
+        } else popular = genreId.map(integer -> mostLikedFilms.stream()
+                .filter(film -> film.getGenres().contains(Genre.getGenreById(integer)))
+                .limit(count)
+                .collect(Collectors.toList())).orElseGet(() -> year.map(integer -> mostLikedFilms.stream()
+                .filter(film -> film.getReleaseDate().getYear() == integer)
+                .limit(count)
+                .collect(Collectors.toList())).orElseGet(() -> mostLikedFilms.stream()
+                .limit(count)
+                .collect(Collectors.toList())));
+        return popular;
     }
 
     @Override
