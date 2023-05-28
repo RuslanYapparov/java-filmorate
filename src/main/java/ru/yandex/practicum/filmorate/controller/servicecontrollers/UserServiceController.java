@@ -10,14 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
-import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
-import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
 import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
-import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Validated
@@ -28,10 +24,7 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 public class UserServiceController {
     @Qualifier("userService")
     private final UserService userService;
-    @Qualifier("filmService")
-    private final FilmService filmService;
     private final UserMapper userMapper;
-    private final FilmMapper filmMapper;
 
     @GetMapping("/friends")
     public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId) {
@@ -65,22 +58,9 @@ public class UserServiceController {
         return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
     }
 
-    @GetMapping("/recommendations")
-    public List<FilmRestView> getRecommendedFilmsForUser(@PathVariable(value = "user_id") @Positive long userId) {
-        List<Film> recommendedFilms = filmService.getRecommendedFilmsForUser(userId);
-        log.debug(String.format("Запрошен список рекоммендованных фильмов для пользователя id%d", userId));
-        return this.mapListOfFilmsToListOfFilmRestViews(recommendedFilms);
-    }
-
     private List<UserRestView> mapListOfUsersToListOfUserRestViews(List<User> users) {
         return users.stream()
                 .map(userMapper::toRestView)
-                .collect(Collectors.toList());
-    }
-
-    private List<FilmRestView> mapListOfFilmsToListOfFilmRestViews(List<Film> films) {
-        return films.stream()
-                .map(filmMapper::toRestView)
                 .collect(Collectors.toList());
     }
 

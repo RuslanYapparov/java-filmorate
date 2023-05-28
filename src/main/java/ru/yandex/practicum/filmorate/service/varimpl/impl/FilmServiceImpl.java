@@ -275,7 +275,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 likeData.put(likeUserId, likeFilmIds);
             }
         });
-        likeData.remove(userId);         // Удаляем из мапы данные самого пользователя, чтобы они участвовали в логике
+        likeData.remove(userId);     // Удаляем из мапы данные самого пользователя, чтобы они не участвовали в логике
 
         Map<Long, List<Long>> sortedLikeData = new TreeMap<>(Comparator.comparingLong(likeUserId ->   // Далее создаем
                 likeData.get(likeUserId).stream()              // Сортирующую мапу, которая будет сортировать все id
