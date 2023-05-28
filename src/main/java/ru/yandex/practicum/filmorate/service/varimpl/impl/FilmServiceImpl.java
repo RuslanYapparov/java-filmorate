@@ -275,7 +275,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 throw new BadRequestParameterException("Указан неверный параметер для сортировки: " + sortParameter);
         }
     }
-  
+
     @Override
     public List<Film> getRecommendedFilmsForUser(long userId) {
         userService.getById(userId);              // Проверка существования пользователя с указанным id в базе данных
