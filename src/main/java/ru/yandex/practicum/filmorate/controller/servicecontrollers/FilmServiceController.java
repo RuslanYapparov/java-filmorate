@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -33,11 +34,13 @@ public class FilmServiceController {
     private final UserMapper userMapper;
 
     @GetMapping("/popular")
-    public List<FilmRestView> getPopularFilms(@RequestParam(name = "count", defaultValue = "10")
-                                              @Positive int size) {
-        List<Film> popularFilms = filmService.getMostLikedFilms(size);
-        log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", size));
-        return this.mapListOfFilmsToListOfFilmRestViews(popularFilms);
+    public List<FilmRestView> getPopularFilmsWithFilters(
+            @RequestParam(name = "count", defaultValue = "10") @Positive int count,
+            @RequestParam(name = "genreId") Optional<Integer> genreId,
+            @RequestParam(name = "year") Optional<Integer> year) {
+        List<Film> popular = filmService.getMostLikedFilmsWithFilters(count, genreId, year);
+        log.debug(String.format("Запрошен список из %d наиболее популярных фильмов.", count));
+        return this.mapListOfFilmsToListOfFilmRestViews(popular);
     }
 
     @GetMapping("/search")
