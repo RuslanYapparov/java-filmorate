@@ -312,6 +312,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 .filter(film -> recommendedFilmsIds.contains(film.getId()))         // Убираем те, которые не в списке
                 .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())     // Рекомендованных
                 .collect(Collectors.toList());                            // Сортируем по количеству лайков у фильма
+    }
 
     public List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId) {
         List<Film> filmsLikedByFirstUser = this.getAllFilmsLikedByUser(userId);
