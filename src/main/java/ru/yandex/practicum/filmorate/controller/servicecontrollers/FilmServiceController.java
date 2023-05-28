@@ -133,6 +133,13 @@ public class FilmServiceController {
         return this.mapListOfFilmsToListOfFilmRestViews(filmsByDirector);
     }
 
+    @GetMapping("/common")
+    public List<FilmRestView> getCommonFilmsOfTwoUsers(@RequestParam(name = "userId") long userId,
+                                              @RequestParam(name = "friendId") long friendId) {
+        List<Film> commonFilms = filmService.getCommonFilmsOfTwoUsers(userId, friendId);
+        return this.mapListOfFilmsToListOfFilmRestViews(commonFilms);
+    }
+
     private List<FilmRestView> mapListOfFilmsToListOfFilmRestViews(List<Film> films) {
         return films.stream()
                 .map(filmMapper::toRestView)

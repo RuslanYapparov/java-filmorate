@@ -258,6 +258,17 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         }
     }
 
+    @Override
+    public List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId) {
+        List<Film> filmsLikedByFirstUser = this.getAllFilmsLikedByUser(userId);
+        List<Film> filmsLikedBySecondUser = this.getAllFilmsLikedByUser(friendId);
+
+        return filmsLikedByFirstUser.stream()
+                .filter(filmsLikedBySecondUser::contains)
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                .collect(Collectors.toList());
+    }
+
     private void updateGenreStorages(Film film) {
         long filmId = film.getId();
         List<Genre> oldGenresList = filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
