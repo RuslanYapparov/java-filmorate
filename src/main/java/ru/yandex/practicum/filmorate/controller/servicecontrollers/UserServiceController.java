@@ -18,7 +18,7 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Validated
 @RestController
-@RequestMapping("/users/{user_id}")
+@RequestMapping("/users/{user_id}/friends")
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceController {
@@ -26,13 +26,13 @@ public class UserServiceController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping("/friends")
+    @GetMapping()
     public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId) {
         log.debug("Запрошен список друзей пользователя с id" + userId);
         return this.mapListOfUsersToListOfUserRestViews(userService.getUsersFriendsSet(userId));
     }
 
-    @GetMapping("/friends/common/{friend_id}")
+    @GetMapping("/common/{friend_id}")
     public List<UserRestView> getCommonFriends(@PathVariable(value = "user_id") @Positive long userId,
                                                @PathVariable(value = "friend_id") @Positive long friendId) {
         List<User> commonFriendsList = userService.getCommonFriendsOfTwoUsers(userId, friendId);
@@ -40,7 +40,7 @@ public class UserServiceController {
         return this.mapListOfUsersToListOfUserRestViews(commonFriendsList);
     }
 
-    @PutMapping("/friends/{friend_id}")
+    @PutMapping("{friend_id}")
     public List<UserRestView> addToFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
                                               @PathVariable(value = "friend_id") @Positive long friendId) {
         FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
@@ -49,7 +49,7 @@ public class UserServiceController {
         return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
     }
 
-    @DeleteMapping("friends/{friend_id}")
+    @DeleteMapping("{friend_id}")
     public List<UserRestView> removeFromFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
                                                    @PathVariable(value = "friend_id") @Positive long friendId) {
         FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
