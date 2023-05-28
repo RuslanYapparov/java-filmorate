@@ -5,6 +5,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,15 +13,18 @@ import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl
 import ru.yandex.practicum.filmorate.dao.varimpl.LikeDao;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
+import ru.yandex.practicum.filmorate.model.service.EventFeed;
 
 @Repository
 @Qualifier("likeRepository")
 public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, LikeCommand>
         implements LikeDao {
+    private final EventFeedDaoImpl eventFeedDao;
 
-    public LikeDaoImpl(JdbcTemplate jdbcTemplate) {
+    public LikeDaoImpl(JdbcTemplate jdbcTemplate, EventFeedDaoImpl eventFeedDao) {
         super(jdbcTemplate);
         this.type = "like";
+        this.eventFeedDao = eventFeedDao;
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
                 new LikeCommand(resultSet.getLong("film_id"),
                         resultSet.getLong("user_id"));
@@ -48,6 +52,14 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
         sql = "delete from likes where film_id = ? and user_id = ?";
         try {
             jdbcTemplate.update(sql, filmId, userId);
+            EventFeed eventFeed = EventFeed.builder()
+                    .timestamp(new Timestamp(System.currentTimeMillis()).getTime())
+                    .userId(userId)
+                    .eventType("LIKE")
+                    .operation("REMOVE")
+                    .entityId(filmId)
+                    .build();
+            eventFeedDao.save(eventFeed);
         } catch (DataRetrievalFailureException exception) {
             throw new ObjectNotFoundInStorageException(String.format("Пользователь с id%d не ставил лайк фильму с id%d",
                     userId, filmId));
@@ -61,6 +73,14 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
         long filmId = likeCommand.getFilmId();
         long userId = likeCommand.getUserId();
         jdbcTemplate.update(sql, filmId, userId);
+        EventFeed eventFeed = EventFeed.builder()
+                .timestamp(new Timestamp(System.currentTimeMillis()).getTime())
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("ADD")
+                .entityId(filmId)
+                .build();
+        eventFeedDao.save(eventFeed);
         sql = "select * from likes where film_id = ? and user_id = ?";
         return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, filmId, userId);
     }

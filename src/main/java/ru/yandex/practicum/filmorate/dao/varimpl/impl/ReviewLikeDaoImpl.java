@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 @Qualifier("reviewLikeRepository")
 public class ReviewLikeDaoImpl extends ReviewDaoImpl implements ReviewLikeDao {
 
-    public ReviewLikeDaoImpl(JdbcTemplate jdbcTemplate) {
-        super(jdbcTemplate);
+    public ReviewLikeDaoImpl(JdbcTemplate jdbcTemplate, EventFeedDaoImpl eventFeedDao) {
+        super(jdbcTemplate, eventFeedDao);
     }
 
     @Override
