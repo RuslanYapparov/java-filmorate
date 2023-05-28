@@ -201,15 +201,17 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                     .filter(film -> film.getReleaseDate().getYear() == year.get())
                     .limit(count)
                     .collect(Collectors.toList());
-        } else popular = genreId.map(integer -> mostLikedFilms.stream()
-                .filter(film -> film.getGenres().contains(Genre.getGenreById(integer)))
-                .limit(count)
-                .collect(Collectors.toList())).orElseGet(() -> year.map(integer -> mostLikedFilms.stream()
-                .filter(film -> film.getReleaseDate().getYear() == integer)
-                .limit(count)
-                .collect(Collectors.toList())).orElseGet(() -> mostLikedFilms.stream()
-                .limit(count)
-                .collect(Collectors.toList())));
+        } else {
+            popular = genreId.map(integer -> mostLikedFilms.stream()
+                    .filter(film -> film.getGenres().contains(Genre.getGenreById(integer)))
+                    .limit(count)
+                    .collect(Collectors.toList())).orElseGet(() -> year.map(integer -> mostLikedFilms.stream()
+                    .filter(film -> film.getReleaseDate().getYear() == integer)
+                    .limit(count)
+                    .collect(Collectors.toList())).orElseGet(() -> mostLikedFilms.stream()
+                    .limit(count)
+                    .collect(Collectors.toList())));
+        }
         return popular;
     }
 
