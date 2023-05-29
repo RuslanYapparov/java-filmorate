@@ -277,6 +277,43 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
+    public List<Film> getRecommendedFilmsForUser(long userId) {
+        userService.getById(userId);              // Проверка существования пользователя с указанным id в базе данных
+        final int numberOfUsersWithSimilarPreferencesForReturnedValue = 5;      // В задании не указаны параметры для
+        final int countOfFilmsInReturnedList = 10; // Рекоммендаций, но мне кажется они нужны, чтобы ограничить выборку
+        Map<Long, List<Long>> likeData = new HashMap<>();                                     // Логика работы метода:
+        List<Long> filmIdsLikedByUser = likeDao.getAllFilmIdsLikedByUser(userId);  // Получаем список фильмов с лайками
+
+        likeDao.getAll().forEach(likeCommand -> {          // Получаем список всех лайков из базы данных и заполняем
+            long likeUserId = likeCommand.getUserId();     // Мапу лайков, где ключ - id пользователя, а значение -
+            long likedFilmId = likeCommand.getFilmId(); // Список всех фильмов, которым этот пользователь поставил лайк
+            if (likeData.containsKey(likeUserId)) {
+                likeData.get(likeUserId).add(likedFilmId);
+            } else {
+                List<Long> likeFilmIds = new ArrayList<>();
+                likeFilmIds.add(likedFilmId);
+                likeData.put(likeUserId, likeFilmIds);
+            }
+        });
+        likeData.remove(userId);     // Удаляем из мапы данные самого пользователя, чтобы они не участвовали в логике
+
+        Map<Long, List<Long>> sortedLikeData = new TreeMap<>(Comparator.comparingLong(likeUserId ->   // Далее создаем
+                likeData.get(likeUserId).stream()              // Сортирующую мапу, которая будет сортировать все id
+                        .filter(filmIdsLikedByUser::contains)  // пользователей по количеству лайков, совпавших с
+                        .count()));                               // Пользователем, для которого ищем рекомендации
+        sortedLikeData.putAll(likeData);  // Закидываем в сортирующую мапу общую мапу со всеми ползователями и лайками
+        List<Long> recommendedFilmsIds = sortedLikeData.values().stream()      // Получаем рекоммендованные фильмы:
+                .limit(numberOfUsersWithSimilarPreferencesForReturnedValue) // Берем первые несколько entry-значений
+                .flatMap(Collection::stream)                                   // Преобразуем их в стрим id фильмов
+                .filter(recommendedFilmId -> !filmIdsLikedByUser.contains(recommendedFilmId))  // Убираем те, которые
+                .limit(countOfFilmsInReturnedList)               // Лайкнул пользователь, которому ищем рекомендации
+                .collect(Collectors.toList());
+        return this.getAll().stream()                                                  // Берем список всех фильмов,
+                .filter(film -> recommendedFilmsIds.contains(film.getId()))         // Убираем те, которые не в списке
+                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())     // Рекомендованных
+                .collect(Collectors.toList());                            // Сортируем по количеству лайков у фильма
+    }
+
     public List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId) {
         List<Film> filmsLikedByFirstUser = this.getAllFilmsLikedByUser(userId);
         List<Film> filmsLikedBySecondUser = this.getAllFilmsLikedByUser(friendId);
