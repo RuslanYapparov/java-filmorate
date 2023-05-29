@@ -66,8 +66,7 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
         sql = "select * from likes where film_id = ? and user_id = ?";
         friendshipRows = jdbcTemplate.queryForRowSet(sql, filmId, userId);
         if (friendshipRows.next()) {
-            throw new ObjectAlreadyExistsException(String.format("Пользователь с id%d уже ставил лайк фильму id%d",
-                    userId, filmId));
+            return likeCommand;
         }
         sql = "insert into likes (film_id, user_id) values (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);

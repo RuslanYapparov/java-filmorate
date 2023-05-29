@@ -87,8 +87,6 @@ ALTER TABLE films ADD FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (mpa_ra
 
 ALTER TABLE friendships ADD CONSTRAINT IF NOT EXISTS unique_user_and_friend_id UNIQUE (user_id, friend_id);
 
-ALTER TABLE likes ADD CONSTRAINT IF NOT EXISTS unique_user_and_film_id UNIQUE (film_id, user_id);
-
 ALTER TABLE film_genres ADD CONSTRAINT IF NOT EXISTS unique_film_and_genre_id UNIQUE (film_id, genre_id);
 
 ALTER TABLE film_directors ADD CONSTRAINT IF NOT EXISTS unique_film_and_director_id UNIQUE (film_id, director_id);
