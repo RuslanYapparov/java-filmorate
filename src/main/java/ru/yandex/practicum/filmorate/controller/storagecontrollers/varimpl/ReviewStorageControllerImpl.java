@@ -9,9 +9,7 @@ import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStora
 import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.ReviewRestCommand;
 import ru.yandex.practicum.filmorate.model.presentation.restview.ReviewRestView;
-import ru.yandex.practicum.filmorate.model.service.EventFeed;
 import ru.yandex.practicum.filmorate.model.service.Review;
-import ru.yandex.practicum.filmorate.service.varimpl.EventFeedService;
 import ru.yandex.practicum.filmorate.service.varimpl.ReviewService;
 
 import javax.validation.Valid;
@@ -28,8 +26,6 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
     @Qualifier("reviewService")
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
-    @Qualifier("eventFeedService")
-    private final EventFeedService eventFeedService;
 
     @Override
     @GetMapping("{review_id}")
@@ -58,8 +54,7 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
     @Override
     @DeleteMapping("{review_id}")
     public ReviewRestView deleteOneById(@PathVariable(value = "review_id") @Positive long reviewId) {
-        Review review = reviewService.deleteById((int) reviewId);
-        EventFeed eventFeed = eventFeedService.saveEventWhenRemoveReview(reviewId);
+        Review review = reviewService.deleteById(reviewId);
         log.debug("Запрошено удаление отзыва с индентификатором '{}'. Отзыв удалён", review.getReviewId());
         return reviewMapper.toRestView(review);
     }
@@ -79,4 +74,5 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
                 .map(reviewMapper::toRestView)
                 .collect(Collectors.toList());
     }
+
 }

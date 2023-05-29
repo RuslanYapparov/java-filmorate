@@ -12,14 +12,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.controller.storagecontrollers.VariableStorageController;
-import ru.yandex.practicum.filmorate.mapper.EventFeedMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restview.EventFeedRestView;
-import ru.yandex.practicum.filmorate.model.service.EventFeed;
 import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
-import ru.yandex.practicum.filmorate.service.varimpl.EventFeedService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Validated
@@ -31,9 +27,6 @@ public class UserStorageControllerImpl implements VariableStorageController<User
     @Qualifier("userService")
     private final UserService userService;
     private final UserMapper userMapper;
-    @Qualifier("eventFeedService")
-    private final EventFeedService eventFeedService;
-    private final EventFeedMapper eventFeedMapper;
 
     @Override
     @GetMapping
@@ -86,16 +79,6 @@ public class UserStorageControllerImpl implements VariableStorageController<User
         User user = userService.deleteById(userId);
         log.debug("Запрошено удаление пользователя с идентификатором {}. Пользователь удален", userId);
         return userMapper.toRestView(user);
-    }
-
-    @GetMapping("/{id}/feed")
-    public List<EventFeedRestView> getAllEventsByUserId(@PathVariable(value = "id") @Positive long id) {
-        List<EventFeed> eventFeed = eventFeedService.getAllEventsByUserId(id);
-        log.debug("Запрошена лента событий пользователя с идентификатором {}.", id);
-        return eventFeed.stream()
-                .map(eventFeedMapper::toRestView)
-                .collect(Collectors.toList());
-
     }
 
 }

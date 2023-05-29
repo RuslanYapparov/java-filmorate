@@ -13,10 +13,10 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
-import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
-import ru.yandex.practicum.filmorate.model.service.User;
+import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.service.varimpl.CrudServiceImpl;
+import ru.yandex.practicum.filmorate.service.varimpl.EventService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Service
@@ -24,13 +24,17 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestCommand> implements UserService {
     @Qualifier("friendshipRepository")
     private final FriendshipDao friendshipDao;
+    @Qualifier("eventService")
+    private final EventService eventService;
     private final UserMapper userMapper;
     private Consumer<User> userFriendsSetFiller;
 
     public UserServiceImpl(@Qualifier("userRepository") FilmorateVariableStorageDao<UserEntity, User> objectDao,
+                           EventService eventService,
                            FriendshipDao friendshipDao,
                            UserMapper userMapper) {
         super(objectDao);
+        this.eventService = eventService;
         this.friendshipDao = friendshipDao;
         this.userMapper = userMapper;
         this.objectFromDbEntityMapper = this.userMapper::fromDbEntity;
@@ -109,13 +113,21 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
     @Override
     public List<User> addUserToAnotherUserFriendsSet(FriendshipRequest request) {
         friendshipDao.save(request);
+        eventService.save(request.getUserId(), EventType.FRIEND, EventOperation.ADD, request.getFriendId());
         return this.getUsersFriendsSet(request.getUserId());
     }
 
     @Override
     public List<User> removeUserFromAnotherUserFriendsSet(FriendshipRequest request) {
         friendshipDao.deleteById(request.getUserId(), request.getFriendId());
+        eventService.save(request.getUserId(), EventType.FRIEND, EventOperation.REMOVE, request.getFriendId());
         return this.getUsersFriendsSet(request.getUserId());
+    }
+
+    @Override
+    public List<Event> getAllEventsByUserId(long userId) {
+        this.getById(userId);          // Проверка на наличие пользователя с переданным идентификатором в базе данных
+        return eventService.getAllEventsByUserId(userId);
     }
 
     private Consumer<User> initializeUserFriendsSetFiller(List<FriendshipRequest> friendships) {

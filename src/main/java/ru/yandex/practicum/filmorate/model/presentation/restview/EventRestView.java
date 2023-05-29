@@ -1,16 +1,10 @@
-package ru.yandex.practicum.filmorate.model.presentation.restcommand;
+package ru.yandex.practicum.filmorate.model.presentation.restview;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
-@NoArgsConstructor
-@Getter
-public class EventFeedRestCommand {
-    @JsonProperty("eventId")
-    long eventId;
+public class EventRestView {
     @JsonProperty("timestamp")
     long timestamp;
     @JsonProperty("userId")
@@ -19,10 +13,9 @@ public class EventFeedRestCommand {
     String eventType;
     @JsonProperty("operation")
     String operation;
+    @JsonProperty("eventId")
+    long id;
     @JsonProperty("entityId")
     long entityId;
 
-    public String getEventType() {
-        return eventType;
-    }
 }

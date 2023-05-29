@@ -10,12 +10,10 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.ReviewEntity;
-import ru.yandex.practicum.filmorate.model.service.EventFeed;
 import ru.yandex.practicum.filmorate.model.service.Review;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.List;
 
 @Repository
@@ -23,12 +21,9 @@ import java.util.List;
 @Qualifier("reviewRepository")
 public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity, Review> {
 
-    private final EventFeedDaoImpl eventFeedDao;
-
-    public ReviewDaoImpl(JdbcTemplate template, EventFeedDaoImpl eventFeedDao) {
+    public ReviewDaoImpl(JdbcTemplate template) {
         super(template);
         this.type = "film_review";
-        this.eventFeedDao = eventFeedDao;
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
                 ReviewEntity.builder()
                         .reviewId(resultSet.getLong("film_review_id"))
@@ -58,14 +53,6 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
             ps.setLong(5, useful);
             return ps;
         }, keyHolder);
-        EventFeed eventFeed = EventFeed.builder()
-                .timestamp(new Timestamp(System.currentTimeMillis()).getTime())
-                .userId(userId)
-                .eventType("REVIEW")
-                .operation("ADD")
-                .entityId(keyHolder.getKey().longValue())
-                .build();
-        eventFeedDao.save(eventFeed);
         return this.getById(keyHolder.getKey().longValue());
     }
 
@@ -77,14 +64,6 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
                     review.getContent(),
                     review.getIsPositive(),
                     review.getReviewId());
-            EventFeed eventFeed = EventFeed.builder()
-                    .timestamp(new Timestamp(System.currentTimeMillis()).getTime())
-                    .userId(review.getUserId())
-                    .eventType("REVIEW")
-                    .operation("UPDATE")
-                    .entityId(review.getReviewId())
-                    .build();
-            eventFeedDao.save(eventFeed);
             return this.getById(review.getReviewId());
         } catch (DataRetrievalFailureException exception) {
             throw new ObjectNotFoundInStorageException("Данные не могут быть обновлены, т.к. отзыв " +
@@ -97,4 +76,5 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
         sql = String.format("select * from %ss order by useful desc", type);
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
+
 }
