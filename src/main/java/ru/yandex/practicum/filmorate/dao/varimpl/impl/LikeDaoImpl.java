@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.dao.varimpl.FilmorateVariableStorageDaoImpl;
 import ru.yandex.practicum.filmorate.dao.varimpl.LikeDao;
+import ru.yandex.practicum.filmorate.exception.ObjectAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
 
@@ -17,6 +19,7 @@ import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
 @Qualifier("likeRepository")
 public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, LikeCommand>
         implements LikeDao {
+
 
     public LikeDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
@@ -44,7 +47,7 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
     }
 
     @Override
-    public LikeCommand deleteById(long filmId, long userId) {
+    public LikeCommand deleteById(long filmId, long userId) throws ObjectNotFoundInStorageException {
         sql = "delete from likes where film_id = ? and user_id = ?";
         try {
             jdbcTemplate.update(sql, filmId, userId);
@@ -56,17 +59,24 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
     }
 
     @Override
-    public LikeCommand save(LikeCommand likeCommand) {
-        sql = "insert into likes (film_id, user_id) values (?, ?)";
+    public LikeCommand save(LikeCommand likeCommand) throws ObjectAlreadyExistsException {
+        SqlRowSet friendshipRows;
         long filmId = likeCommand.getFilmId();
         long userId = likeCommand.getUserId();
+        sql = "select * from likes where film_id = ? and user_id = ?";
+        friendshipRows = jdbcTemplate.queryForRowSet(sql, filmId, userId);
+        if (friendshipRows.next()) {
+            throw new ObjectAlreadyExistsException(String.format("Пользователь с id%d уже ставил лайк фильму id%d",
+                    userId, filmId));
+        }
+        sql = "insert into likes (film_id, user_id) values (?, ?)";
         jdbcTemplate.update(sql, filmId, userId);
         sql = "select * from likes where film_id = ? and user_id = ?";
         return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, filmId, userId);
     }
 
     @Override
-    public List<Long> getAllUsersIdsWhoLikedFilm(long filmId) {
+    public List<Long> getAllUsersIdsWhoLikedFilm(long filmId) throws ObjectNotFoundInStorageException {
         sql = "select * from likes where film_id = ? order by user_id";
         try {
             return jdbcTemplate.query(sql, objectEntityRowMapper, filmId).stream()
@@ -79,7 +89,7 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
     }
 
     @Override
-    public List<Long> getAllFilmIdsLikedByUser(long userId) {
+    public List<Long> getAllFilmIdsLikedByUser(long userId) throws ObjectNotFoundInStorageException {
         sql = "select * from likes where user_id = ?";
         try {
             return jdbcTemplate.query(sql, objectEntityRowMapper, userId).stream()

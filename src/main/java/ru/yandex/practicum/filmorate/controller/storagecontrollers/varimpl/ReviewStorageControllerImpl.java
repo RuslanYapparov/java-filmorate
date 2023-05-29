@@ -54,7 +54,7 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
     @Override
     @DeleteMapping("{review_id}")
     public ReviewRestView deleteOneById(@PathVariable(value = "review_id") @Positive long reviewId) {
-        Review review = reviewService.deleteById((int) reviewId);
+        Review review = reviewService.deleteById(reviewId);
         log.debug("Запрошено удаление отзыва с индентификатором '{}'. Отзыв удалён", review.getReviewId());
         return reviewMapper.toRestView(review);
     }
@@ -74,4 +74,5 @@ public class ReviewStorageControllerImpl implements VariableStorageController<Re
                 .map(reviewMapper::toRestView)
                 .collect(Collectors.toList());
     }
+
 }

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,6 +17,7 @@ import java.sql.Statement;
 import java.util.List;
 
 @Repository
+@Primary
 @Qualifier("reviewRepository")
 public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity, Review> {
 
@@ -74,4 +76,5 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
         sql = String.format("select * from %ss order by useful desc", type);
         return jdbcTemplate.query(sql, objectEntityRowMapper);
     }
+
 }

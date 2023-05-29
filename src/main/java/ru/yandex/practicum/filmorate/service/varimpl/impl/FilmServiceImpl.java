@@ -27,6 +27,7 @@ import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
 import ru.yandex.practicum.filmorate.service.CrudService;
 import ru.yandex.practicum.filmorate.service.varimpl.CrudServiceImpl;
+import ru.yandex.practicum.filmorate.service.varimpl.EventService;
 import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
@@ -35,6 +36,8 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestCommand> implements FilmService {
     @Qualifier("userService")
     private final UserService userService;
+    @Qualifier("eventService")
+    private final EventService eventService;
     @Qualifier("directorService")
     private final CrudService<Director, DirectorRestCommand> directorService;
     @Qualifier("likeRepository")
@@ -43,13 +46,13 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     private final FilmGenreDao filmGenreDao;
     @Qualifier("filmDirectorRepository")
     private final FilmDirectorDao filmDirectorDao;
-
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
 
     public FilmServiceImpl(@Qualifier("filmRepository") FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
+                           EventService eventService,
                            CrudService<Director, DirectorRestCommand> directorService,
                            LikeDao likeDao,
                            FilmGenreDao filmGenreDao,
@@ -60,6 +63,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                            ) {
         super(objectDao);
         this.userService = userService;
+        this.eventService = eventService;
         this.likeDao = likeDao;
         this.filmGenreDao = filmGenreDao;
         this.filmDirectorDao = filmDirectorDao;
@@ -170,12 +174,14 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     @Override
     public List<User> addLikeToFilmLikesSet(LikeCommand like) {
         likeDao.save(like);
+        eventService.save(like.getUserId(), EventType.LIKE, EventOperation.ADD, like.getFilmId());
         return this.getAllUsersWhoLikedFilm(like.getFilmId());
     }
 
     @Override
     public List<User> removeLikeFromFilmLikesSet(LikeCommand like) {
         likeDao.deleteById(like.getFilmId(), like.getUserId());
+        eventService.save(like.getUserId(), EventType.LIKE, EventOperation.REMOVE, like.getFilmId());
         return this.getAllUsersWhoLikedFilm(like.getFilmId());
     }
 

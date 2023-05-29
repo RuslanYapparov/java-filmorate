@@ -37,30 +37,30 @@ public class ReviewLikeDaoImpl extends ReviewDaoImpl implements ReviewLikeDao {
     }
 
     @Override
-    public void addLike(long reviewId, long userId) {
+    public void addLike(long reviewId, long userId) throws ObjectAlreadyExistsException {
         this.addEntityToDb(reviewId, userId, Boolean.TRUE);
     }
 
     @Override
-    public void addDislike(long reviewId, long userId) {
+    public void addDislike(long reviewId, long userId) throws ObjectAlreadyExistsException {
         this.addEntityToDb(reviewId, userId, Boolean.FALSE);
     }
 
     @Override
-    public void deleteLike(long reviewId, long userId) {
+    public void deleteLike(long reviewId, long userId) throws ObjectNotFoundInStorageException {
         this.deleteEntityFromDb(reviewId, userId, Boolean.TRUE);
     }
 
     @Override
-    public void deleteDislike(long reviewId, long userId) {
+    public void deleteDislike(long reviewId, long userId) throws ObjectNotFoundInStorageException {
         this.deleteEntityFromDb(reviewId, userId, Boolean.FALSE);
     }
 
-    private void addEntityToDb(long reviewId, long userId, boolean isPositive) {
+    private void addEntityToDb(long reviewId, long userId, boolean isPositive) throws ObjectAlreadyExistsException {
         sql = "select * from film_review_likes where film_review_id = ? and user_id = ? and is_like = ?";
         SqlRowSet friendshipRows = jdbcTemplate.queryForRowSet(sql, reviewId, userId, isPositive);
         if (friendshipRows.next()) {
-            throw new ObjectAlreadyExistsException("Лайк(дизлайк) уже был проставлен ранее");
+            throw new ObjectAlreadyExistsException("Лайк(дизлайк) отзыву уже был проставлен ранее");
         }
         sql = "insert into film_review_likes (film_review_id, user_id, is_like) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, reviewId, userId, isPositive);
@@ -71,7 +71,8 @@ public class ReviewLikeDaoImpl extends ReviewDaoImpl implements ReviewLikeDao {
         }
     }
 
-    private void deleteEntityFromDb(long reviewId, long userId, boolean isPositive) {
+    private void deleteEntityFromDb(long reviewId, long userId, boolean isPositive)
+            throws ObjectNotFoundInStorageException {
         sql = "delete from film_review_likes where film_review_id = ? and user_id = ?";
         try {
             jdbcTemplate.update(sql, reviewId, userId);
@@ -94,4 +95,5 @@ public class ReviewLikeDaoImpl extends ReviewDaoImpl implements ReviewLikeDao {
         sql = "update film_reviews set useful = useful - 1 where film_review_id = ?";
         jdbcTemplate.update(sql, reviewId);
     }
+
 }

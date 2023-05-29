@@ -69,22 +69,23 @@ public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<Friendshi
             }
         } catch (DataRetrievalFailureException exception) {
             throw new ObjectNotFoundInStorageException(String.format("Данные не могут быть удалены, " +
-            "т.к. запрос на дружбу пользователей с идентификаторами id%d и id%d не был сохранен", userId, friendId));
+                    "т.к. запрос на дружбу пользователей с идентификаторами id%d и id%d не был сохранен",
+                    userId, friendId));
         }
 
 // Запись о дружбе 2х пользователей в БД только одна. Может поменяться статус подтверждения или порядок пользователей
         FriendshipEntity friendshipEntity = jdbcTemplate.queryForObject(sql, objectEntityRowMapper,
                 userId, friendId, friendId, userId);
         // Логика удаления из списка друзей: проверили наличие записи о дружбе и после проверки смотрим на ее статус
-            if (friendshipEntity.isConfirmed()) { // Если дружба подтвержденная, то нужно, чтобы
+        if (friendshipEntity.isConfirmed()) { // Если дружба подтвержденная, то нужно, чтобы
 // Осталась запись о том, что бывший друг все еще хочет дружить (подписчик), а пользователю вернется запрос на дружбу
-                sql = "update friendships set user_id = ? friend_id = ? confirmed = false " +
-                            "where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)";
-                jdbcTemplate.update(sql, friendId, userId, userId, friendId, friendId, userId);
-            } else {             // Если запрос не подтвержден, то просто удаляем запись о нем из таблицы базы данных
-                sql = "delete from friendships where user_id = ? and friend_id = ?";
-                jdbcTemplate.update(sql, userId, friendId);
-            }
+            sql = "update friendships set user_id = ? friend_id = ? confirmed = false " +
+                    "where (user_id = ? and friend_id = ?) or (user_id = ? and friend_id = ?)";
+            jdbcTemplate.update(sql, friendId, userId, userId, friendId, friendId, userId);
+        } else {             // Если запрос не подтвержден, то просто удаляем запись о нем из таблицы базы данных
+            sql = "delete from friendships where user_id = ? and friend_id = ?";
+            jdbcTemplate.update(sql, userId, friendId);
+        }
         return friendshipEntity;
     }
 
@@ -162,7 +163,7 @@ public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<Friendshi
                 .flatMap(fse -> {                               // Логика отсева объектов Friendship (далее - дружба):
                     if (fse.isConfirmed()) {     // В потоке останутся все подтвержденные дружбы, в которых фигурирует
                         return Stream.of(new FriendshipRequest(fse.getUserId(), fse.getFriendId()),    // Пользователь
-                                         new FriendshipRequest(fse.getFriendId(), fse.getUserId()));
+                                new FriendshipRequest(fse.getFriendId(), fse.getUserId()));
                     } else {                   // И неподтвержденные дружбы, в которых пользователь добавляет в друзья
                         return Stream.of(new FriendshipRequest(fse.getUserId(), fse.getFriendId()));
                     }
