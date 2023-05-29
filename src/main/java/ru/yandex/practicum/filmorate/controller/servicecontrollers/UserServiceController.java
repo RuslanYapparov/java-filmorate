@@ -26,7 +26,7 @@ public class UserServiceController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @GetMapping
+    @GetMapping()
     public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId) {
         log.debug("Запрошен список друзей пользователя с id" + userId);
         return this.mapListOfUsersToListOfUserRestViews(userService.getUsersFriendsSet(userId));
@@ -34,7 +34,7 @@ public class UserServiceController {
 
     @GetMapping("/common/{friend_id}")
     public List<UserRestView> getCommonFriends(@PathVariable(value = "user_id") @Positive long userId,
-                                                  @PathVariable(value = "friend_id") @Positive long friendId) {
+                                               @PathVariable(value = "friend_id") @Positive long friendId) {
         List<User> commonFriendsList = userService.getCommonFriendsOfTwoUsers(userId, friendId);
         log.debug(String.format("Запрошен список общих друзей пользователей id%d id%d", userId, friendId));
         return this.mapListOfUsersToListOfUserRestViews(commonFriendsList);
@@ -51,7 +51,7 @@ public class UserServiceController {
 
     @DeleteMapping("{friend_id}")
     public List<UserRestView> removeFromFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
-                                          @PathVariable(value = "friend_id") @Positive long friendId) {
+                                                   @PathVariable(value = "friend_id") @Positive long friendId) {
         FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
         List<User> usersFriendsList = userService.removeUserFromAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d больше не друзья", userId, friendId));

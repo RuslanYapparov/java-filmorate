@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -33,11 +34,13 @@ public class FilmServiceController {
     private final UserMapper userMapper;
 
     @GetMapping("/popular")
-    public List<FilmRestView> getPopularFilms(@RequestParam(name = "count", defaultValue = "10")
-                                              @Positive int size) {
-        List<Film> popularFilms = filmService.getMostLikedFilms(size);
-        log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", size));
-        return this.mapListOfFilmsToListOfFilmRestViews(popularFilms);
+    public List<FilmRestView> getPopularFilmsWithFilters(
+            @RequestParam(name = "count", defaultValue = "10") @Positive int count,
+            @RequestParam(name = "genreId") Optional<Integer> genreId,
+            @RequestParam(name = "year") Optional<Integer> year) {
+        List<Film> popular = filmService.getMostLikedFilmsWithFilters(count, genreId, year);
+        log.debug(String.format("Запрошен список из %d наиболее популярных фильмов.", count));
+        return this.mapListOfFilmsToListOfFilmRestViews(popular);
     }
 
     @GetMapping("/search")
@@ -131,6 +134,13 @@ public class FilmServiceController {
         List<Film> filmsByDirector = filmService.getAllFilmsByDirectorIdSortedBySomeParameter(id, param);
         log.debug(String.format("Запрошен список фильмов режиссера с id%d с признаком сортировки %s", id, param));
         return this.mapListOfFilmsToListOfFilmRestViews(filmsByDirector);
+    }
+
+    @GetMapping("/common")
+    public List<FilmRestView> getCommonFilmsOfTwoUsers(@RequestParam(name = "userId") long userId,
+                                              @RequestParam(name = "friendId") long friendId) {
+        List<Film> commonFilms = filmService.getCommonFilmsOfTwoUsers(userId, friendId);
+        return this.mapListOfFilmsToListOfFilmRestViews(commonFilms);
     }
 
     private List<FilmRestView> mapListOfFilmsToListOfFilmRestViews(List<Film> films) {

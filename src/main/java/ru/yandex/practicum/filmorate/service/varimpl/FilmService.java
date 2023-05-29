@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service.varimpl;
 
 import java.util.List;
+import java.util.Optional;
 
 import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
@@ -14,7 +15,7 @@ public interface FilmService extends CrudService<Film, FilmRestCommand> {
 
     List<User> removeLikeFromFilmLikesSet(LikeCommand like);
 
-    List<Film> getMostLikedFilms(int count);
+    List<Film> getMostLikedFilmsWithFilters(int count, Optional<Integer> genreId, Optional<Integer> year);
 
     List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter);
 
@@ -33,5 +34,9 @@ public interface FilmService extends CrudService<Film, FilmRestCommand> {
     List<Film> getAllFilmsByRatingMpa(RatingMpa ratingMpa);
 
     List<Film> getAllFilmsByDirectorIdSortedBySomeParameter(int id, String sortParameter);
+
+    List<Film> getRecommendedFilmsForUser(long userId);
+
+    List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId);
 
 }
