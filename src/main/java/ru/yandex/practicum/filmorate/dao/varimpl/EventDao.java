@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dao.varimpl;
 
 import ru.yandex.practicum.filmorate.dao.FilmorateConstantStorageDao;
 import ru.yandex.practicum.filmorate.model.data.EventEntity;
-import ru.yandex.practicum.filmorate.model.service.Event;
 import ru.yandex.practicum.filmorate.model.service.EventOperation;
 import ru.yandex.practicum.filmorate.model.service.EventType;
 
