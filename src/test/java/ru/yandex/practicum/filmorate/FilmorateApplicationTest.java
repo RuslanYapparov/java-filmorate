@@ -26,11 +26,11 @@ import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapperImpl;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.*;
-import ru.yandex.practicum.filmorate.model.presentation.restview.DirectorRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.*;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.DirectorRestView;
 import ru.yandex.practicum.filmorate.model.service.*;
-import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
-import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.FilmRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.UserRestView;
 
 @SpringBootTest
 class FilmorateApplicationTest {

@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.exception.*;
-import ru.yandex.practicum.filmorate.model.presentation.restview.ErrorResponseView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.ErrorResponseView;
 
 @RestControllerAdvice
 @Slf4j

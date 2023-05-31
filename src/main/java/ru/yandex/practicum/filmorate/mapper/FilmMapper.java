@@ -9,18 +9,18 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.DirectorRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restview.DirectorRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.DirectorRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.DirectorRestView;
 import ru.yandex.practicum.filmorate.model.service.Director;
 import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.service.Genre;
 import ru.yandex.practicum.filmorate.model.service.RatingMpa;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
-import ru.yandex.practicum.filmorate.model.presentation.restview.GenreRestView;
-import ru.yandex.practicum.filmorate.model.presentation.restview.RatingMpaRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.FilmRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.GenreRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.RatingMpaRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.FilmRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.GenreRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.RatingMpaRestView;
 
 @Mapper(componentModel = "spring")
 public interface FilmMapper {

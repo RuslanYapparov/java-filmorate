@@ -10,7 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.*;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.*;
 import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.service.RatingMpa;
 import ru.yandex.practicum.filmorate.model.service.User;

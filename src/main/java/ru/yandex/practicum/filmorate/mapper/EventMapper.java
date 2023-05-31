@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 import ru.yandex.practicum.filmorate.model.data.EventEntity;
-import ru.yandex.practicum.filmorate.model.presentation.restview.EventRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.EventRestView;
 import ru.yandex.practicum.filmorate.model.service.Event;
 import ru.yandex.practicum.filmorate.model.service.EventOperation;
 import ru.yandex.practicum.filmorate.model.service.EventType;

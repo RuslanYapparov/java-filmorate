@@ -9,8 +9,8 @@ import java.util.Set;
 
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 import ru.yandex.practicum.filmorate.model.service.User;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.UserRestView;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
