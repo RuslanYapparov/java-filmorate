@@ -10,12 +10,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.*;
 import ru.yandex.practicum.filmorate.model.service.Film;
 import ru.yandex.practicum.filmorate.model.service.RatingMpa;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
 import ru.yandex.practicum.filmorate.model.service.User;
 
 import javax.validation.Validator;
@@ -173,31 +170,31 @@ public class ValidatorTest {
     }
 
     private UserRestCommand createCommandObjectForTest(User user) {
-        UserRestCommand command = new UserRestCommand();
-        command.setId(user.getId());
-        command.setEmail(user.getEmail());
-        command.setLogin(user.getLogin());
-        command.setName(user.getName());
-        command.setBirthday(user.getBirthday());
-        command.setFriends(user.getFriends());
-        return command;
+        long id = user.getId();
+        String email = user.getEmail();
+        String login = user.getLogin();
+        String name = user.getName();
+        LocalDate birthday = user.getBirthday();
+        Set<Long> friends = user.getFriends();
+        return new UserRestCommand(id, email, login, name, birthday, friends);
     }
 
     private FilmRestCommand createCommandObjectForTest(Film film) {
-        FilmRestCommand command = FilmRestCommand.builder()
-                .id(film.getId())
-                .name(film.getName())
-                .description(film.getDescription())
-                .releaseDate(film.getReleaseDate())
-                .duration(film.getDuration())
-                .rate(film.getRate())
-                .mpa(new RatingMpaRestCommand(film.getRating().getId()))
-                .likes(film.getLikes())
-                .genres(film.getGenres().stream()
-                        .map(genre -> new GenreRestCommand(genre.getId()))
-                        .collect(Collectors.toSet()))
-                .build();
-        return command;
+        long id = film.getId();
+        String name = film.getName();
+        String description = film.getDescription();
+        LocalDate releaseDate = film.getReleaseDate();
+        int duration = film.getDuration();
+        byte rate = film.getRate();
+        RatingMpaRestCommand mpa = new RatingMpaRestCommand(film.getRating().getId());
+        Set<Long> likes = film.getLikes();
+        Set<GenreRestCommand> genres = film.getGenres().stream()
+                .map(genre -> new GenreRestCommand(genre.getId()))
+                .collect(Collectors.toSet());
+        Set<DirectorRestCommand> directors = film.getDirectors().stream()
+                .map(director -> new DirectorRestCommand(director.getId(), director.getName()))
+                .collect(Collectors.toSet());
+        return new FilmRestCommand(id, name, description, releaseDate, duration, rate, mpa, likes, genres, directors);
     }
 
 }

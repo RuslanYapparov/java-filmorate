@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.model.data.command;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@Value
+@Builder(toBuilder = true)
 public class ReviewCommand {
-    private final long reviewId;
-    private final long userId;
-    private final long filmId;
+    long reviewId;
+    long userId;
+    long filmId;
+
 }

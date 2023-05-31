@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,17 +19,21 @@ import ru.yandex.practicum.filmorate.model.data.command.FilmDirectorCommand;
 @Qualifier("filmGenreRepository")
 public class FilmDirectorDaoImpl extends FilmorateVariableStorageDaoImpl<FilmDirectorCommand, FilmDirectorCommand>
         implements FilmDirectorDao {
-    private RowMapper<DirectorEntity> directorRowMapper;
+    private final RowMapper<DirectorEntity> directorRowMapper;
 
     public FilmDirectorDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
         this.type = "film_director";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
-                new FilmDirectorCommand(resultSet.getLong("film_id"),
-                        resultSet.getInt("director_id"));
+                FilmDirectorCommand.builder()
+                        .filmId(resultSet.getLong("film_id"))
+                        .directorId(resultSet.getInt("director_id"))
+                        .build();
         this.directorRowMapper = (resultSet, rowNumber) ->
-                new DirectorEntity(resultSet.getInt("director_id"),
-                        resultSet.getString("director_name"));
+                DirectorEntity.builder()
+                        .id(resultSet.getInt("director_id"))
+                        .name(resultSet.getString("director_name"))
+                        .build();
     }
 
     @Override
@@ -61,9 +66,15 @@ public class FilmDirectorDaoImpl extends FilmorateVariableStorageDaoImpl<FilmDir
 
     @Override
     public FilmDirectorCommand save(FilmDirectorCommand filmDirectorCommand) {
-        sql = "merge into ?s (film_id, director_id) values (?, ?)";
+        SqlRowSet filmDirectorRows;
         long filmId = filmDirectorCommand.getFilmId();
         int directorId = filmDirectorCommand.getDirectorId();
+        sql = "select * from film_directors where film_id = ? and director_id = ?";
+        filmDirectorRows = jdbcTemplate.queryForRowSet(sql, filmId, directorId);
+        if (filmDirectorRows.next()) {
+            return filmDirectorCommand;
+        }
+        sql = "insert into ?s (film_id, director_id) values (?, ?)";
         jdbcTemplate.update(sql, type, filmId, directorId);
         sql = "select * from ?s where film_id = ? and director_id =?";
         return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, type, filmId, directorId);

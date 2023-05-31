@@ -8,7 +8,7 @@ import java.util.Set;
 
 @EqualsAndHashCode
 @AllArgsConstructor
-@Builder   // Пока не нашел способ генерации UserMapperImpl с правильным созданием объекта без данной аннотации
+//@Builder   // Пока не нашел способ генерации UserMapperImpl с правильным созданием объекта без данной аннотации
 @NoArgsConstructor
 @Getter
 public class UserRestView {

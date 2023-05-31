@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.model.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@Value
+@Builder(toBuilder = true)
 public class FriendshipRequest {
-    private final long userId;
-    private final long friendId;
+    long userId;
+    long friendId;
 
 }

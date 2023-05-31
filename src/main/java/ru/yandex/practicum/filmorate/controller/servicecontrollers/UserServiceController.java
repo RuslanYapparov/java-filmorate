@@ -46,7 +46,7 @@ public class UserServiceController {
     @PutMapping("/friends/{friend_id}")
     public List<UserRestView> addToFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
                                               @PathVariable(value = "friend_id") @Positive long friendId) {
-        FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
+        FriendshipRequest friendshipRequest = FriendshipRequest.builder().userId(userId).friendId(friendId).build();
         List<User> usersFriendsList = userService.addUserToAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d теперь друзья", userId, friendId));
         return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
@@ -55,7 +55,7 @@ public class UserServiceController {
     @DeleteMapping("/friends/{friend_id}")
     public List<UserRestView> removeFromFriendsSet(@PathVariable(value = "user_id") @Positive long userId,
                                                    @PathVariable(value = "friend_id") @Positive long friendId) {
-        FriendshipRequest friendshipRequest = new FriendshipRequest(userId, friendId);
+        FriendshipRequest friendshipRequest = FriendshipRequest.builder().userId(userId).friendId(friendId).build();
         List<User> usersFriendsList = userService.removeUserFromAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d больше не друзья", userId, friendId));
         return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);

@@ -56,7 +56,7 @@ public class FilmServiceController {
     @PutMapping("{film_id}/like/{user_id}")
     public List<UserRestView> addLike(@PathVariable(value = "film_id") @Positive long filmId,
                                       @PathVariable(value = "user_id") @Positive long userId) {
-        LikeCommand likeCommand = new LikeCommand(filmId, userId);
+        LikeCommand likeCommand = LikeCommand.builder().filmId(filmId).userId(userId).build();
         List<User> userList = filmService.addLikeToFilmLikesSet(likeCommand);
         log.debug(String.format("Пользователь id%d поставил лайк фильму id%d", userId, filmId));
         return this.mapListOfUsersToListOfUserRestViews(userList);
@@ -65,7 +65,7 @@ public class FilmServiceController {
     @DeleteMapping("{film_id}/like/{user_id}")
     public List<UserRestView> removeLike(@PathVariable(value = "film_id") @Positive long filmId,
                                          @PathVariable(value = "user_id") @Positive long userId) {
-        LikeCommand likeCommand = new LikeCommand(filmId, userId);
+        LikeCommand likeCommand = LikeCommand.builder().filmId(filmId).userId(userId).build();
         List<User> userList = filmService.removeLikeFromFilmLikesSet(likeCommand);
         log.debug(String.format("Пользователь id%d убрал лайк с фильма id%d", userId, filmId));
         return this.mapListOfUsersToListOfUserRestViews(userList);
@@ -89,7 +89,7 @@ public class FilmServiceController {
     List<GenreRestView> addFilmGenreAssociation(@PathVariable(value = "film_id") @Positive long filmId,
                                                 @PathVariable(value = "genre_id") @Positive int genreId) {
         List<Genre> genreList = filmService.addFilmGenreAssociation(
-                new FilmGenreCommand(filmId, genreId));
+                FilmGenreCommand.builder().filmId(filmId).genreId(genreId).build());
         log.debug(String.format("Фильму с id%d присвоен жанр '%s'", filmId, Genre.getGenreById(genreId).getByRus()));
         return this.mapListOfGenresToListOfGenreRestViews(genreList);
     }
@@ -97,8 +97,8 @@ public class FilmServiceController {
     @DeleteMapping("{film_id}/genre/{genre_id}")
     List<GenreRestView> removeFilmGenreAssociation(@PathVariable(value = "film_id") @Positive long filmId,
                                                    @PathVariable(value = "genre_id") @Positive int genreId) {
-        List<Genre> genreList = filmService.removeFilmGenreAssociation(
-                new FilmGenreCommand(filmId, genreId));
+        List<Genre> genreList = filmService.addFilmGenreAssociation(
+                FilmGenreCommand.builder().filmId(filmId).genreId(genreId).build());
         log.debug(String.format("Фильм с id%d больше не относится к жанру '%s'", filmId,
                 Genre.getGenreById(genreId).getByRus()));
         return this.mapListOfGenresToListOfGenreRestViews(genreList);

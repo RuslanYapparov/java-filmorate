@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @AllArgsConstructor
+@NoArgsConstructor
 public class ReviewRestView {
     @JsonProperty("reviewId")
     long reviewId;
@@ -17,4 +18,5 @@ public class ReviewRestView {
     long filmId;
     @JsonProperty("useful")
     int useful;
+
 }

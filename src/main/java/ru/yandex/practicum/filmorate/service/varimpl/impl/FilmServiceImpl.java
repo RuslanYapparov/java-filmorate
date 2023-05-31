@@ -158,10 +158,10 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     @Override
     public Film update(FilmRestCommand filmRestCommand) throws ObjectNotFoundInStorageException {
         Film film = filmMapper.fromRestCommand(filmRestCommand);
+        objectDao.update(film);
         updateLikeStorages(film);
         updateGenreStorages(film);
         updateDirectorStorages(film);
-        objectDao.update(film);
         return this.getById(filmRestCommand.getId());
     }
 
@@ -342,8 +342,8 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 .filter(genre -> !oldGenresList.contains(genre))
                 .map(genre -> (long) genre.getId())
                 .collect(Collectors.toList());
-        batchUpdate("insert into film_genres (film_id, genre_id) values (?, ?)", filmId, genresToAdd);
         batchUpdate("delete from film_genres where film_id = ? and genre_id = ?", filmId, genresToDelete);
+        batchUpdate("insert into film_genres (film_id, genre_id) values (?, ?)", filmId, genresToAdd);
     }
 
     private void updateLikeStorages(Film film) {
@@ -356,8 +356,8 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         List<Long> likesToAdd = newLikesList.stream()
                 .filter(userId -> !oldLikesList.contains(userId))
                 .collect(Collectors.toList());
-        batchUpdate("insert into likes (film_id, user_id) values (?, ?)", filmId, likesToAdd);
         batchUpdate("delete from likes where film_id = ? and user_id = ?", filmId, likesToDelete);
+        batchUpdate("insert into likes (film_id, user_id) values (?, ?)", filmId, likesToAdd);
     }
 
     private void updateDirectorStorages(Film film) {
@@ -374,8 +374,8 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 .filter(director -> !oldDirectorsList.contains(director))
                 .map(director -> (long) director.getId())
                 .collect(Collectors.toList());
-        batchUpdate("insert into film_directors (film_id, director_id) values (?, ?)", filmId, directorsToAdd);
         batchUpdate("delete from film_directors where film_id = ? and director_id = ?", filmId, directorsToDelete);
+        batchUpdate("insert into film_directors (film_id, director_id) values (?, ?)", filmId, directorsToAdd);
     }
 
     private Consumer<Film> initializeFilmLikesSetFiller(List<LikeCommand> likes) {

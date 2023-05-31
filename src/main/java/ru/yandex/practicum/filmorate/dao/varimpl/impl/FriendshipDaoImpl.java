@@ -33,9 +33,11 @@ public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<Friendshi
         super(jdbcTemplate);
         this.type = "friendship";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
-                new FriendshipEntity(resultSet.getLong("user_id"),
-                        resultSet.getLong("friend_id"),
-                        resultSet.getBoolean("confirmed"));
+                FriendshipEntity.builder()
+                        .userId(resultSet.getLong("user_id"))
+                        .friendId(resultSet.getLong("friend_id"))
+                        .isConfirmed(resultSet.getBoolean("confirmed"))
+                        .build();
         // Чтобы не перегружать конструктор вывел инициализацию преобразователя с логикой дружбы в отдельный метод
         this.friendshipListTransducer = initializeTransducer();
     }
@@ -162,10 +164,12 @@ public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<Friendshi
         return fseList -> fseList.stream()
                 .flatMap(fse -> {                               // Логика отсева объектов Friendship (далее - дружба):
                     if (fse.isConfirmed()) {     // В потоке останутся все подтвержденные дружбы, в которых фигурирует
-                        return Stream.of(new FriendshipRequest(fse.getUserId(), fse.getFriendId()),    // Пользователь
-                                new FriendshipRequest(fse.getFriendId(), fse.getUserId()));
+                        return Stream.of(                                                             // Пользователь
+                            FriendshipRequest.builder().userId(fse.getUserId()).friendId(fse.getFriendId()).build(),
+                            FriendshipRequest.builder().userId(fse.getFriendId()).friendId(fse.getUserId()).build());
                     } else {                   // И неподтвержденные дружбы, в которых пользователь добавляет в друзья
-                        return Stream.of(new FriendshipRequest(fse.getUserId(), fse.getFriendId()));
+                        return Stream.of(
+                            FriendshipRequest.builder().userId(fse.getUserId()).friendId(fse.getFriendId()).build());
                     }
                 })
                 .collect(Collectors.toList());

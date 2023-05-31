@@ -3,16 +3,17 @@ package ru.yandex.practicum.filmorate.model.presentation.restcommand;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.validation.constraints.*;
-import lombok.Builder;
-import lombok.Data;
+
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
 
 import ru.yandex.practicum.filmorate.customvalidation.customannotations.ReleaseDateAfterCinemaBirthday;
 
-@Data
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class FilmRestCommand {
     @JsonProperty("id")
     @PositiveOrZero

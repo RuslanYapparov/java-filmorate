@@ -21,18 +21,14 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapperImpl;
-import ru.yandex.practicum.filmorate.model.service.Film;
-import ru.yandex.practicum.filmorate.model.service.Genre;
-import ru.yandex.practicum.filmorate.model.service.RatingMpa;
-import ru.yandex.practicum.filmorate.model.service.User;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.FilmRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.GenreRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.RatingMpaRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.restcommand.*;
+import ru.yandex.practicum.filmorate.model.presentation.restview.DirectorRestView;
+import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.restview.FilmRestView;
 import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 
@@ -47,6 +43,7 @@ class FilmorateApplicationTest {
 	private static HttpResponse<String> response;
 	private static HttpRequest.BodyPublisher bodyPublisher;
 	private static User user;
+	private static Director director;
 	private static Film film;
 
 	@Test
@@ -72,6 +69,11 @@ class FilmorateApplicationTest {
 				.birthday(LocalDate.of(1996, 12, 12))
 				.friends(new HashSet<>())
 				.build();
+
+		director = Director.builder()
+				.name("Tychus Findlay")
+				.build();
+
 		film = Film.builder()
 				.name("Whores & whales")
 				.description("Adventures of women in whales world")
@@ -80,8 +82,7 @@ class FilmorateApplicationTest {
 				.rate((byte) 2)
 				.rating(RatingMpa.R)
 				.likes(new HashSet<>())
-				.genres(new HashSet<>())
-				.directors(new HashSet<>())
+				.genres(new HashSet<>(Set.of(Genre.DRAMA)))
 				.build();
 
 		request = HttpRequest.newBuilder()
@@ -102,6 +103,15 @@ class FilmorateApplicationTest {
 		response = client.send(request, BODY_HANDLER);
 		assertEquals(200, response.statusCode());
 
+		request = HttpRequest.newBuilder()
+				.uri(URI.create(URL_START + "directors"))
+				.DELETE()
+				.version(HttpClient.Version.HTTP_1_1)
+				.header("Content-type", "application/json")
+				.build();
+		response = client.send(request, BODY_HANDLER);
+		assertEquals(200, response.statusCode());
+
 		String userJson = jackson.writeValueAsString(createCommandObjectForTest(user));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(userJson);
 		request = HttpRequest.newBuilder()
@@ -114,6 +124,19 @@ class FilmorateApplicationTest {
 		assertEquals(200, response.statusCode());
 		user = readUserForTest(response.body());
 
+		String directorJson = jackson.writeValueAsString(createCommandObjectForTest(director));
+		bodyPublisher = HttpRequest.BodyPublishers.ofString(directorJson);
+		request = HttpRequest.newBuilder()
+				.uri(URI.create(URL_START + "directors"))
+				.POST(bodyPublisher)
+				.version(HttpClient.Version.HTTP_1_1)
+				.header("Content-type", "application/json")
+				.build();
+		response = client.send(request, BODY_HANDLER);
+		assertEquals(200, response.statusCode());
+		director = readDierctorForTest(response.body());
+
+		film = film.toBuilder().directors(Set.of(director)).build();
 		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(film));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
@@ -911,7 +934,7 @@ class FilmorateApplicationTest {
 		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(Film.builder().name("Crazy Potato")
 				.description("Potato").releaseDate(LocalDate.of(1975, 11,17))
 				.duration(85).rate((byte) 2).rating(RatingMpa.PG).likes(new HashSet<>()).genres(new HashSet<>())
-				.build()));
+				.directors(new HashSet<>()).build()));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
 				.uri(URI.create(URL_START + "films"))
@@ -1180,36 +1203,37 @@ class FilmorateApplicationTest {
 	}
 
 	private UserRestCommand createCommandObjectForTest(User user) {
-		UserRestCommand command = new UserRestCommand();
-		command.setId(user.getId());
-		command.setEmail(user.getEmail());
-		command.setLogin(user.getLogin());
-		command.setName(user.getName());
-		command.setBirthday(user.getBirthday());
-		command.setFriends(user.getFriends());
-		return command;
+		long id = user.getId();
+		String email = user.getEmail();
+		String login = user.getLogin();
+		String name = user.getName();
+		LocalDate birthday = user.getBirthday();
+		Set<Long> friends = user.getFriends();
+		return new UserRestCommand(id, email, login, name, birthday, friends);
 	}
 
 	private FilmRestCommand createCommandObjectForTest(Film film) {
-		FilmRestCommand command = FilmRestCommand.builder()
-				.id(film.getId())
-				.name(film.getName())
-				.description(film.getDescription())
-				.releaseDate(film.getReleaseDate())
-				.duration(film.getDuration())
-				.rate(film.getRate())
-				.mpa(new RatingMpaRestCommand(film.getRating().getId()))
-				.likes(film.getLikes())
-				.genres(film.getGenres().stream()
-						.map(genre -> new GenreRestCommand(genre.getId()))
-						.collect(Collectors.toSet()))
-				.build();
-		command.setName(film.getName());
-		command.setDescription(film.getDescription());
-		command.setReleaseDate(film.getReleaseDate());
-		command.setDuration(film.getDuration());
-		command.setLikes(film.getLikes());
-		return command;
+		long id = film.getId();
+		String name = film.getName();
+		String description = film.getDescription();
+		LocalDate releaseDate = film.getReleaseDate();
+		int duration = film.getDuration();
+		byte rate = film.getRate();
+		RatingMpaRestCommand mpa = new RatingMpaRestCommand(film.getRating().getId());
+		Set<Long> likes = film.getLikes();
+		Set<GenreRestCommand> genres = film.getGenres().stream()
+				.map(genre -> new GenreRestCommand(genre.getId()))
+				.collect(Collectors.toSet());
+		Set<DirectorRestCommand> directors = film.getDirectors().stream()
+				.map(director -> new DirectorRestCommand(director.getId(), director.getName()))
+				.collect(Collectors.toSet());
+		return new FilmRestCommand(id, name, description, releaseDate, duration, rate, mpa, likes, genres, directors);
+	}
+
+	private DirectorRestCommand createCommandObjectForTest(Director director) {
+		int id = director.getId();
+		String name = director.getName();
+		return new DirectorRestCommand(id, name);
 	}
 
 	private User readUserForTest(String userView) throws JsonProcessingException {
@@ -1226,9 +1250,17 @@ class FilmorateApplicationTest {
 		return user;
 	}
 
+	private Director readDierctorForTest(String directorView) throws JsonProcessingException {
+		DirectorRestView view = jackson.readValue(directorView, DirectorRestView.class);
+		return Director.builder()
+				.id(view.getId())
+				.name(view.getName())
+				.build();
+	}
+
 	private Film readFilmForTest(String filmView) throws JsonProcessingException {
 		FilmRestView view = jackson.readValue(filmView, FilmRestView.class);
-		Film film = Film.builder()
+		return Film.builder()
 				.id(view.getId())
 				.name(view.getName())
 				.description(view.getDescription())
@@ -1240,9 +1272,13 @@ class FilmorateApplicationTest {
 				.genres(view.getGenres().stream()
 						.map(genreRestView -> Genre.getGenreById(genreRestView.getId()))
 						.collect(Collectors.toSet()))
-				.build();
-		view.getLikes().forEach(userViewId -> film.getLikes().add(userViewId));
-		return film;
+				.directors(view.getDirectors().stream()
+						.map(directorRestView -> Director.builder()
+								.id(directorRestView.getId())
+								.name(directorRestView.getName())
+										.build())
+						.collect(Collectors.toSet()))
+						.build();
 	}
 
 }

@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,8 +24,10 @@ public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreC
         super(jdbcTemplate);
         this.type = "film_genre";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
-                new FilmGenreCommand(resultSet.getLong("film_id"),
-                        resultSet.getInt("genre_id"));
+                FilmGenreCommand.builder()
+                        .filmId(resultSet.getLong("film_id"))
+                        .genreId(resultSet.getInt("genre_id"))
+                        .build();
     }
 
     @Override
@@ -57,9 +60,15 @@ public class FilmGenreDaoImpl extends FilmorateVariableStorageDaoImpl<FilmGenreC
 
     @Override
     public FilmGenreCommand save(FilmGenreCommand filmGenreCommand) {
-        sql = "merge into ?s (film_id, genre_id) values (?, ?)";
+        SqlRowSet filmGenreRows;
         long filmId = filmGenreCommand.getFilmId();
         int genreId = filmGenreCommand.getGenreId();
+        sql = "select * from film_genres where film_id = ? and genre_id = ?";
+        filmGenreRows = jdbcTemplate.queryForRowSet(sql, filmId, genreId);
+        if (filmGenreRows.next()) {
+            return filmGenreCommand;
+        }
+        sql = "insert into ?s (film_id, genre_id) values (?, ?)";
         jdbcTemplate.update(sql, type, filmId, genreId);
         sql = "select * from ?s where film_id = ? and genre_id =?";
         return jdbcTemplate.queryForObject(sql, objectEntityRowMapper, type, filmId, genreId);

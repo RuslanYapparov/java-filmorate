@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.model.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Value;
 
-@Getter
-@AllArgsConstructor
+@Value
+@Builder(toBuilder = true)
 public class Review {
     long reviewId;
     String content;

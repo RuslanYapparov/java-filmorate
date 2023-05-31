@@ -20,13 +20,14 @@ import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
 public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, LikeCommand>
         implements LikeDao {
 
-
     public LikeDaoImpl(JdbcTemplate jdbcTemplate) {
         super(jdbcTemplate);
         this.type = "like";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
-                new LikeCommand(resultSet.getLong("film_id"),
-                        resultSet.getLong("user_id"));
+                LikeCommand.builder()
+                        .filmId(resultSet.getLong("film_id"))
+                        .userId(resultSet.getLong("user_id"))
+                        .build();
     }
 
     @Override
@@ -55,7 +56,7 @@ public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, Li
             throw new ObjectNotFoundInStorageException(String.format("Пользователь с id%d не ставил лайк фильму с id%d",
                     userId, filmId));
         }
-        return new LikeCommand(filmId, userId);
+        return LikeCommand.builder().filmId(filmId).userId(userId).build();
     }
 
     @Override

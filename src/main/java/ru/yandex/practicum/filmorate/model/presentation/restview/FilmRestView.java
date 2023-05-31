@@ -8,7 +8,7 @@ import java.util.Set;
 
 @EqualsAndHashCode
 @AllArgsConstructor
-@Builder(toBuilder = true)            // Пока не нашел способ генерации FilmMapperImpl с правильным созданием объекта
+//@Builder(toBuilder = true)            // Пока не нашел способ генерации FilmMapperImpl с правильным созданием объекта
 @NoArgsConstructor                                                                            // Без данной аннотации
 @Getter
 public class FilmRestView {

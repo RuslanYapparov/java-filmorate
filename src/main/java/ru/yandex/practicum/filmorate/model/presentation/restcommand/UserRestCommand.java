@@ -2,15 +2,19 @@ package ru.yandex.practicum.filmorate.model.presentation.restcommand;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import javax.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.util.Set;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.customvalidation.customannotations.WithoutSpaces;
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
 public class UserRestCommand {
     @JsonProperty("id")
     @PositiveOrZero

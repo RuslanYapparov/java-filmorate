@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.model.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@Value
+@Builder(toBuilder = true)
 public class DirectorEntity {
-    private final int id;
-    private final String name;
+    int id;
+    String name;
 
 }

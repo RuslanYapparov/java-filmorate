@@ -2,8 +2,10 @@ package ru.yandex.practicum.filmorate.model.presentation.restview;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
+@NoArgsConstructor
 public class EventRestView {
     @JsonProperty("timestamp")
     long timestamp;

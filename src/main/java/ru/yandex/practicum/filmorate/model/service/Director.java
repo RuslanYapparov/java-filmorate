@@ -1,14 +1,12 @@
 package ru.yandex.practicum.filmorate.model.service;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Value;
+import lombok.Builder;
 
-@AllArgsConstructor
-@Getter
+@Value
+@Builder(toBuilder = true)
 public class Director {
-    private final int id;
-    @Setter
-    private String name;
+    int id;
+    String name;
 
 }

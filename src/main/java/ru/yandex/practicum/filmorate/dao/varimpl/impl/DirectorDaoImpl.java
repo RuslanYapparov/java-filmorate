@@ -22,8 +22,10 @@ public class DirectorDaoImpl extends FilmorateVariableStorageDaoImpl<DirectorEnt
         super(template);
         this.type = "director";
         this.objectEntityRowMapper = (resultSet, rowNumber) ->
-                new DirectorEntity(resultSet.getInt("director_id"),
-                        resultSet.getString("director_name"));
+                DirectorEntity.builder()
+                        .id(resultSet.getInt("director_id"))
+                        .name(resultSet.getString("director_name"))
+                        .build();
     }
 
     @Override
