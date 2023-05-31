@@ -160,9 +160,9 @@ public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<Friendshi
 
     private Function<List<FriendshipEntity>, List<FriendshipRequest>> initializeTransducer() {
         return fseList -> fseList.stream()
-                .flatMap(fse -> {                               // Логика отсева объектов Friendship (далее - дружба):
-                    if (fse.isConfirmed()) {     // В потоке останутся все подтвержденные дружбы, в которых фигурирует
-                        return Stream.of(                                                             // Пользователь
+                .flatMap(fse -> {        // Логика отсева объектов Friendship (далее - дружба): в потоке останутся все
+                    if (fse.isConfirmed()) {              // Подтвержденные дружбы, в которых фигурирует пользователь
+                        return Stream.of(
                             FriendshipRequest.builder().userId(fse.getUserId()).friendId(fse.getFriendId()).build(),
                             FriendshipRequest.builder().userId(fse.getFriendId()).friendId(fse.getUserId()).build());
                     } else {                   // И неподтвержденные дружбы, в которых пользователь добавляет в друзья
