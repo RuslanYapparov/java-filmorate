@@ -15,7 +15,7 @@ public interface FilmService extends CrudService<Film, FilmRestCommand> {
 
     List<User> removeLikeFromFilmLikesSet(LikeCommand like);
 
-    List<Film> getMostLikedFilmsWithFilters(int count, Optional<Integer> genreId, Optional<Integer> year);
+    List<Film> getMostLikedFilmsWithFilters(int count, int genreId, int year);
 
     List<Film> getMostLikedFilmsBySearch(String keyWord, String parameter);
 

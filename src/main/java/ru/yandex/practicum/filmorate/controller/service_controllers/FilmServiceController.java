@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller.service_controllers;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 
@@ -10,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -36,10 +36,17 @@ public class FilmServiceController {
     @GetMapping("/popular")
     public List<FilmRestView> getPopularFilmsWithFilters(
             @RequestParam(name = "count", defaultValue = "10") @Positive int count,
-            @RequestParam(name = "genreId") Optional<Integer> genreId,
-            @RequestParam(name = "year") Optional<Integer> year) {
+            @RequestParam(name = "genreId", defaultValue = "7777") @Positive int genreId,
+            @RequestParam(name = "year", defaultValue = "7777") @Positive @Min(1895) int year) {
         List<Film> popular = filmService.getMostLikedFilmsWithFilters(count, genreId, year);
-        log.debug(String.format("Запрошен список из %d наиболее популярных фильмов.", count));
+        if (genreId == 7777 & year == 7777) {
+            log.debug(String.format("Запрошен список из %d наиболее популярных фильмов", count));
+        } else {
+            log.debug(String.format("Запрошен список из %d наиболее популярных фильмов, отфильтрованных по %s%s",
+                    count,
+                    (genreId != 7777 ? "жанру  - " + Genre.getGenreById(genreId).getByRus() + " ": ""),
+                    (year != 7777 ? "году выпуска - " + year : "")));
+        }
         return this.mapListOfFilmsToListOfFilmRestViews(popular);
     }
 

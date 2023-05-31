@@ -41,6 +41,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
+    private final Comparator<Film> filmComparatorByLikesNumber;
 
     public FilmServiceImpl(FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
@@ -56,6 +57,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         super(objectDao);
         this.userService = userService;
         this.eventService = eventService;
+        this.directorService = directorService;
         this.likeDao = likeDao;
         this.filmGenreDao = filmGenreDao;
         this.filmDirectorDao = filmDirectorDao;
@@ -64,7 +66,8 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         this.batchUpdater = jdbcTemplate;
         this.objectFromDbEntityMapper = filmMapper::fromDbEntity;
         this.objectFromRestCommandMapper = filmMapper::fromRestCommand;
-        this.directorService = directorService;
+        this.filmComparatorByLikesNumber = (film1, film2) ->
+                film2.getLikes().size() - film1.getLikes().size();
     }
 
     @Override
@@ -126,7 +129,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             case "title":
                 return this.getAll().stream()
                         .filter(film -> film.getName().toLowerCase().contains(keyWord.toLowerCase()))
-                        .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                        .sorted(filmComparatorByLikesNumber)
                         .collect(Collectors.toList());
             case "director":
                 return directorService.getAll().stream()
@@ -139,7 +142,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 List<Film> films = this.getMostLikedFilmsBySearch(keyWord, "title");
                 films.addAll(this.getMostLikedFilmsBySearch(keyWord, "director"));
                 return films.stream()
-                        .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                        .sorted(filmComparatorByLikesNumber)
                         .collect(Collectors.toList());
 
             default:
@@ -186,31 +189,13 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<Film> getMostLikedFilmsWithFilters(int count, Optional<Integer> genreId, Optional<Integer> year) {
-        List<Film> mostLikedFilms = this.getAll().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+    public List<Film> getMostLikedFilmsWithFilters(int count, int genreId, int year) {
+        return this.getAll().stream()
+                .filter(film -> genreId == 7777 || film.getGenres().contains(Genre.getGenreById(genreId)))
+                .filter(film -> year == 7777 || film.getReleaseDate().getYear() == year)
+                .sorted(filmComparatorByLikesNumber)
+                .limit(count)
                 .collect(Collectors.toList());
-
-        List<Film> popular;
-
-        if (genreId.isPresent() && year.isPresent()) {
-            popular = mostLikedFilms.stream()
-                    .filter(film -> film.getGenres().contains(Genre.getGenreById(genreId.get())))
-                    .filter(film -> film.getReleaseDate().getYear() == year.get())
-                    .limit(count)
-                    .collect(Collectors.toList());
-        } else {
-            popular = genreId.map(integer -> mostLikedFilms.stream()
-                    .filter(film -> film.getGenres().contains(Genre.getGenreById(integer)))
-                    .limit(count)
-                    .collect(Collectors.toList())).orElseGet(() -> year.map(integer -> mostLikedFilms.stream()
-                    .filter(film -> film.getReleaseDate().getYear() == integer)
-                    .limit(count)
-                    .collect(Collectors.toList())).orElseGet(() -> mostLikedFilms.stream()
-                    .limit(count)
-                    .collect(Collectors.toList())));
-        }
-        return popular;
     }
 
     @Override
@@ -266,7 +251,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             case "likes":
                 return this.getAll().stream()
                         .filter(film -> filmIds.contains(film.getId()))
-                        .sorted(Comparator.comparingInt(film -> film.getLikes().size()))
+                        .sorted(filmComparatorByLikesNumber)
                         .collect(Collectors.toList());
 
             default:
@@ -308,7 +293,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 .collect(Collectors.toList());
         return this.getAll().stream()                                                  // Берем список всех фильмов,
                 .filter(film -> recommendedFilmsIds.contains(film.getId()))         // Убираем те, которые не в списке
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())     // Рекомендованных
+                .sorted(filmComparatorByLikesNumber)                                              // Рекомендованных
                 .collect(Collectors.toList());                            // Сортируем по количеству лайков у фильма
     }
 
@@ -318,7 +303,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
         return filmsLikedByFirstUser.stream()
                 .filter(filmsLikedBySecondUser::contains)
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                .sorted(filmComparatorByLikesNumber)
                 .collect(Collectors.toList());
     }
 
