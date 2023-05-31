@@ -9,34 +9,17 @@ import ru.yandex.practicum.filmorate.model.service.Event;
 import ru.yandex.practicum.filmorate.model.service.EventOperation;
 import ru.yandex.practicum.filmorate.model.service.EventType;
 
-import java.time.Instant;
-
 @Mapper(componentModel = "spring")
 public interface EventMapper {
 
-    @Mapping(target = "timestamp", source = "timestamp", qualifiedByName = "mapTimestamp")
-    @Mapping(target = "eventType", source = "eventType", qualifiedByName = "mapEventTypeToString")
-    @Mapping(target = "operation", source = "operation", qualifiedByName = "mapEventOperationToString")
+    @Mapping(target = "timestamp", expression = "java(event.getTimestamp().toEpochMilli())")
+    @Mapping(target = "eventType", expression = "java(event.getEventType().name())")
+    @Mapping(target = "operation", expression = "java(event.getOperation().name())")
     EventRestView toRestView(Event event);
 
     @Mapping(target = "eventType", source = "eventType", qualifiedByName = "mapEventTypeFromString")
     @Mapping(target = "operation", source = "operation", qualifiedByName = "mapEventOperationFromString")
     Event fromDbEntity(EventEntity eventEntity);
-
-    @Named("mapTimestamp")
-    default long mapTimestamp(Instant timestamp) {
-        return timestamp.toEpochMilli();
-    }
-
-    @Named("mapEventTypeToString")
-    default String mapEventTypeToString(EventType eventType) {
-        return eventType.name();
-    }
-
-    @Named("mapEventOperationToString")
-    default String mapEventOperationToString(EventOperation eventOperation) {
-        return eventOperation.name();
-    }
 
     @Named("mapEventTypeFromString")
     default EventType mapEventTypeFromString(String eventType) {

@@ -37,14 +37,10 @@ public interface FilmMapper {
     @Mapping(target = "directors", source = "directors", qualifiedByName = "mapDirectorSet")
     Film fromRestCommand(FilmRestCommand filmRestCommand);
 
-    @Mapping(target = "likes", source = "id", qualifiedByName = "createLikesSet")
-    @Mapping(target = "genres", source = "id", qualifiedByName = "createGenreSet")
-    @Mapping(target = "directors", source = "id", qualifiedByName = "createDirectorSet")
+    @Mapping(target = "likes", expression = "java(new java.util.HashSet<>())")
+    @Mapping(target = "genres", expression = "java(new java.util.HashSet<>())")
+    @Mapping(target = "directors", expression = "java(new java.util.HashSet<>())")
     Film fromDbEntity(FilmEntity filmEntity);
-
-    default Integer ratingMpaToInt(RatingMpa ratingMpa) {
-        return ratingMpa.getId();
-    }
 
     default RatingMpa intToRatingMpa(Integer id) {
         return RatingMpa.getRatingById(id);
@@ -52,6 +48,13 @@ public interface FilmMapper {
 
     default RatingMpaRestView mapMpaRestView(RatingMpa rating) {
         return new RatingMpaRestView(rating.getId(), rating.getName());
+    }
+
+    default RatingMpa mapRating(RatingMpaRestCommand rating) {
+        if (rating != null) {
+            return RatingMpa.getRatingById(rating.getId());
+        }
+        return RatingMpa.G;
     }
 
     @Named("mapGenreSetRestView")
@@ -76,13 +79,6 @@ public interface FilmMapper {
             return filmDirectors;
         }
         return new HashSet<>();
-    }
-
-    default RatingMpa mapRating(RatingMpaRestCommand rating) {
-        if (rating != null) {
-            return RatingMpa.getRatingById(rating.getId());
-        }
-        return RatingMpa.G;
     }
 
     @Named("mapLikes")
@@ -111,21 +107,6 @@ public interface FilmMapper {
                             Director.builder().id(directorRestCommand.getId()).name("name").build())
                     .collect(Collectors.toSet());
         }
-        return new HashSet<>();
-    }
-
-    @Named("createGenreSet")
-    default Set<Genre> createGenreSet(long id) {
-        return new HashSet<>();
-    }
-
-    @Named("createLikesSet")
-    default Set<Long> createLikesSet(long id) {
-        return new HashSet<>();
-    }
-
-    @Named("createDirectorSet")
-    default Set<Director> createDirectorSet(long id) {
         return new HashSet<>();
     }
 

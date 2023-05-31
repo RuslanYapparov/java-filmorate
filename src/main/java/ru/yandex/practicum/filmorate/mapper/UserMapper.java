@@ -21,15 +21,8 @@ public interface UserMapper {
     @Mapping(target = "friends", source = "friends", qualifiedByName = "mapFriends")
     User fromRestCommand(UserRestCommand userRestCommand);
 
-    UserEntity toDbEntity(User user);
-
-    @Mapping(target = "friends", source = "id", qualifiedByName = "createFriendsSet")
+    @Mapping(target = "friends", expression = "java(new java.util.HashSet<>())")
     User fromDbEntity(UserEntity userEntity);
-
-    @Named("createFriendsSet")
-    default Set<Long> createFriendsSet(long id) {
-        return new HashSet<>();
-    }
 
     @Named("mapFriends")
     default Set<Long> mapFriendsSet(Set<Long> friendsSet) {
