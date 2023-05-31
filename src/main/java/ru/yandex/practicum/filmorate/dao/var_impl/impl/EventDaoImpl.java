@@ -16,6 +16,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class EventDaoImpl extends FilmorateConstantStorageDaoImpl<EventEntity> implements EventDao {
@@ -46,7 +47,12 @@ public class EventDaoImpl extends FilmorateConstantStorageDaoImpl<EventEntity> i
             ps.setLong(5, entityId);
             return ps;
         }, keyHolder);
-        return this.getById(keyHolder.getKey().longValue());
+        long eventId = Optional.ofNullable(keyHolder.getKey())
+                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения последнего " +
+                        "действия пользователя с id" + userId + " в ленте-истории. Пожалуйста, повторите попытку. " +
+                        "Если ошибка повторится, пожалуйста, свяжитесь с разработчиками приложения"))
+                .longValue();
+        return this.getById(eventId);
     }
 
     @Override

@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.service.Review;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @Primary
@@ -51,7 +52,12 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
             ps.setLong(5, useful);
             return ps;
         }, keyHolder);
-        return this.getById(keyHolder.getKey().longValue());
+        long reviewId = Optional.ofNullable(keyHolder.getKey())
+                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения отзыва '\n" +
+                        content + "\n'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
+                        "свяжитесь с разработчиками приложения"))    // В сообщении вовзращается текст отзыва, чтобы
+                .longValue();                        // Пользователь мог скопировать его для новой попытки сохранения
+        return this.getById(reviewId);
     }
 
     @Override

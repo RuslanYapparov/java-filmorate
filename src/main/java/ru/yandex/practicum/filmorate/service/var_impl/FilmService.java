@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service.var_impl;
 
 import java.util.List;
-import java.util.Optional;
 
 import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;

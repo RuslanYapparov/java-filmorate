@@ -10,6 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Date;
 import java.util.List;
+import java.util.Optional;
 
 import ru.yandex.practicum.filmorate.custom_validation.custom_validators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.dao.var_impl.FilmorateVariableStorageDaoImpl;
@@ -55,7 +56,12 @@ public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, Use
             ps.setDate(4, birthday);
             return ps;
             }, keyHolder);
-        return this.getById(keyHolder.getKey().longValue());
+        long userId = Optional.ofNullable(keyHolder.getKey())
+                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения пользователя '" +
+                        login + "'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
+                        "свяжитесь с разработчиками приложения"))
+                .longValue();
+        return this.getById(userId);
     }
 
     @Override

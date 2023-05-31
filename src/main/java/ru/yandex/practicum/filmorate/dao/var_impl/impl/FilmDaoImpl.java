@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Optional;
 
 import ru.yandex.practicum.filmorate.dao.var_impl.*;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
@@ -54,7 +55,11 @@ public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Fil
             ps.setInt(6, rating);
             return ps;
             }, keyHolder);
-        long filmId = keyHolder.getKey().longValue();
+        long filmId = Optional.ofNullable(keyHolder.getKey())
+                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения фильма '" +
+                        name + "'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
+                        "свяжитесь с разработчиками приложения"))
+                .longValue();
         return this.getById(filmId);
     }
 

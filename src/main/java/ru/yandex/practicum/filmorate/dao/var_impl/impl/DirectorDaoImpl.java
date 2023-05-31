@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.model.service.Director;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Optional;
 
 @Repository
 public class DirectorDaoImpl extends FilmorateVariableStorageDaoImpl<DirectorEntity, Director> {
@@ -37,7 +38,12 @@ public class DirectorDaoImpl extends FilmorateVariableStorageDaoImpl<DirectorEnt
             ps.setString(1, name);
             return ps;
             }, keyHolder);
-        return this.getById(keyHolder.getKey().longValue());
+        long userId = Optional.ofNullable(keyHolder.getKey())
+                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения режиссёра '" +
+                        name + "'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
+                        "свяжитесь с разработчиками приложения"))
+                .longValue();
+        return this.getById(userId);
     }
 
     @Override
