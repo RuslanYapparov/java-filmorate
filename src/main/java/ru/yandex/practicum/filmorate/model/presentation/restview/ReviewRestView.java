@@ -5,6 +5,7 @@ import lombok.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ReviewRestView {
     @JsonProperty("reviewId")
     long reviewId;

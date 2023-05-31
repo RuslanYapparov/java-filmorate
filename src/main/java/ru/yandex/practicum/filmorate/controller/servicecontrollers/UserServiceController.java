@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.constraints.Positive;
@@ -24,7 +23,6 @@ import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceController {
-    @Qualifier("userService")
     private final UserService userService;
     private final UserMapper userMapper;
     private final EventMapper eventMapper;

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.constimpl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.service.RatingMpa;
 import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 
 @Service
-@Qualifier("ratingService")
 public class RatingMpaServiceImpl implements ReadConstantObjectService<RatingMpa> {
 
     @Override

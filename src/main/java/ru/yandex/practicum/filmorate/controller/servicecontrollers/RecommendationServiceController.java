@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller.servicecontrollers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class RecommendationServiceController {
-    @Qualifier("filmService")
     private final FilmService filmService;
     private final FilmMapper filmMapper;
 

@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,16 +19,13 @@ import ru.yandex.practicum.filmorate.service.varimpl.EventService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Service
-@Qualifier("userService")
 public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestCommand> implements UserService {
-    @Qualifier("friendshipRepository")
     private final FriendshipDao friendshipDao;
-    @Qualifier("eventService")
     private final EventService eventService;
     private final UserMapper userMapper;
     private Consumer<User> userFriendsSetFiller;
 
-    public UserServiceImpl(@Qualifier("userRepository") FilmorateVariableStorageDao<UserEntity, User> objectDao,
+    public UserServiceImpl(FilmorateVariableStorageDao<UserEntity, User> objectDao,
                            EventService eventService,
                            FriendshipDao friendshipDao,
                            UserMapper userMapper) {

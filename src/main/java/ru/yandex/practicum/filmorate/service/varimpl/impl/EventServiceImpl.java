@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.varimpl.EventDao;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
@@ -15,9 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Qualifier("eventService")
 public class EventServiceImpl implements EventService {
-    @Qualifier("eventRepository")
     private final EventDao eventDao;
     private final EventMapper eventMapper;
 

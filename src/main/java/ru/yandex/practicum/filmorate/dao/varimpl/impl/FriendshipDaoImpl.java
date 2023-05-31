@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -24,7 +23,6 @@ import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
  * initializeTransducer() на return Stream.of(new FriendshipRequest(fse.getUserId(), fse.getUserId())); */
 
 @Repository
-@Qualifier("friendshipRepository")
 public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<FriendshipEntity, FriendshipRequest>
         implements FriendshipDao {
     Function<List<FriendshipEntity>, List<FriendshipRequest>> friendshipListTransducer;

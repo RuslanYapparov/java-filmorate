@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.constimpl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -12,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.service.Genre;
 import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 
 @Service
-@Qualifier("genreService")
 public class GenreServiceImpl implements ReadConstantObjectService<Genre> {
 
     @Override

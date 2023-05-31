@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,7 +19,6 @@ import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 
 @Repository
-@Qualifier("userRepository")
 public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, User> {
 
     public UserDaoImpl(JdbcTemplate template) {

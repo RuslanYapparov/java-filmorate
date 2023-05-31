@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -16,7 +15,6 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
 
 @Repository
-@Qualifier("likeRepository")
 public class LikeDaoImpl extends FilmorateVariableStorageDaoImpl<LikeCommand, LikeCommand>
         implements LikeDao {
 

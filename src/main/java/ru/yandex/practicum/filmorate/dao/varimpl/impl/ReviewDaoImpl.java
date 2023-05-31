@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,7 +17,6 @@ import java.util.List;
 
 @Repository
 @Primary
-@Qualifier("reviewRepository")
 public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity, Review> {
 
     public ReviewDaoImpl(JdbcTemplate template) {

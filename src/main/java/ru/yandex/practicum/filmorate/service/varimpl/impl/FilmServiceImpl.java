@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -32,25 +31,18 @@ import ru.yandex.practicum.filmorate.service.varimpl.FilmService;
 import ru.yandex.practicum.filmorate.service.varimpl.UserService;
 
 @Service
-@Qualifier("filmService")
 public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestCommand> implements FilmService {
-    @Qualifier("userService")
     private final UserService userService;
-    @Qualifier("eventService")
     private final EventService eventService;
-    @Qualifier("directorService")
     private final CrudService<Director, DirectorRestCommand> directorService;
-    @Qualifier("likeRepository")
     private final LikeDao likeDao;
-    @Qualifier("filmGenreRepository")
     private final FilmGenreDao filmGenreDao;
-    @Qualifier("filmDirectorRepository")
     private final FilmDirectorDao filmDirectorDao;
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
 
-    public FilmServiceImpl(@Qualifier("filmRepository") FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
+    public FilmServiceImpl(FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
                            EventService eventService,
                            CrudService<Director, DirectorRestCommand> directorService,

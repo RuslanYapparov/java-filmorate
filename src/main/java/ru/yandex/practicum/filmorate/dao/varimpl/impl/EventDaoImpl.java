@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -19,7 +18,6 @@ import java.time.Instant;
 import java.util.List;
 
 @Repository
-@Qualifier("eventRepository")
 public class EventDaoImpl extends FilmorateConstantStorageDaoImpl<EventEntity> implements EventDao {
     public EventDaoImpl(JdbcTemplate template) {
         super(template);

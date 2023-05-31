@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -14,7 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-@Qualifier("reviewLikeRepository")
 public class ReviewLikeDaoImpl extends ReviewDaoImpl implements ReviewLikeDao {
 
     public ReviewLikeDaoImpl(JdbcTemplate jdbcTemplate) {

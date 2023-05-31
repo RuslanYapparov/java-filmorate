@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.dao.constimpl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import ru.yandex.practicum.filmorate.model.data.RatingMpaEntity;
 
 @Repository
-@Qualifier("ratingRepository")
 public class RatingMpaDaoImpl extends FilmorateConstantStorageDaoImpl<RatingMpaEntity> {
 
     public RatingMpaDaoImpl(JdbcTemplate jdbcTemplate) {

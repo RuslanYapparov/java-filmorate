@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service.inmemory;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +16,6 @@ import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
 import ru.yandex.practicum.filmorate.storage.InMemoryStorage;
 
 @Service
-@Qualifier("inMemoryFilmService")
 @RequiredArgsConstructor
 public class InMemoryFilmServiceImpl implements InMemoryFilmService {
     private final InMemoryStorage<Film> films;

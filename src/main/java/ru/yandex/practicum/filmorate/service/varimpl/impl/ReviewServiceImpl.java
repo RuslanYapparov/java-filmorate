@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service.varimpl.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
 import ru.yandex.practicum.filmorate.dao.varimpl.ReviewLikeDao;
@@ -18,22 +17,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Qualifier("reviewService")
 public class ReviewServiceImpl extends CrudServiceImpl<Review, ReviewEntity, ReviewRestCommand>
         implements ReviewService {
-
-    @Qualifier("userService")
     private final UserService userService;
-    @Qualifier("eventService")
     private final EventService eventService;
-    @Qualifier("filmService")
     private final FilmService filmService;
-    @Qualifier("reviewLikeRepository")
     private final ReviewLikeDao reviewLikeDao;
     private final ReviewMapper reviewMapper;
 
-    public ReviewServiceImpl(@Qualifier("reviewRepository")
-                             FilmorateVariableStorageDao<ReviewEntity, Review> objectDao,
+    public ReviewServiceImpl(FilmorateVariableStorageDao<ReviewEntity, Review> objectDao,
                              UserService userService,
                              EventService eventService,
                              FilmService filmService,

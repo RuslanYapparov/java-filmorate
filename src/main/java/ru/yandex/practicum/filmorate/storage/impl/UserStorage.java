@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import ru.yandex.practicum.filmorate.customvalidation.customvalidators.UserEmailAndNameValidator;
@@ -11,7 +10,6 @@ import ru.yandex.practicum.filmorate.model.service.User;
 import java.util.stream.Collectors;
 
 @Component
-@Qualifier("inMemoryUserStorage")
 public class UserStorage extends InMemoryStorageImpl<User> {
 
     @Override
