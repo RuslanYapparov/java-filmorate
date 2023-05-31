@@ -44,7 +44,7 @@ public class FilmServiceController {
         } else {
             log.debug(String.format("Запрошен список из %d наиболее популярных фильмов, отфильтрованных по %s%s",
                     count,
-                    (genreId != 7777 ? "жанру  - " + Genre.getGenreById(genreId).getByRus() + " ": ""),
+                    (genreId != 7777 ? "жанру  - " + Genre.getGenreById(genreId).getByRus() + " " : ""),
                     (year != 7777 ? "году выпуска - " + year : "")));
         }
         return this.mapListOfFilmsToListOfFilmRestViews(popular);
