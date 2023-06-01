@@ -9,8 +9,8 @@ import java.util.Set;
 
 import ru.yandex.practicum.filmorate.model.data.UserEntity;
 import ru.yandex.practicum.filmorate.model.service.User;
-import ru.yandex.practicum.filmorate.model.presentation.restcommand.UserRestCommand;
-import ru.yandex.practicum.filmorate.model.presentation.restview.UserRestView;
+import ru.yandex.practicum.filmorate.model.presentation.rest_command.UserRestCommand;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.UserRestView;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -21,15 +21,8 @@ public interface UserMapper {
     @Mapping(target = "friends", source = "friends", qualifiedByName = "mapFriends")
     User fromRestCommand(UserRestCommand userRestCommand);
 
-    UserEntity toDbEntity(User user);
-
-    @Mapping(target = "friends", source = "id", qualifiedByName = "createFriendsSet")
+    @Mapping(target = "friends", expression = "java(new java.util.HashSet<>())")
     User fromDbEntity(UserEntity userEntity);
-
-    @Named("createFriendsSet")
-    default Set<Long> createFriendsSet(long id) {
-        return new HashSet<>();
-    }
 
     @Named("mapFriends")
     default Set<Long> mapFriendsSet(Set<Long> friendsSet) {

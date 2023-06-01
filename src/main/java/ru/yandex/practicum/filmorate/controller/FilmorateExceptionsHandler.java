@@ -19,9 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
-import ru.yandex.practicum.filmorate.exception.UserValidationException;
-import ru.yandex.practicum.filmorate.model.presentation.restview.ErrorResponseView;
+import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.model.presentation.rest_view.ErrorResponseView;
 
 @RestControllerAdvice
 @Slf4j
@@ -35,15 +34,47 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
                 exception.getMessage());
     }
 
-    @ExceptionHandler(UserValidationException.class)
-    public ResponseEntity<ErrorResponseView> handleUserValidationException(UserValidationException exception) {
+    @ExceptionHandler(ObjectAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponseView handleObjectAlreadyExistsException(ObjectAlreadyExistsException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.CONFLICT.value(), "ObjectAlreadyExistsException",
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestBodyException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseView handleBadRequestBodyException(BadRequestBodyException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "BadRequestBodyException",
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(BadRequestParameterException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponseView handleBadRequestParameterException(BadRequestParameterException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "BadRequestParameterException",
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(InternalLogicException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseView handleInternalLogicException(InternalLogicException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.INTERNAL_SERVER_ERROR.value(), "InternalLogicException",
+                exception.getMessage());
+    }
+
+    @ExceptionHandler(EmailValidationException.class)
+    public ResponseEntity<ErrorResponseView> handleUserValidationException(EmailValidationException exception) {
         String message = exception.getMessage();
         ErrorResponseView error;
         log.warn(message);
         if (message.equals("Неправильный формат адреса электронной почты")) {
-            error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "UserValidationException", message);
+            error = new ErrorResponseView(HttpStatus.BAD_REQUEST.value(), "EmailValidationException", message);
         } else {
-            error = new ErrorResponseView(HttpStatus.CONFLICT.value(), "UserValidationException", message);
+            error = new ErrorResponseView(HttpStatus.CONFLICT.value(), "EmailValidationException", message);
         }
         return new ResponseEntity<>(error, HttpStatus.valueOf(error.getStatusCode()));
     }

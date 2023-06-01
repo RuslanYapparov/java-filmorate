@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.model.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@Value
+@Builder(toBuilder = true)
 public class FriendshipEntity {
-    private final long userId;
-    private final long friendId;
-    private final boolean isConfirmed;
+    long userId;
+    long friendId;
+    boolean isConfirmed;
 
 }

@@ -18,5 +18,6 @@ public class Film {   // Памяти и немного замедляет ра�
     RatingMpa rating;
     Set<Long> likes;
     Set<Genre> genres;
+    Set<Director> directors;
 
 }

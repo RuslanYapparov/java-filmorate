@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.storage.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.service.Film;
 
 @Component
-@Qualifier("inMemoryFilmStorage")
 public class FilmStorage extends InMemoryStorageImpl<Film> {
 
     @Override
