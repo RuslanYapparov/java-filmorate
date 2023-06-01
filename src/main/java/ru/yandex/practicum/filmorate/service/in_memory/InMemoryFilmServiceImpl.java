@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.in_memory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,9 +29,9 @@ public class InMemoryFilmServiceImpl implements InMemoryFilmService {
             throws ObjectNotFoundInStorageException {
         Film film = films.getById(filmId);
         users.getById(userId);                                      // Для проверки, сохранен ли User с указанным id
-        film.getLikes().add(userId);
+        film.getMarksFrom().add(userId);
         films.update(film);
-        return film.getLikes().stream()
+        return film.getMarksFrom().stream()
                 .map(users::getById)
                 .map(userMapper::toRestView)
                 .collect(Collectors.toList());
@@ -41,9 +42,9 @@ public class InMemoryFilmServiceImpl implements InMemoryFilmService {
             throws ObjectNotFoundInStorageException {
         Film film = films.getById(filmId);
         users.getById(userId);
-        film.getLikes().remove(userId);
+        film.getMarksFrom().remove(userId);
         films.update(film);
-        return film.getLikes().stream()
+        return film.getMarksFrom().stream()
                 .map(users::getById)
                 .map(userMapper::toRestView)
                 .collect(Collectors.toList());
@@ -52,7 +53,7 @@ public class InMemoryFilmServiceImpl implements InMemoryFilmService {
     @Override
     public List<FilmRestView> getMostLikedFilms(int count) {
         return films.getAll().stream()
-                .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                .sorted(Comparator.comparingDouble(film -> 10.0 - (double) film.getRate()))
                 .limit(count)
                 .map(filmMapper::toRestView)
                 .collect(Collectors.toList());

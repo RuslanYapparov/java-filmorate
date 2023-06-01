@@ -23,11 +23,11 @@ public class FilmRestView {
     @JsonProperty("duration")
     private int duration;
     @JsonProperty("rate")
-    private byte rate;
+    private float rate;
     @JsonProperty("mpa")
     private RatingMpaRestView mpa;
-    @JsonProperty("likes")
-    private Set<Long> likes;
+    @JsonProperty("marksFrom")
+    private Set<Long> marksFrom;
     @JsonProperty("genres")
     private Set<GenreRestView> genres;
     @JsonProperty("directors")

@@ -51,7 +51,7 @@ public class ValidatorTest {
                 .duration(127)
                 .rate((byte) 2)
                 .rating(RatingMpa.R)
-                .likes(new HashSet<>())
+                .marksFrom(new HashSet<>())
                 .genres(new HashSet<>())
                 .directors(new HashSet<>())
                 .build();
@@ -185,9 +185,9 @@ public class ValidatorTest {
         String description = film.getDescription();
         LocalDate releaseDate = film.getReleaseDate();
         int duration = film.getDuration();
-        byte rate = film.getRate();
+        float rate = film.getRate();
         RatingMpaRestCommand mpa = new RatingMpaRestCommand(film.getRating().getId());
-        Set<Long> likes = film.getLikes();
+        Set<Long> likes = film.getMarksFrom();
         Set<GenreRestCommand> genres = film.getGenres().stream()
                 .map(genre -> new GenreRestCommand(genre.getId()))
                 .collect(Collectors.toSet());

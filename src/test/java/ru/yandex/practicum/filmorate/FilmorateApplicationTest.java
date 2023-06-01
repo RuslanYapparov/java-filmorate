@@ -79,9 +79,9 @@ class FilmorateApplicationTest {
 				.description("Adventures of women in whales world")
 				.releaseDate(LocalDate.of(1996, 12, 12))
 				.duration(127)
-				.rate((byte) 2)
+				.rate(2.54321f)
 				.rating(RatingMpa.R)
-				.likes(new HashSet<>())
+				.marksFrom(new HashSet<>())
 				.genres(new HashSet<>(Set.of(Genre.DRAMA)))
 				.build();
 
@@ -887,10 +887,10 @@ class FilmorateApplicationTest {
 	}
 
 	@Test
-	void shouldAddLikeToFilmAndRemoveLikeFromFilm() throws IOException, InterruptedException {
+	void shouldAddMarkToFilmAndRemoveMarkFromFilm() throws IOException, InterruptedException {
 		bodyPublisher = HttpRequest.BodyPublishers.ofString("");
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + user.getId() + "?value=5"))
 				.PUT(bodyPublisher)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -906,11 +906,11 @@ class FilmorateApplicationTest {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		FilmRestView filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
-		assertEquals(1, filmFromServer.getLikes().size());
-		assertTrue(filmFromServer.getLikes().contains(user.getId()));
+		assertEquals(1, filmFromServer.getMarksFrom().size());
+		assertTrue(filmFromServer.getMarksFrom().contains(user.getId()));
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + user.getId()))
 				.DELETE()
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -926,14 +926,14 @@ class FilmorateApplicationTest {
 				.build();
 		response = client.send(request, BODY_HANDLER);
 		filmFromServer = jackson.readValue(response.body(), FilmRestView.class);
-		assertEquals(0, filmFromServer.getLikes().size());
+		assertEquals(0, filmFromServer.getMarksFrom().size());
 	}
 
 	@Test
-	void shouldReturnListOfSortedByNumberOfLikesFilms() throws IOException, InterruptedException {
+	void shouldReturnListOfSortedByRateFilms() throws IOException, InterruptedException {
 		String filmJson = jackson.writeValueAsString(createCommandObjectForTest(Film.builder().name("Crazy Potato")
 				.description("Potato").releaseDate(LocalDate.of(1975, 11,17))
-				.duration(85).rate((byte) 2).rating(RatingMpa.PG).likes(new HashSet<>()).genres(new HashSet<>())
+				.duration(85).rate((byte) 2).rating(RatingMpa.PG).marksFrom(new HashSet<>()).genres(new HashSet<>())
 				.directors(new HashSet<>()).build()));
 		bodyPublisher = HttpRequest.BodyPublishers.ofString(filmJson);
 		request = HttpRequest.newBuilder()
@@ -948,13 +948,13 @@ class FilmorateApplicationTest {
 
 		bodyPublisher = HttpRequest.BodyPublishers.ofString("");
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + user.getId() + "?value=7"))
 				.PUT(bodyPublisher)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
 				.build();
 		response = client.send(request, BODY_HANDLER);
-		film.getLikes().add(user.getId());
+		film.getMarksFrom().add(user.getId());
 		assertEquals(200, response.statusCode());
 
 		request = HttpRequest.newBuilder()
@@ -1058,7 +1058,7 @@ class FilmorateApplicationTest {
 		assertEquals(404, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + id + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + id + "/mark/" + user.getId() + "?value=7"))
 				.PUT(bodyPublisher)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1067,7 +1067,7 @@ class FilmorateApplicationTest {
 		assertEquals(404, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + id))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + id + "?value=5"))
 				.PUT(bodyPublisher)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1076,7 +1076,7 @@ class FilmorateApplicationTest {
 		assertEquals(404, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + id + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + id + "/mark/" + user.getId()))
 				.DELETE()
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1085,7 +1085,7 @@ class FilmorateApplicationTest {
 		assertEquals(404, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + id))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + id + "?value=7"))
 				.DELETE()
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1166,7 +1166,7 @@ class FilmorateApplicationTest {
 		assertEquals(400, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + id + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + id + "/mark/" + user.getId() + "?value=4"))
 				.PUT(bodyPublisher)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1175,7 +1175,7 @@ class FilmorateApplicationTest {
 		assertEquals(400, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + id))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + id))
 				.PUT(bodyPublisher)
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1184,7 +1184,7 @@ class FilmorateApplicationTest {
 		assertEquals(400, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + id + "/like/" + user.getId()))
+				.uri(URI.create(URL_START + "films/" + id + "/mark/" + user.getId()))
 				.DELETE()
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1193,7 +1193,7 @@ class FilmorateApplicationTest {
 		assertEquals(400, response.statusCode());
 
 		request = HttpRequest.newBuilder()
-				.uri(URI.create(URL_START + "films/" + film.getId() + "/like/" + id))
+				.uri(URI.create(URL_START + "films/" + film.getId() + "/mark/" + id))
 				.DELETE()
 				.version(HttpClient.Version.HTTP_1_1)
 				.header("Content-type", "application/json")
@@ -1218,16 +1218,16 @@ class FilmorateApplicationTest {
 		String description = film.getDescription();
 		LocalDate releaseDate = film.getReleaseDate();
 		int duration = film.getDuration();
-		byte rate = film.getRate();
+		float rate = film.getRate();
 		RatingMpaRestCommand mpa = new RatingMpaRestCommand(film.getRating().getId());
-		Set<Long> likes = film.getLikes();
+		Set<Long> marksFrom = film.getMarksFrom();
 		Set<GenreRestCommand> genres = film.getGenres().stream()
 				.map(genre -> new GenreRestCommand(genre.getId()))
 				.collect(Collectors.toSet());
 		Set<DirectorRestCommand> directors = film.getDirectors().stream()
 				.map(director -> new DirectorRestCommand(director.getId(), director.getName()))
 				.collect(Collectors.toSet());
-		return new FilmRestCommand(id, name, description, releaseDate, duration, rate, mpa, likes, genres, directors);
+		return new FilmRestCommand(id, name, description, releaseDate, duration, rate, mpa, marksFrom, genres, directors);
 	}
 
 	private DirectorRestCommand createCommandObjectForTest(Director director) {
@@ -1268,7 +1268,7 @@ class FilmorateApplicationTest {
 				.duration(view.getDuration())
 				.rate(view.getRate())
 				.rating(RatingMpa.getRatingById(view.getMpa().getId()))
-				.likes(view.getLikes())
+				.marksFrom(view.getMarksFrom())
 				.genres(view.getGenres().stream()
 						.map(genreRestView -> Genre.getGenreById(genreRestView.getId()))
 						.collect(Collectors.toSet()))

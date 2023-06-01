@@ -13,14 +13,16 @@ import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.dao.FilmorateVariableStorageDao;
 import ru.yandex.practicum.filmorate.dao.var_impl.FilmDirectorDao;
 import ru.yandex.practicum.filmorate.dao.var_impl.FilmGenreDao;
-import ru.yandex.practicum.filmorate.dao.var_impl.LikeDao;
+import ru.yandex.practicum.filmorate.dao.var_impl.MarkDao;
 import ru.yandex.practicum.filmorate.exception.BadRequestParameterException;
+import ru.yandex.practicum.filmorate.exception.InternalLogicException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.mapper.DirectorMapper;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
+import ru.yandex.practicum.filmorate.model.data.command.FilmDirectorCommand;
 import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
-import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
+import ru.yandex.practicum.filmorate.model.data.command.MarkCommand;
 import ru.yandex.practicum.filmorate.model.presentation.rest_command.DirectorRestCommand;
 import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.rest_command.FilmRestCommand;
@@ -35,19 +37,19 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     private final UserService userService;
     private final EventService eventService;
     private final CrudService<Director, DirectorRestCommand> directorService;
-    private final LikeDao likeDao;
+    private final MarkDao markDao;
     private final FilmGenreDao filmGenreDao;
     private final FilmDirectorDao filmDirectorDao;
     private final FilmMapper filmMapper;
     private final DirectorMapper directorMapper;
     private final JdbcTemplate batchUpdater;
-    private final Comparator<Film> filmComparatorByLikesNumber;
+    private final Comparator<Film> filmComparatorByRate;
 
     public FilmServiceImpl(FilmorateVariableStorageDao<FilmEntity, Film> objectDao,
                            UserService userService,
                            EventService eventService,
                            CrudService<Director, DirectorRestCommand> directorService,
-                           LikeDao likeDao,
+                           MarkDao markDao,
                            FilmGenreDao filmGenreDao,
                            FilmDirectorDao filmDirectorDao,
                            FilmMapper filmMapper,
@@ -58,7 +60,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         this.userService = userService;
         this.eventService = eventService;
         this.directorService = directorService;
-        this.likeDao = likeDao;
+        this.markDao = markDao;
         this.filmGenreDao = filmGenreDao;
         this.filmDirectorDao = filmDirectorDao;
         this.filmMapper = filmMapper;
@@ -66,8 +68,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         this.batchUpdater = jdbcTemplate;
         this.objectFromDbEntityMapper = filmMapper::fromDbEntity;
         this.objectFromRestCommandMapper = filmMapper::fromRestCommand;
-        this.filmComparatorByLikesNumber = (film1, film2) ->
-                film2.getLikes().size() - film1.getLikes().size();
+        this.filmComparatorByRate = Comparator.comparingDouble(film -> 10.0 - (double) film.getRate());
     }
 
     @Override
@@ -92,14 +93,14 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public Film getById(long filmId) {
-        List<Long> userIds = likeDao.getAllUsersIdsWhoLikedFilm(filmId);
+        List<Long> userIds = markDao.getAllUsersIdsWhoRatedFilm(filmId);
         List<Genre> genres = filmGenreDao.getAllGenresOfFilmByFilmId(filmId);
         List<Director> directors = filmDirectorDao.getAllDirectorEntitiesByFilmId(filmId).stream()
                 .map(directorMapper::fromDbEntity)
                 .collect(Collectors.toList());
         FilmEntity filmEntity = objectDao.getById(filmId);
         Film film = objectFromDbEntityMapper.apply(filmEntity);
-        film.getLikes().addAll(userIds);
+        film.getMarksFrom().addAll(userIds);
         film.getGenres().addAll(genres);
         film.getDirectors().addAll(directors);
         return film;
@@ -108,17 +109,14 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     @Override
     public List<Film> getAll() {
         Consumer<Film> filmGenresSetFiller = initializeFilmGenresSetFiller(filmGenreDao.getAll());
-        Consumer<Film> filmLikesSetFiller = initializeFilmLikesSetFiller(likeDao.getAll());
+        Consumer<Film> filmMarksSetFiller = initializeFilmMarksSetFiller(markDao.getAll());
+        Consumer<Film> filmDirectorsSetFiller = initializeFilmDirectorsSetFiller(filmDirectorDao.getAll(),
+                                                                                 directorService.getAll());
         return objectDao.getAll().stream()
                 .map(objectFromDbEntityMapper)
-                .peek(filmLikesSetFiller)
+                .peek(filmMarksSetFiller)
                 .peek(filmGenresSetFiller)
-                .peek(film -> {
-                    List<Director> directors = filmDirectorDao.getAllDirectorEntitiesByFilmId(film.getId()).stream()
-                            .map(directorMapper::fromDbEntity)
-                            .collect(Collectors.toList());
-                    film.getDirectors().addAll(directors);
-                })
+                .peek(filmDirectorsSetFiller)
                 .collect(Collectors.toList());
     }
 
@@ -129,20 +127,22 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
             case "title":
                 return this.getAll().stream()
                         .filter(film -> film.getName().toLowerCase().contains(keyWord.toLowerCase()))
-                        .sorted(filmComparatorByLikesNumber)
+                        .sorted(filmComparatorByRate)
                         .collect(Collectors.toList());
+
             case "director":
                 return directorService.getAll().stream()
                         .filter(director -> director.getName().toLowerCase().contains(keyWord.toLowerCase()))
                         .flatMap(director -> this.getAllFilmsByDirectorIdSortedBySomeParameter(director.getId(),
-                                "likes").stream())
+                                "marks").stream())
                         .collect(Collectors.toList());
+
             case "title,director":
             case "director,title":
                 List<Film> films = this.getMostLikedFilmsBySearch(keyWord, "title");
                 films.addAll(this.getMostLikedFilmsBySearch(keyWord, "director"));
                 return films.stream()
-                        .sorted(filmComparatorByLikesNumber)
+                        .sorted(filmComparatorByRate)
                         .collect(Collectors.toList());
 
             default:
@@ -154,7 +154,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     public Film update(FilmRestCommand filmRestCommand) throws ObjectNotFoundInStorageException {
         Film film = filmMapper.fromRestCommand(filmRestCommand);
         objectDao.update(film);
-        updateLikeStorages(film);
         updateGenreStorages(film);
         updateDirectorStorages(film);
         return this.getById(filmRestCommand.getId());
@@ -167,24 +166,24 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
     }
 
     @Override
-    public List<User> addLikeToFilmLikesSet(LikeCommand like) {
-        likeDao.save(like);
-        eventService.save(like.getUserId(), EventType.LIKE, EventOperation.ADD, like.getFilmId());
-        return this.getAllUsersWhoLikedFilm(like.getFilmId());
+    public List<User> addMarkToFilm(MarkCommand markCommand) {
+        markDao.save(markCommand);
+        eventService.save(markCommand.getUserId(), EventType.MARK, EventOperation.ADD, markCommand.getFilmId());
+        return this.getAllUsersWhoRatedFilm(markCommand.getFilmId());
     }
 
     @Override
-    public List<User> removeLikeFromFilmLikesSet(LikeCommand like) {
-        likeDao.deleteById(like.getFilmId(), like.getUserId());
-        eventService.save(like.getUserId(), EventType.LIKE, EventOperation.REMOVE, like.getFilmId());
-        return this.getAllUsersWhoLikedFilm(like.getFilmId());
+    public List<User> removeMarkFromFilm(MarkCommand markCommand) {
+        markDao.deleteById(markCommand.getFilmId(), markCommand.getUserId());
+        eventService.save(markCommand.getUserId(), EventType.MARK, EventOperation.REMOVE, markCommand.getFilmId());
+        return this.getAllUsersWhoRatedFilm(markCommand.getFilmId());
     }
 
     @Override
-    public List<User> getAllUsersWhoLikedFilm(long filmId) {
-        List<Long> userIdsFromLikes = likeDao.getAllUsersIdsWhoLikedFilm(filmId);
+    public List<User> getAllUsersWhoRatedFilm(long filmId) {
+        List<Long> userIdsFromMarks = markDao.getAllUsersIdsWhoRatedFilm(filmId);
         return userService.getAll().stream()
-                .filter(user -> userIdsFromLikes.contains(user.getId()))
+                .filter(user -> userIdsFromMarks.contains(user.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -193,16 +192,16 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         return this.getAll().stream()
                 .filter(film -> genreId == 7777 || film.getGenres().contains(Genre.getGenreById(genreId)))
                 .filter(film -> year == 7777 || film.getReleaseDate().getYear() == year)
-                .sorted(filmComparatorByLikesNumber)
+                .sorted(filmComparatorByRate)
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Film> getAllFilmsLikedByUser(long userId) {
-        List<Long> filmIdsFromLikes = likeDao.getAllFilmIdsLikedByUser(userId);
+    public List<Film> getAllFilmsRatedByUser(long userId) {
+        List<Long> filmIdsFromMarks = markDao.getAllFilmIdsRatedByUser(userId);
         return this.getAll().stream()
-                .filter(film -> filmIdsFromLikes.contains(film.getId()))
+                .filter(film -> filmIdsFromMarks.contains(film.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -248,10 +247,10 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                         .sorted(Comparator.comparing(film -> film.getReleaseDate().getYear()))
                         .collect(Collectors.toList());
 
-            case "likes":
+            case "marks":
                 return this.getAll().stream()
                         .filter(film -> filmIds.contains(film.getId()))
-                        .sorted(filmComparatorByLikesNumber)
+                        .sorted(filmComparatorByRate)
                         .collect(Collectors.toList());
 
             default:
@@ -264,46 +263,48 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         userService.getById(userId);              // Проверка существования пользователя с указанным id в базе данных
         final int numberOfUsersWithSimilarPreferencesForReturnedValue = 5;      // В задании не указаны параметры для
         final int countOfFilmsInReturnedList = 10; // Рекоммендаций, но мне кажется они нужны, чтобы ограничить выборку
-        Map<Long, List<Long>> likeData = new HashMap<>();                                     // Логика работы метода:
-        List<Long> filmIdsLikedByUser = likeDao.getAllFilmIdsLikedByUser(userId);  // Получаем список фильмов с лайками
-
-        likeDao.getAll().forEach(likeCommand -> {          // Получаем список всех лайков из базы данных и заполняем
-            long likeUserId = likeCommand.getUserId();     // Мапу лайков, где ключ - id пользователя, а значение -
-            long likedFilmId = likeCommand.getFilmId(); // Список всех фильмов, которым этот пользователь поставил лайк
-            if (likeData.containsKey(likeUserId)) {
-                likeData.get(likeUserId).add(likedFilmId);
+        Map<Long, List<Long>> goodMarksData = new HashMap<>();                                // Логика работы метода:
+        List<Long> filmIdLikedByUser = markDao.getAllIdsOfFilmsWithPositiveMarkByUserId(userId);          // Получаем список фильмов
+                                                                            // С положительными оценками пользователя
+        markDao.getAll().stream()                                       // Получаем список всех оценок из базы данных
+                .filter(markCommand -> markCommand.getRating() > 5)  // Отсеиваем только хорошие оценки пользователей
+                .forEach(markCommand -> {                                                           // И заполняем
+            long markUserId = markCommand.getUserId();     // Мапу лайков, где ключ - id пользователя, а значение -
+            long ratedFilmId = markCommand.getFilmId();   // Список всех фильмов, которым этот пользователь поставил
+            if (goodMarksData.containsKey(markUserId)) {                                            // Хорошую оценку
+                goodMarksData.get(markUserId).add(ratedFilmId);
             } else {
-                List<Long> likeFilmIds = new ArrayList<>();
-                likeFilmIds.add(likedFilmId);
-                likeData.put(likeUserId, likeFilmIds);
+                List<Long> ratedFilmIds = new ArrayList<>();
+                ratedFilmIds.add(ratedFilmId);
+                goodMarksData.put(markUserId, ratedFilmIds);
             }
         });
-        likeData.remove(userId);     // Удаляем из мапы данные самого пользователя, чтобы они не участвовали в логике
+        goodMarksData.remove(userId);  // Удаляем из мапы данные самого пользователя, чтобы они не участвовали в логике
 
-        Map<Long, List<Long>> sortedLikeData = new TreeMap<>(Comparator.comparingLong(likeUserId ->   // Далее создаем
-                likeData.get(likeUserId).stream()              // Сортирующую мапу, которая будет сортировать все id
-                        .filter(filmIdsLikedByUser::contains)  // пользователей по количеству лайков, совпавших с
+        Map<Long, List<Long>> sortedMarkData = new TreeMap<>(Comparator.comparingLong(markUserId ->   // Далее создаем
+                goodMarksData.get(markUserId).stream()           // Сортирующую мапу, которая будет сортировать все id
+                        .filter(filmIdLikedByUser::contains)  // пользователей по количеству лайков, совпавших с
                         .count()));                               // Пользователем, для которого ищем рекомендации
-        sortedLikeData.putAll(likeData);  // Закидываем в сортирующую мапу общую мапу со всеми ползователями и лайками
-        List<Long> recommendedFilmsIds = sortedLikeData.values().stream()      // Получаем рекоммендованные фильмы:
+        sortedMarkData.putAll(goodMarksData);          // Закидываем в сортирующую мапу общую мапу со всеми оценками
+        List<Long> recommendedFilmsIds = sortedMarkData.values().stream()      // Получаем рекоммендованные фильмы:
                 .limit(numberOfUsersWithSimilarPreferencesForReturnedValue) // Берем первые несколько entry-значений
                 .flatMap(Collection::stream)                                   // Преобразуем их в стрим id фильмов
-                .filter(recommendedFilmId -> !filmIdsLikedByUser.contains(recommendedFilmId))  // Убираем те, которые
-                .limit(countOfFilmsInReturnedList)               // Лайкнул пользователь, которому ищем рекомендации
+                .filter(recommendedFilmId -> !filmIdLikedByUser.contains(recommendedFilmId))  // Убираем те, которые
+                .limit(countOfFilmsInReturnedList)        // Хорошо оценил пользователь, которому ищем рекомендации
                 .collect(Collectors.toList());
         return this.getAll().stream()                                                  // Берем список всех фильмов,
                 .filter(film -> recommendedFilmsIds.contains(film.getId()))         // Убираем те, которые не в списке
-                .sorted(filmComparatorByLikesNumber)                                              // Рекомендованных
-                .collect(Collectors.toList());                            // Сортируем по количеству лайков у фильма
+                .sorted(filmComparatorByRate)                          // Рекомендованных, сортируем по оценкам фильма
+                .collect(Collectors.toList());
     }
 
     public List<Film> getCommonFilmsOfTwoUsers(long userId, long friendId) {
-        List<Film> filmsLikedByFirstUser = this.getAllFilmsLikedByUser(userId);
-        List<Film> filmsLikedBySecondUser = this.getAllFilmsLikedByUser(friendId);
+        List<Film> filmsRatedByFirstUser = this.getAllFilmsRatedByUser(userId);
+        List<Film> filmsRatedBySecondUser = this.getAllFilmsRatedByUser(friendId);
 
-        return filmsLikedByFirstUser.stream()
-                .filter(filmsLikedBySecondUser::contains)
-                .sorted(filmComparatorByLikesNumber)
+        return filmsRatedByFirstUser.stream()
+                .filter(filmsRatedBySecondUser::contains)
+                .sorted(filmComparatorByRate)
                 .collect(Collectors.toList());
     }
 
@@ -321,20 +322,6 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                 .collect(Collectors.toList());
         batchUpdate("delete from film_genres where film_id = ? and genre_id = ?", filmId, genresToDelete);
         batchUpdate("insert into film_genres (film_id, genre_id) values (?, ?)", filmId, genresToAdd);
-    }
-
-    private void updateLikeStorages(Film film) {
-        long filmId = film.getId();
-        List<Long> oldLikesList = likeDao.getAllUsersIdsWhoLikedFilm(filmId);
-        List<Long> newLikesList = new ArrayList<>(film.getLikes());
-        List<Long> likesToDelete = oldLikesList.stream()
-                .filter(userId -> !newLikesList.contains(userId))
-                .collect(Collectors.toList());
-        List<Long> likesToAdd = newLikesList.stream()
-                .filter(userId -> !oldLikesList.contains(userId))
-                .collect(Collectors.toList());
-        batchUpdate("delete from likes where film_id = ? and user_id = ?", filmId, likesToDelete);
-        batchUpdate("insert into likes (film_id, user_id) values (?, ?)", filmId, likesToAdd);
     }
 
     private void updateDirectorStorages(Film film) {
@@ -355,13 +342,13 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
         batchUpdate("insert into film_directors (film_id, director_id) values (?, ?)", filmId, directorsToAdd);
     }
 
-    private Consumer<Film> initializeFilmLikesSetFiller(List<LikeCommand> likes) {
+    private Consumer<Film> initializeFilmMarksSetFiller(List<MarkCommand> markCommands) {
         return film -> {
             long currentFilmId = film.getId();
-            likes.stream()
-                    .filter(like -> like.getFilmId() == currentFilmId)
-                    .map(LikeCommand::getUserId)
-                    .forEach(userId -> film.getLikes().add(userId));
+            markCommands.stream()
+                    .filter(markCommand -> markCommand.getFilmId() == currentFilmId)
+                    .map(MarkCommand::getUserId)
+                    .forEach(userId -> film.getMarksFrom().add(userId));
         };
     }
 
@@ -373,6 +360,22 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
                     .map(FilmGenreCommand::getGenreId)
                     .map(Genre::getGenreById)
                     .forEach(genre -> film.getGenres().add(genre));
+        };
+    }
+
+    private Consumer<Film> initializeFilmDirectorsSetFiller(List<FilmDirectorCommand> filmDirectorCommands,
+                                                            List<Director> directors) {
+        return film -> {
+            long currentFilmId = film.getId();
+            filmDirectorCommands.stream()
+                    .filter(fdc -> fdc.getFilmId() == currentFilmId)
+                    .map(FilmDirectorCommand::getDirectorId)
+                    .map(directorId -> directors.stream()
+                            .filter(director -> director.getId() == directorId)
+                            .findFirst().orElseThrow(() -> new InternalLogicException("Внутрення ошибка приложения," +
+                            "связанная с поиском режиссёра по идентификатору при заполнении соответствующего поля " +
+                            "объекта film. Если Вы видите данное сообщение, пожалуйста, сообщите разработчикам")))
+                    .forEach(director -> film.getDirectors().add(director));
         };
     }
 

@@ -5,8 +5,9 @@ import lombok.Value;
 
 @Value
 @Builder(toBuilder = true)
-public class LikeCommand {
+public class MarkCommand {
     long filmId;
     long userId;
+    int rating;
 
 }

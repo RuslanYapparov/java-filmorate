@@ -14,9 +14,9 @@ public class Film {   // Памяти и немного замедляет ра�
     String description;
     LocalDate releaseDate;
     int duration;
-    byte rate;
+    float rate;
     RatingMpa rating;
-    Set<Long> likes;
+    Set<Long> marksFrom;
     Set<Genre> genres;
     Set<Director> directors;
 

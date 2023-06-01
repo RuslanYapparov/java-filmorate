@@ -3,9 +3,7 @@ package ru.yandex.practicum.filmorate.controller.service_controllers;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Positive;
+import javax.validation.constraints.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
 import ru.yandex.practicum.filmorate.mapper.FilmMapper;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.data.command.FilmGenreCommand;
-import ru.yandex.practicum.filmorate.model.data.command.LikeCommand;
+import ru.yandex.practicum.filmorate.model.data.command.MarkCommand;
 import ru.yandex.practicum.filmorate.model.service.*;
 import ru.yandex.practicum.filmorate.model.presentation.rest_view.FilmRestView;
 import ru.yandex.practicum.filmorate.model.presentation.rest_view.GenreRestView;
@@ -60,34 +58,35 @@ public class FilmServiceController {
         return this.mapListOfFilmsToListOfFilmRestViews(searchFilms);
     }
 
-    @PutMapping("{film_id}/like/{user_id}")
-    public List<UserRestView> addLike(@PathVariable(value = "film_id") @Positive long filmId,
-                                      @PathVariable(value = "user_id") @Positive long userId) {
-        LikeCommand likeCommand = LikeCommand.builder().filmId(filmId).userId(userId).build();
-        List<User> userList = filmService.addLikeToFilmLikesSet(likeCommand);
-        log.debug(String.format("Пользователь id%d поставил лайк фильму id%d", userId, filmId));
+    @PutMapping("{film_id}/mark/{user_id}")
+    public List<UserRestView> addMark(@PathVariable(value = "film_id") @Positive long filmId,
+                      @PathVariable(value = "user_id") @Positive long userId,
+                      @RequestParam(name = "value", defaultValue = "0") @PositiveOrZero @Max(10) int rating) {
+        MarkCommand markCommand = MarkCommand.builder().filmId(filmId).userId(userId).rating(rating).build();
+        List<User> userList = filmService.addMarkToFilm(markCommand);
+        log.debug(String.format("Пользователь id%d поставил оценку %d фильму id%d", userId, rating, filmId));
         return this.mapListOfUsersToListOfUserRestViews(userList);
     }
 
-    @DeleteMapping("{film_id}/like/{user_id}")
-    public List<UserRestView> removeLike(@PathVariable(value = "film_id") @Positive long filmId,
+    @DeleteMapping("{film_id}/mark/{user_id}")
+    public List<UserRestView> removeMark(@PathVariable(value = "film_id") @Positive long filmId,
                                          @PathVariable(value = "user_id") @Positive long userId) {
-        LikeCommand likeCommand = LikeCommand.builder().filmId(filmId).userId(userId).build();
-        List<User> userList = filmService.removeLikeFromFilmLikesSet(likeCommand);
-        log.debug(String.format("Пользователь id%d убрал лайк с фильма id%d", userId, filmId));
+        MarkCommand markCommand = MarkCommand.builder().filmId(filmId).userId(userId).build();
+        List<User> userList = filmService.removeMarkFromFilm(markCommand);
+        log.debug(String.format("Пользователь id%d удалил оценку фильма id%d", userId, filmId));
         return this.mapListOfUsersToListOfUserRestViews(userList);
     }
 
     @GetMapping("{film_id}/likes")
     List<UserRestView> getAllUsersWhoLikedFilm(@PathVariable(value = "film_id") @Positive long filmId) {
-        List<User> userList = filmService.getAllUsersWhoLikedFilm(filmId);
+        List<User> userList = filmService.getAllUsersWhoRatedFilm(filmId);
         log.debug(String.format("Запрошен список всех пользователей, поставившиз лайк фильму с id%d", filmId));
         return this.mapListOfUsersToListOfUserRestViews(userList);
     }
 
     @GetMapping("/likedfilms/{user_id}")
     List<FilmRestView> getAllFilmsLikedByUser(@PathVariable(value = "user_id") @Positive long userId) {
-        List<Film> filmList = filmService.getAllFilmsLikedByUser(userId);
+        List<Film> filmList = filmService.getAllFilmsRatedByUser(userId);
         log.debug(String.format("Запрошен список фильмов, которые лайкнул пользователь с id%d", userId));
         return this.mapListOfFilmsToListOfFilmRestViews(filmList);
     }
@@ -104,7 +103,7 @@ public class FilmServiceController {
     @DeleteMapping("{film_id}/genre/{genre_id}")
     List<GenreRestView> removeFilmGenreAssociation(@PathVariable(value = "film_id") @Positive long filmId,
                                                    @PathVariable(value = "genre_id") @Positive int genreId) {
-        List<Genre> genreList = filmService.addFilmGenreAssociation(
+        List<Genre> genreList = filmService.removeFilmGenreAssociation(
                 FilmGenreCommand.builder().filmId(filmId).genreId(genreId).build());
         log.debug(String.format("Фильм с id%d больше не относится к жанру '%s'", filmId,
                 Genre.getGenreById(genreId).getByRus()));

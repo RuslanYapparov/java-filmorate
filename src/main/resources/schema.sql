@@ -19,14 +19,15 @@ CREATE TABLE IF NOT EXISTS films (
   film_description varchar(200) DEFAULT 'not presented',
   release_date date,
   duration integer CHECK (duration > 0),
-  rate smallint DEFAULT 11 CHECK (rate >= 0),
+  rate real DEFAULT 0.0 CHECK (rate >= 0.0 AND rate <= 10),
   mpa_rating_id integer,
   director_id integer
 );
 
-CREATE TABLE IF NOT EXISTS likes (
+CREATE TABLE IF NOT EXISTS user_marks (
+  user_id integer REFERENCES users (user_id) ON DELETE CASCADE,
   film_id integer REFERENCES films (film_id) ON DELETE CASCADE,
-  user_id integer REFERENCES users (user_id) ON DELETE CASCADE
+  rating smallint CHECK (rating > 0 and rating < 10)
 );
 
 CREATE TABLE IF NOT EXISTS genres (

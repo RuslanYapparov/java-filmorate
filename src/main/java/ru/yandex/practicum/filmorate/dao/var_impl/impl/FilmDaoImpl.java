@@ -42,7 +42,7 @@ public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Fil
         String description = film.getDescription();
         Date releaseDate = Date.valueOf(film.getReleaseDate());
         int duration = film.getDuration();
-        int rate = film.getRate();
+        int rate = 0;                                 // Если мы сохраняем фильм, то у него не может быть оценки
         int rating = film.getRating().getId();
         sql = "insert into films (film_name, film_description, release_date, duration, rate, mpa_rating_id) " +
                 "values (?, ?, ?, ?, ?, ?)";

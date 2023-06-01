@@ -35,12 +35,12 @@ public class FilmRestCommand {
     private int duration;
     @JsonProperty("rate")
     @PositiveOrZero
-    private byte rate;
+    private float rate;
     @JsonProperty("mpa")
     private RatingMpaRestCommand mpa;
-    @JsonProperty("likes")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Set<Long> likes;
+    @JsonProperty("marksFrom")
+    @JsonInclude(JsonInclude.Include.NON_NULL)         // Думаю, для данной логики достаточно хранить идентификаторы
+    private Set<Long> marksFrom;                                         // Пользователей, поставивших оценку фильму
     @JsonProperty("genres")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Set<GenreRestCommand> genres;

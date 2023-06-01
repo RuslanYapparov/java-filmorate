@@ -13,7 +13,7 @@ public class FilmEntity {   // Памяти и немного замедляет
     String description;
     LocalDate releaseDate;
     int duration;
-    byte rate;
+    float rate;
     int rating;
 
 }

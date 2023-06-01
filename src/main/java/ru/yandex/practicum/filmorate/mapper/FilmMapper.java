@@ -27,17 +27,17 @@ public interface FilmMapper {
 
     @Mapping(target = "mpa", source = "rating")
     @Mapping(target = "genres", source = "genres",qualifiedByName = "mapGenreSetRestView")
-    @Mapping(target = "likes", source = "likes", qualifiedByName = "mapLikes")
+    @Mapping(target = "marksFrom", source = "marksFrom", qualifiedByName = "mapMarks")
     @Mapping(target = "directors", source = "directors", qualifiedByName = "mapDirectorSetRestView")
     FilmRestView toRestView(Film film);
 
     @Mapping(target = "rating", source = "mpa")
     @Mapping(target = "genres", source = "genres", qualifiedByName = "mapGenreSet")
-    @Mapping(target = "likes", source = "likes", qualifiedByName = "mapLikes")
+    @Mapping(target = "marksFrom", source = "marksFrom", qualifiedByName = "mapMarks")
     @Mapping(target = "directors", source = "directors", qualifiedByName = "mapDirectorSet")
     Film fromRestCommand(FilmRestCommand filmRestCommand);
 
-    @Mapping(target = "likes", expression = "java(new java.util.HashSet<>())")
+    @Mapping(target = "marksFrom", expression = "java(new java.util.HashSet<>())")
     @Mapping(target = "genres", expression = "java(new java.util.HashSet<>())")
     @Mapping(target = "directors", expression = "java(new java.util.HashSet<>())")
     Film fromDbEntity(FilmEntity filmEntity);
@@ -81,10 +81,10 @@ public interface FilmMapper {
         return new HashSet<>();
     }
 
-    @Named("mapLikes")
-    default Set<Long> mapLikesSet(Set<Long> likesSet) {
-        if (likesSet != null) {
-            return new TreeSet<>(likesSet);
+    @Named("mapMarks")
+    default Set<Long> mapMarksFromSet(Set<Long> marksFromSet) {
+        if (marksFromSet != null) {
+            return new TreeSet<>(marksFromSet);
         }
         return new HashSet<>();
     }
