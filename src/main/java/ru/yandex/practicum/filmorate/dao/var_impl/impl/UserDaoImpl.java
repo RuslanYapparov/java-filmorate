@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import ru.yandex.practicum.filmorate.custom_validation.custom_validators.UserEmailAndNameValidator;
 import ru.yandex.practicum.filmorate.dao.var_impl.FilmorateVariableStorageDaoImpl;
+import ru.yandex.practicum.filmorate.exception.InternalLogicException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.exception.EmailValidationException;
 import ru.yandex.practicum.filmorate.model.service.User;
@@ -57,9 +58,9 @@ public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, Use
             return ps;
             }, keyHolder);
         long userId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения пользователя '" +
-                        login + "'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
-                        "свяжитесь с разработчиками приложения"))
+                .orElseThrow(() -> new InternalLogicException("Произошла непредвиденная ошбика сохранения " +
+                        "пользователя '" + login + "'. Пожалуйста, повторите попытку. Если ошибка повторится, " +
+                        "пожалуйста, свяжитесь с разработчиками приложения"))
                 .longValue();
         return this.getById(userId);
     }

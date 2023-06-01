@@ -58,6 +58,14 @@ public class FilmorateExceptionsHandler extends ResponseEntityExceptionHandler {
                 exception.getMessage());
     }
 
+    @ExceptionHandler(InternalLogicException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponseView handleInternalLogicException(InternalLogicException exception) {
+        log.warn(exception.getMessage());
+        return new ErrorResponseView(HttpStatus.INTERNAL_SERVER_ERROR.value(), "InternalLogicException",
+                exception.getMessage());
+    }
+
     @ExceptionHandler(EmailValidationException.class)
     public ResponseEntity<ErrorResponseView> handleUserValidationException(EmailValidationException exception) {
         String message = exception.getMessage();

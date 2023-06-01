@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.var_impl.FilmorateVariableStorageDaoImpl;
+import ru.yandex.practicum.filmorate.exception.InternalLogicException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.ReviewEntity;
 import ru.yandex.practicum.filmorate.model.service.Review;
@@ -53,7 +54,7 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
             return ps;
         }, keyHolder);
         long reviewId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения отзыва '\n" +
+                .orElseThrow(() -> new InternalLogicException("Произошла непредвиденная ошбика сохранения отзыва '\n" +
                         content + "\n'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
                         "свяжитесь с разработчиками приложения"))    // В сообщении вовзращается текст отзыва, чтобы
                 .longValue();                        // Пользователь мог скопировать его для новой попытки сохранения

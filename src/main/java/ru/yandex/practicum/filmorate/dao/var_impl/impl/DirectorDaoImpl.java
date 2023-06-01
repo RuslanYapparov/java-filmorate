@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.var_impl.FilmorateVariableStorageDaoImpl;
+import ru.yandex.practicum.filmorate.exception.InternalLogicException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.DirectorEntity;
 import ru.yandex.practicum.filmorate.model.service.Director;
@@ -39,7 +40,7 @@ public class DirectorDaoImpl extends FilmorateVariableStorageDaoImpl<DirectorEnt
             return ps;
             }, keyHolder);
         long userId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения режиссёра '" +
+                .orElseThrow(() -> new InternalLogicException("Произошла непредвиденная ошбика сохранения режиссёра '" +
                         name + "'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
                         "свяжитесь с разработчиками приложения"))
                 .longValue();

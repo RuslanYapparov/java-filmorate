@@ -12,6 +12,7 @@ import java.sql.Statement;
 import java.util.Optional;
 
 import ru.yandex.practicum.filmorate.dao.var_impl.*;
+import ru.yandex.practicum.filmorate.exception.InternalLogicException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.FilmEntity;
 import ru.yandex.practicum.filmorate.model.service.*;
@@ -56,7 +57,7 @@ public class FilmDaoImpl extends FilmorateVariableStorageDaoImpl<FilmEntity, Fil
             return ps;
             }, keyHolder);
         long filmId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения фильма '" +
+                .orElseThrow(() -> new InternalLogicException("Произошла непредвиденная ошбика сохранения фильма '" +
                         name + "'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
                         "свяжитесь с разработчиками приложения"))
                 .longValue();

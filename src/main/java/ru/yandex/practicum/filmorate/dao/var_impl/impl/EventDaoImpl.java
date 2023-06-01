@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dao.const_impl.FilmorateConstantStorageDaoImpl;
 import ru.yandex.practicum.filmorate.dao.var_impl.EventDao;
+import ru.yandex.practicum.filmorate.exception.InternalLogicException;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundInStorageException;
 import ru.yandex.practicum.filmorate.model.data.EventEntity;
 import ru.yandex.practicum.filmorate.model.service.EventOperation;
@@ -48,7 +49,7 @@ public class EventDaoImpl extends FilmorateConstantStorageDaoImpl<EventEntity> i
             return ps;
         }, keyHolder);
         long eventId = Optional.ofNullable(keyHolder.getKey())
-                .orElseThrow(() -> new RuntimeException("Произошла непредвиденная ошбика сохранения последнего " +
+                .orElseThrow(() -> new InternalLogicException("Произошла непредвиденная ошбика сохранения последнего " +
                         "действия пользователя с id" + userId + " в ленте-истории. Пожалуйста, повторите попытку. " +
                         "Если ошибка повторится, пожалуйста, свяжитесь с разработчиками приложения"))
                 .longValue();
