@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller.storage_controllers.var_impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.controller.storage_controllers.VariableStorageController;
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class ReviewStorageControllerImpl implements VariableStorageController<ReviewRestCommand, ReviewRestView> {
-    @Qualifier("reviewService")
     private final ReviewService reviewService;
     private final ReviewMapper reviewMapper;
 

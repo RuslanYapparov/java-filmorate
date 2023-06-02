@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller.storage_controllers.const_impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,6 @@ import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 @RequestMapping("/mpa")
 @RequiredArgsConstructor
 public class RatingMpaStorageControllerImpl implements ConstantStorageController<RatingMpaRestView> {
-    @Qualifier("ratingService")
     private final ReadConstantObjectService<RatingMpa> ratingMpaService;
     private final Function<RatingMpa, RatingMpaRestView> toRestViewConverter =
             ratingMpa -> new RatingMpaRestView(ratingMpa.getId(), ratingMpa.getName());

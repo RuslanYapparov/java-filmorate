@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.mapper.ReviewMapper;
+import ru.yandex.practicum.filmorate.mapper.RestViewListMapper;
 import ru.yandex.practicum.filmorate.model.presentation.rest_view.ReviewRestView;
 import ru.yandex.practicum.filmorate.service.var_impl.ReviewService;
 
 import javax.validation.constraints.Positive;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Validated
 @RestController
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewServiceController {
     private final ReviewService reviewService;
-    private final ReviewMapper reviewMapper;
+    private final RestViewListMapper restViewListMapper;
 
     @GetMapping
     public List<ReviewRestView> getAllByFilmId(
@@ -27,9 +26,8 @@ public class ReviewServiceController {
             @RequestParam(name = "count", defaultValue = "10", required = false) Integer count) {
         log.debug("Запрошен список всех отзывов фильма с идентификатором '{}'. Если идентификатор фильма '-1', " +
                         "то запрос всех отзывов", filmId);
-        return reviewService.getAllReviewsByFilmIdAndCount(filmId, count).stream()
-                .map(reviewMapper::toRestView)
-                .collect(Collectors.toList());
+        return restViewListMapper.mapListOfReviewsToListOfReviewRestViews(
+                reviewService.getAllReviewsByFilmIdAndCount(filmId, count));
     }
 
     @PutMapping("/{review_id}/like/{userId}")
