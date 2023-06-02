@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller.storage_controllers.const_impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,6 @@ import ru.yandex.practicum.filmorate.service.ReadConstantObjectService;
 @RequestMapping("/genres")
 @RequiredArgsConstructor
 public class GenreStorageControllerImpl implements ConstantStorageController<GenreRestView> {
-    @Qualifier("genreService")
     private final ReadConstantObjectService<Genre> genreService;
     private final Function<Genre, GenreRestView> toRestViewConverter =
             genre -> new GenreRestView(genre.getId(), genre.getByRus());

@@ -7,11 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-import ru.yandex.practicum.filmorate.mapper.EventMapper;
-import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.mapper.RestViewListMapper;
 import ru.yandex.practicum.filmorate.model.presentation.rest_view.EventRestView;
+import ru.yandex.practicum.filmorate.model.service.Event;
 import ru.yandex.practicum.filmorate.model.service.FriendshipRequest;
 import ru.yandex.practicum.filmorate.model.service.User;
 import ru.yandex.practicum.filmorate.model.presentation.rest_view.UserRestView;
@@ -24,13 +23,12 @@ import ru.yandex.practicum.filmorate.service.var_impl.UserService;
 @RequiredArgsConstructor
 public class UserServiceController {
     private final UserService userService;
-    private final UserMapper userMapper;
-    private final EventMapper eventMapper;
+    private final RestViewListMapper restViewListMapper;
 
     @GetMapping("/friends")
     public List<UserRestView> getFriends(@PathVariable(value = "user_id") @Positive long userId) {
         log.debug("Запрошен список друзей пользователя с id" + userId);
-        return this.mapListOfUsersToListOfUserRestViews(userService.getUsersFriendsSet(userId));
+        return restViewListMapper.mapListOfUsersToListOfUserRestViews(userService.getUsersFriendsSet(userId));
     }
 
     @GetMapping("/friends/common/{friend_id}")
@@ -38,7 +36,7 @@ public class UserServiceController {
                                                @PathVariable(value = "friend_id") @Positive long friendId) {
         List<User> commonFriendsList = userService.getCommonFriendsOfTwoUsers(userId, friendId);
         log.debug(String.format("Запрошен список общих друзей пользователей id%d id%d", userId, friendId));
-        return this.mapListOfUsersToListOfUserRestViews(commonFriendsList);
+        return restViewListMapper.mapListOfUsersToListOfUserRestViews(commonFriendsList);
     }
 
     @PutMapping("/friends/{friend_id}")
@@ -47,7 +45,7 @@ public class UserServiceController {
         FriendshipRequest friendshipRequest = FriendshipRequest.builder().userId(userId).friendId(friendId).build();
         List<User> usersFriendsList = userService.addUserToAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d теперь друзья", userId, friendId));
-        return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
+        return restViewListMapper.mapListOfUsersToListOfUserRestViews(usersFriendsList);
     }
 
     @DeleteMapping("/friends/{friend_id}")
@@ -56,22 +54,14 @@ public class UserServiceController {
         FriendshipRequest friendshipRequest = FriendshipRequest.builder().userId(userId).friendId(friendId).build();
         List<User> usersFriendsList = userService.removeUserFromAnotherUserFriendsSet(friendshipRequest);
         log.debug(String.format("Пользователи id%d id%d больше не друзья", userId, friendId));
-        return this.mapListOfUsersToListOfUserRestViews(usersFriendsList);
+        return restViewListMapper.mapListOfUsersToListOfUserRestViews(usersFriendsList);
     }
 
     @GetMapping("/feed")
     public List<EventRestView> getUserFeed(@PathVariable(value = "user_id") @Positive long userId) {
-        List<EventRestView> userFeed = userService.getAllEventsByUserId(userId).stream()
-                .map(eventMapper::toRestView)
-                .collect(Collectors.toList());
+        List<Event> userFeed = userService.getAllEventsByUserId(userId);
         log.debug(String.format("Запрошена лента событий пользователя с id%d", userId));
-        return userFeed;
-    }
-
-    private List<UserRestView> mapListOfUsersToListOfUserRestViews(List<User> users) {
-        return users.stream()
-                .map(userMapper::toRestView)
-                .collect(Collectors.toList());
+        return restViewListMapper.mapListOfEventsToListOfEventRestViews(userFeed);
     }
 
 }

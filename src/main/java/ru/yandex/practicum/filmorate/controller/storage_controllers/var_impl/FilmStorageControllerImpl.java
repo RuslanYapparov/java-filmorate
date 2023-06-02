@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controller.storage_controllers.var_impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
@@ -24,7 +23,6 @@ import ru.yandex.practicum.filmorate.service.var_impl.FilmService;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmStorageControllerImpl implements VariableStorageController<FilmRestCommand, FilmRestView> {
-    @Qualifier("filmService")
     private final FilmService filmService;
     private final FilmMapper filmMapper;
 
