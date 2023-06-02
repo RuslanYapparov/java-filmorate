@@ -1,14 +1,23 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 import ru.yandex.practicum.filmorate.model.presentation.rest_view.*;
 import ru.yandex.practicum.filmorate.model.service.*;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface RestViewListMapper {
+
+    @Mapping(target = "mpa", source = "rating")
+    @Mapping(target = "genres", source = "genres",qualifiedByName = "mapGenreSetRestView")
+    @Mapping(target = "marksFrom", source = "marksFrom", qualifiedByName = "mapMarks")
+    @Mapping(target = "directors", source = "directors", qualifiedByName = "mapDirectorSetRestView")
+    FilmRestView toRestView(Film film);
 
     List<FilmRestView> mapListOfFilmsToListOfFilmRestViews(List<Film> films);
 
@@ -26,6 +35,42 @@ public interface RestViewListMapper {
 
     default long mapInstant(Instant timestamp) {
         return timestamp.toEpochMilli();
+    }
+
+    default RatingMpaRestView mapMpaRestView(RatingMpa rating) {
+        return new RatingMpaRestView(rating.getId(), rating.getName());
+    }
+
+    @Named("mapGenreSetRestView")
+    default Set<GenreRestView> mapGenreSetRestView(Set<Genre> genreSet) {
+        Set<GenreRestView> filmGenres = new TreeSet<>(Comparator.comparingInt(GenreRestView::getId));
+        if (genreSet != null) {
+            filmGenres.addAll(genreSet.stream()
+                    .map(genre -> new GenreRestView(genre.getId(), genre.getByRus()))
+                    .collect(Collectors.toSet()));
+            return filmGenres;
+        }
+        return new HashSet<>();
+    }
+
+    @Named("mapDirectorSetRestView")
+    default Set<DirectorRestView> mapDirectorSetRestView(Set<Director> directorSet) {
+        Set<DirectorRestView> filmDirectors = new TreeSet<>(Comparator.comparingInt(DirectorRestView::getId));
+        if (directorSet != null) {
+            filmDirectors.addAll(directorSet.stream()
+                    .map(director -> new DirectorRestView(director.getId(), director.getName()))
+                    .collect(Collectors.toSet()));
+            return filmDirectors;
+        }
+        return new HashSet<>();
+    }
+
+    @Named("mapMarks")
+    default Set<Long> mapMarksFromSet(Set<Long> marksFromSet) {
+        if (marksFromSet != null) {
+            return new TreeSet<>(marksFromSet);
+        }
+        return new HashSet<>();
     }
 
 }
