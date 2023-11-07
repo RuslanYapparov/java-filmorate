@@ -49,8 +49,8 @@ public class ReviewServiceImpl extends CrudServiceImpl<Review, ReviewEntity, Rev
             throw new BadRequestBodyException("Не указан обязательный параметр userId и(или) filmId в теле запроса, " +
                     "либо указан 0");
         }
-        userService.getById(userId);                  // Костыль для прохождения тестов (ожидающих статус-код 404)
-        filmService.getById(filmId);      // С неверными (отрицательными) идентификаторами фильмов и пользователей
+        userService.getById(userId);
+        filmService.getById(filmId);
         ReviewEntity reviewEntity = objectDao.save(objectFromRestCommandMapper.apply(reviewRestCommand));
         eventService.save(reviewEntity.getUserId(), EventType.REVIEW, EventOperation.ADD, reviewEntity.getReviewId());
         return objectFromDbEntityMapper.apply(reviewEntity);

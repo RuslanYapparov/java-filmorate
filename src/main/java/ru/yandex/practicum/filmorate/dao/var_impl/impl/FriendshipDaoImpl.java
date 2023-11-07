@@ -36,7 +36,6 @@ public class FriendshipDaoImpl extends FilmorateVariableStorageDaoImpl<Friendshi
                         .friendId(resultSet.getLong("friend_id"))
                         .isConfirmed(resultSet.getBoolean("confirmed"))
                         .build();
-        // Чтобы не перегружать конструктор вывел инициализацию преобразователя с логикой дружбы в отдельный метод
         this.friendshipListTransducer = initializeTransducer();
     }
 

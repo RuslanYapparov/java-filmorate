@@ -28,14 +28,14 @@ public class CrudServiceImpl<T, E, C> implements CrudService<T, C> {
     }
 
     @Override
-    public T save(C objectRestCommand) {  // Учитывая, что на сохранение подается объект с пустыми полями-коллекциями,
-        T object = objectFromRestCommandMapper.apply(objectRestCommand);        // Данный метод можно не переопределять
+    public T save(C objectRestCommand) {
+        T object = objectFromRestCommandMapper.apply(objectRestCommand);
         return objectFromDbEntityMapper.apply(objectDao.save(object));
     }
 
     @Override
-    public List<T> getAll() {        // Для всех объектов, имеющих поля-коллекции (User, Film), придется переопределить
-        List<E> allObjectEntities = objectDao.getAll();           // Методы getAll, getById, deleteById и update
+    public List<T> getAll() {
+        List<E> allObjectEntities = objectDao.getAll();
         return allObjectEntities.stream()
                 .map(objectFromDbEntityMapper)
                 .collect(Collectors.toList());

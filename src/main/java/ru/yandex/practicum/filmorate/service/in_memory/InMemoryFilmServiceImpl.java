@@ -27,7 +27,7 @@ public class InMemoryFilmServiceImpl implements InMemoryFilmService {
     public List<UserRestView> addLikeToFilmLikesSet(long filmId, long userId)
             throws ObjectNotFoundInStorageException {
         Film film = films.getById(filmId);
-        users.getById(userId);                                      // Для проверки, сохранен ли User с указанным id
+        users.getById(userId);
         film.getLikes().add(userId);
         films.update(film);
         return film.getLikes().stream()

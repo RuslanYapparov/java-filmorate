@@ -13,7 +13,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = SpacesInStringValidator.class)
 public @interface WithoutSpaces {
-    // Можно было использовать аннотацию @Pattern(regexp = ...), но она показалась мне менее читаемой
     String message() default "Не допускается использование пробелов в строковом значении данного поля";
     Class<?>[] groups() default { };
     Class<? extends Payload>[] payload() default { };

@@ -8,8 +8,8 @@ import java.util.Set;
 
 @EqualsAndHashCode
 @AllArgsConstructor
-@Builder(toBuilder = true)            // Пока не нашел способ генерации FilmMapperImpl с правильным созданием объекта
-@NoArgsConstructor                                                                            // Без данной аннотации
+@Builder(toBuilder = true)
+@NoArgsConstructor
 @Getter
 public class FilmRestView {
     @JsonProperty("id")

@@ -36,13 +36,13 @@ public class FilmorateVariableStorageDaoImpl<E, T> extends FilmorateConstantStor
     }
 
     @Override
-    public E save(T object) {                    // Из-за того, что надо получать данные из объекта непосредственно,
-        return null;      // Будем переопределять метод save для всех классов data-слоя с изменяющимися хранилищами
+    public E save(T object) {
+        return null;
     }
 
     @Override
-    public E update(T object) {   // А метод update не будем переопределять для классов LikeEntity и FilmGenreEntity
+    public E update(T object) {
         return null;
-    }     // Не будет переопределяться для сущностей лайков и фильм-жанров
+    }
 
 }

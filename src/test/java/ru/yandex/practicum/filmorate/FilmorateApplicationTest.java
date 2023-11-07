@@ -57,9 +57,6 @@ class FilmorateApplicationTest {
 		jackson.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
 	}
 
-	// Также пытался завершить работу приложения в методе с аннтоцией @AfterAll, но пришлось отказаться из-за ошибок,
-	// Которые не смог исправить. В IDEA работа завершается после тестов сама с exitcode 0. Решил, что это приемлемо.
-
 	@BeforeEach
 	void makeValidUserAndFilmAndPostThemToCleanStorages() throws IOException, InterruptedException {
 		user = User.builder()

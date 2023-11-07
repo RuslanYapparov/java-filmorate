@@ -25,7 +25,7 @@ public class InMemoryUserServiceImpl implements InMemoryUserService {
         User friend = users.getById(friendId);
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
-        users.update(user);        // Думаю, если изменится способ хранения, нужно будет обновлять изменения в объектах
+        users.update(user);
         users.update(friend);
         return user.getFriends().stream()
                 .map(users::getById)

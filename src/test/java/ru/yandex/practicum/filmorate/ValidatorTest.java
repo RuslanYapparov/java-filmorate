@@ -148,8 +148,8 @@ public class ValidatorTest {
         filmViolations = validator.validate(createCommandObjectForTest(film));
         assertFalse(filmViolations.isEmpty());
         film = film.toBuilder()
-                .releaseDate(LocalDate.of(2026, 12, 12))    // Пришлось убрать аннотацию @Past
-                .build();                // С поля releaseDate из-за теста в Postman, в котором есть фильм из будущего
+                .releaseDate(LocalDate.of(2026, 12, 12))
+                .build();
         filmViolations = validator.validate(createCommandObjectForTest(film));
         assertTrue(filmViolations.isEmpty());
         film = film.toBuilder()

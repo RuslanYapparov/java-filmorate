@@ -261,7 +261,7 @@ public class FilmServiceImpl extends CrudServiceImpl<Film, FilmEntity, FilmRestC
 
     @Override
     public List<Film> getRecommendedFilmsForUser(long userId) {
-        userService.getById(userId);              // Проверка существования пользователя с указанным id в базе данных
+        userService.getById(userId);
         final int numberOfUsersWithSimilarPreferencesForReturnedValue = 5;      // В задании не указаны параметры для
         final int countOfFilmsInReturnedList = 10; // Рекоммендаций, но мне кажется они нужны, чтобы ограничить выборку
         Map<Long, List<Long>> likeData = new HashMap<>();                                     // Логика работы метода:

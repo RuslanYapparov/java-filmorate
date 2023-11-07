@@ -29,9 +29,6 @@ public class UserStorageControllerImpl implements VariableStorageController<User
     @Override
     @GetMapping
     public List<UserRestView> getAll() {
-        /* Логирую не только методы, меняющие состояние (как указано в задании), но и запросы данных,
-         * наверное, это позволит отслеживать поведение пользователя, а в случае ошибки при получении по id -
-         * узнать, когда и из-за чего произошла ошибка. В настройках программы установил уровень логирования DEBUG */
         log.debug("Запрошен список всех пользователей. Количество сохраненных пользователей: {}", userService.getQuantity());
         return userService.getAll().stream()
                 .map(userMapper::toRestView)

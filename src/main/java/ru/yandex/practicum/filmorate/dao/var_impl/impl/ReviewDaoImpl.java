@@ -56,8 +56,8 @@ public class ReviewDaoImpl extends FilmorateVariableStorageDaoImpl<ReviewEntity,
         long reviewId = Optional.ofNullable(keyHolder.getKey())
                 .orElseThrow(() -> new InternalLogicException("Произошла непредвиденная ошбика сохранения отзыва '\n" +
                         content + "\n'. Пожалуйста, повторите попытку. Если ошибка повторится, пожалуйста, " +
-                        "свяжитесь с разработчиками приложения"))    // В сообщении вовзращается текст отзыва, чтобы
-                .longValue();                        // Пользователь мог скопировать его для новой попытки сохранения
+                        "свяжитесь с разработчиками приложения"))
+                .longValue();
         return this.getById(reviewId);
     }
 

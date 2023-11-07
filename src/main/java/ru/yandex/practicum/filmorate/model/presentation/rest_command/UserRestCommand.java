@@ -25,7 +25,7 @@ public class UserRestCommand {
     @NotBlank
     private String email;
     @JsonProperty("login")
-    @NotBlank      // Аннотация для проверки на случай, если строка состоит из символов новой строки и возврата каретки
+    @NotBlank
     @WithoutSpaces                            // Аннотация для проверки неравенства null и отсутствия пробелов в строке
     private String login;
     @JsonProperty("name")

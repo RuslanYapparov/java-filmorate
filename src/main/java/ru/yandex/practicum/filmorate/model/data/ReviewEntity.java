@@ -13,8 +13,8 @@ public class ReviewEntity {
     long filmId;
     int useful;
 
-    public boolean getIsPositive() {   // Пришлось реализовать метод-геттер для boolean-поля с неправильными (согласно
-        return isPositive; // принятым и описанным в теории правилам), потому что он необходим для мэппинга в mapstruct
+    public boolean getIsPositive() {
+        return isPositive;
     }
 
 }

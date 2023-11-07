@@ -31,15 +31,5 @@ public interface UserMapper {
         }
         return new HashSet<>();
     }
-    /* Не смог найти способ, чтобы в имплементации производилось действие при значении поля friends = null.
-    * Применение парамтеров nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_DEFAULT,
-    * nullValueCheckStrategy = NullValueCheckStrategy.ALWAYS не помогло, в UserMapperImpl все равно обработка поля
-    * выглядела так:
-    *
-    * Set<Long> set = user.getFriends();
-    *    if ( set != null ) {
-    *        userRestView.friends( new LinkedHashSet<Long>( set ) );
-    *    }
-    *
-    * В результате получал NPE. Пока решил оставить такое дефолтное определение метода */
+
 }

@@ -23,8 +23,8 @@ public class InMemoryStorageImpl<T> implements InMemoryStorage<T> {
     }
 
     @Override
-    public T save(T object) {              // Для всех доменных моделей, которые нужно будет хранить, придется сделать
-        dataMap.put(produceId(), object);    // Отдельные имплементации с переопределенными методами save() и update()
+    public T save(T object) {
+        dataMap.put(produceId(), object);
         return object;
     }
 

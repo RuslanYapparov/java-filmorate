@@ -5,9 +5,9 @@ import lombok.Value;
 
 import java.time.LocalDate;
 
-@Value     // Мне кажется, экземпляры дата-классов по логике должны быть immutable-объектами, поэтому использую
-@Builder(toBuilder = true)   // Данные аннотации в связке. Это вызывает дополнительные издержки в использовании
-public class FilmEntity {   // Памяти и немного замедляет работу, но гарантирует, что поля не будут неожиданно изменены.
+@Value
+@Builder(toBuilder = true)
+public class FilmEntity {
     long id;
     String name;
     String description;

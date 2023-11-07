@@ -38,7 +38,6 @@ public class UserDaoImpl extends FilmorateVariableStorageDaoImpl<UserEntity, Use
 
     @Override
     public UserEntity save(User user) throws EmailValidationException {
-        //  Для сохранения поступает новый пользователь, поэтому его список друзей точно пуст
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         sql = "select email from users";

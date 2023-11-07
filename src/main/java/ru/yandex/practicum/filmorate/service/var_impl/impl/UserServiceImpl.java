@@ -122,7 +122,7 @@ public class UserServiceImpl extends CrudServiceImpl<User, UserEntity, UserRestC
 
     @Override
     public List<Event> getAllEventsByUserId(long userId) {
-        this.getById(userId);          // Проверка на наличие пользователя с переданным идентификатором в базе данных
+        this.getById(userId);
         return eventService.getAllEventsByUserId(userId);
     }
 
