@@ -43,7 +43,6 @@ class FilmorateApplicationTest {
 	private static HttpResponse<String> response;
 	private static HttpRequest.BodyPublisher bodyPublisher;
 	private static User user;
-	private static Director director;
 	private static Film film;
 
 	@Test
@@ -67,7 +66,7 @@ class FilmorateApplicationTest {
 				.friends(new HashSet<>())
 				.build();
 
-		director = Director.builder()
+		Director director = Director.builder()
 				.name("Tychus Findlay")
 				.build();
 
